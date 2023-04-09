@@ -2,15 +2,24 @@ import { useState, useEffect, SetStateAction } from "react";
 
 import "./App.css";
 import { Address, getContract } from "viem";
-import { publicClient } from "./client";
+import { publicClient } from "./clients";
 
 import { tokenBoundABI } from "./abis/abi";
-import { AccountArgs, tokenBoundAccount } from "./registry";
+import {
+  AccountArgs,
+  tokenBoundAccount,
+  tokenBoundCreateAccount,
+} from "./registry";
 import ArgInput from "./components/ArgInput";
+import { useAccount } from "wagmi";
+import { ConnectKitButton } from "connectkit";
 
 function App() {
+  const { address, isConnecting, isDisconnected } = useAccount();
   // Frontend test form vlaues
-  const [implementation, setImplementation] = useState<Address | null>(null);
+  const [implementation, setImplementation] = useState<Address | undefined>(
+    undefined
+  );
   const [chainId, setChainId] = useState("");
   const [tokenContract, setTokenContract] = useState<Address>(
     "0xc3321f259927a20f268f56514d73ec8796911e79"
@@ -21,18 +30,28 @@ function App() {
   const [resultFetched, setResultFetched] = useState(false);
 
   //Registry class instance
-  const useTokenBound = async (args: AccountArgs) => {
+  const useTokenBoundAccount = async (args: AccountArgs) => {
     const tokenBoundAddress = await tokenBoundAccount(args);
     console.log(tokenBoundAddress);
   };
+  const useTokenBoundCreateAccount = async () => {
+    const createdAccountAddress = await tokenBoundCreateAccount({
+      implementation: implementation,
+      chainId: chainId,
+      tokenContract: tokenContract,
+      tokenId: BigInt(tokenId),
+      salt: BigInt(salt),
+    });
+    console.log(createdAccountAddress);
+  };
 
   //frontend test form handling
-  const handleFormSubmit = async (e: { preventDefault: () => void }) => {
+  const handleAccountSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     setQueryStarted(true);
     try {
-      const result: any = await useTokenBound({
+      const result: any = await useTokenBoundAccount({
         implementation: implementation,
         chainId: chainId,
         tokenContract: tokenContract,
@@ -51,16 +70,23 @@ function App() {
   };
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 relative">
+      <div className="absolute top-2 right-2">
+        <div>data</div>
+      </div>
+      <div className="py-4">
+        <ConnectKitButton />
+      </div>
+
       <p className="account"></p>
-      <form className="w-1/2" onSubmit={handleFormSubmit}>
+      <form className="w-1/2" onSubmit={handleAccountSubmit}>
         <p className="underline">Account</p>
         <ArgInput
           arg={"implementation"}
           argType={"address"}
           value={implementation}
           onChange={(e: {
-            target: { value: SetStateAction<Address | null> };
+            target: { value: SetStateAction<Address | undefined> };
           }) => setImplementation(e.target.value)}
         />
         <ArgInput
@@ -96,14 +122,24 @@ function App() {
           }
         />
 
-        <button
-          type="submit"
-          className={`rounded-md bg-indigo-600 px-3.5 py-2.5 my-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
-            queryStarted ? "blur-sm" : ""
-          }`}
-        >
-          Log To Console
-        </button>
+        <div className="w-full flex justify-between">
+          <button
+            type="submit"
+            className={`rounded-md bg-black/90 px-3.5 py-2.5 my-4 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 ${
+              queryStarted ? "blur-sm" : ""
+            }`}
+          >
+            account()
+          </button>
+          <button
+            onClick={useTokenBoundCreateAccount}
+            className={`rounded-md bg-black/90 px-3.5 py-2.5 my-4 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 ${
+              queryStarted ? "blur-sm" : ""
+            }`}
+          >
+            createAccount()
+          </button>
+        </div>
       </form>
     </div>
   );

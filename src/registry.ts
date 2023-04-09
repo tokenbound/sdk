@@ -6,8 +6,9 @@ import {
   fallback,
 } from "viem";
 import { tokenBoundABI } from "./abis/abi";
-import { publicClient } from "./client";
+import { publicClient, testClient } from "./clients";
 import { goerli, mainnet } from "viem/chains";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 export interface AccountArgs {
   implementation?: Address | null;
@@ -17,19 +18,8 @@ export interface AccountArgs {
   tokenId: any;
   salt?: any;
   rpcUrls?: any;
-}
-
-export interface CreateAccountArgs {
-  implementation: Address;
-  abi?: any;
-  chainId?: any;
-  tokenContract: Address;
-  tokenId: any;
-  // TODO: change seed key to salt once contract is updated
-  seed: any;
-  initData?: string;
-  rpcUrls?: any;
-  signer?: string;
+  initData?: any;
+  signer?: any;
 }
 
 const TBImplementation = "0xd8d0EB5909e3e0e5F3490B9D9e09B2ba6dE80c75";
@@ -55,16 +45,24 @@ export const tokenBoundAccount = async (args: AccountArgs) => {
   ]);
 };
 
-export const tokenBoundCreateAccount = async (args: CreateAccountArgs) => {
-  const registryContract = getContract({
-    address:
-      args.implementation == undefined
-        ? "0xd8d0EB5909e3e0e5F3490B9D9e09B2ba6dE80c75"
-        : args.implementation,
-    abi: args.abi == undefined ? tokenBoundABI : args.abi,
-    publicClient,
+export const tokenBoundCreateAccount = async (callData: AccountArgs) => {
+  const privateKey = generatePrivateKey();
+  const account = privateKeyToAccount(privateKey);
+  const { result } = await publicClient.simulateContract({
+    address: callData.implementation ?? TBImplementation,
+    abi: callData.abi ?? tokenBoundABI,
+    functionName: "createAccount",
+    args: [
+      callData.implementation ?? TBImplementation,
+      // TODO: use connected chainID or add top-level config option
+      callData.chainId ?? 5,
+      callData.tokenContract,
+      callData.tokenId,
+      callData.salt ?? 0,
+      callData.initData ?? "",
+    ],
+    account,
   });
-  const argumentValues = Object.values(args);
 };
 
 // TODO: return encoded function call data including the Token Bound address for executeCall({encodedData})
