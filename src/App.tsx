@@ -5,27 +5,24 @@ import { Address, getContract } from "viem";
 import { publicClient } from "./client";
 
 import { tokenBoundABI } from "./abis/abi";
-import { AccountArgs, Registry } from "./registry";
+import { AccountArgs, tokenBoundAccount } from "./registry";
 import ArgInput from "./components/ArgInput";
 
 function App() {
   // Frontend test form vlaues
-  const [implementation, setImplementation] = useState<Address>(
-    "0x1D6b509a0df53cE05c35EC07Ede7f97E3c603c4a"
-  );
-  const [chainId, setChainId] = useState("5");
+  const [implementation, setImplementation] = useState<Address | null>(null);
+  const [chainId, setChainId] = useState("");
   const [tokenContract, setTokenContract] = useState<Address>(
     "0xc3321f259927a20f268f56514d73ec8796911e79"
   );
   const [tokenId, setTokenId] = useState("96");
-  const [salt, setSalt] = useState("808");
+  const [salt, setSalt] = useState("0");
   const [queryStarted, setQueryStarted] = useState(false);
   const [resultFetched, setResultFetched] = useState(false);
 
   //Registry class instance
   const useTokenBound = async (args: AccountArgs) => {
-    const account = new Registry(args);
-    const tokenBoundAddress = await account.address();
+    const tokenBoundAddress = await tokenBoundAccount(args);
     console.log(tokenBoundAddress);
   };
 
@@ -37,7 +34,7 @@ function App() {
     try {
       const result: any = await useTokenBound({
         implementation: implementation,
-        chainId: BigInt(chainId),
+        chainId: chainId,
         tokenContract: tokenContract,
         tokenId: BigInt(tokenId),
         salt: BigInt(salt),
@@ -62,9 +59,9 @@ function App() {
           arg={"implementation"}
           argType={"address"}
           value={implementation}
-          onChange={(e: { target: { value: SetStateAction<Address> } }) =>
-            setImplementation(e.target.value)
-          }
+          onChange={(e: {
+            target: { value: SetStateAction<Address | null> };
+          }) => setImplementation(e.target.value)}
         />
         <ArgInput
           arg={"chainId"}
