@@ -24,46 +24,40 @@ export interface AccountArgs {
 
 const TBImplementation = "0xd8d0EB5909e3e0e5F3490B9D9e09B2ba6dE80c75";
 
-// Account
-
-export const getAccount = async (args: AccountArgs): Promise<Address> => {
+const getCustomAccount = async (args: AccountArgs) => {
   const registryContract = getContract({
-    address: TBImplementation,
-    abi: tokenBoundABI,
+    address: args.implementation ?? TBImplementation,
+    abi: args.abi ?? tokenBoundABI,
     // TODO: add RPC client args and fallbacks
     publicClient,
   });
 
   return await registryContract.read.account([
-    TBImplementation,
+    args.implementation ?? TBImplementation,
     // TODO: use connected chainID or add top-level config option
-    5,
+    args.chainId ?? 5,
     args.tokenContract,
     args.tokenId,
     args.salt ?? 0,
   ]);
 };
 
-// createAccount
-export const createAccount = async (
-  callData: AccountArgs
-): Promise<Address> => {
+export const createCustomAccount = async (callData: AccountArgs) => {
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
   const { result } = await publicClient.simulateContract({
-    address: TBImplementation,
-    abi: tokenBoundABI,
+    address: callData.implementation ?? TBImplementation,
+    abi: callData.abi ?? tokenBoundABI,
     functionName: "createAccount",
     args: [
-      TBImplementation,
+      callData.implementation ?? TBImplementation,
       // TODO: use connected chainID or add top-level config option
-      5,
+      callData.chainId ?? 5,
       callData.tokenContract,
       callData.tokenId,
-      BigInt(0),
+      callData.salt ?? 0,
       callData.initData ?? "",
     ],
     account,
   });
-  return result;
 };

@@ -1,18 +1,16 @@
 import { useState, useEffect, SetStateAction } from "react";
 
 import "./App.css";
-import { Address, getContract } from "viem";
+import { Address, getContract, decodeFunctionData } from "viem";
 import { publicClient } from "./clients";
 
-import { tokenBoundABI } from "./abis/abi";
-import {
-  AccountArgs,
-  tokenBoundAccount,
-  tokenBoundCreateAccount,
-} from "./registry";
+import { tokenBoundABI, zoraABI, demoAccountABI } from "./abis/abi";
+import zoraJSON from "./abis/zora.json";
+import { AccountArgs, getAccount, createAccount } from "./registry";
 import ArgInput from "./components/ArgInput";
 import { useAccount } from "wagmi";
 import { ConnectKitButton } from "connectkit";
+import { encodeExecuteCall } from "./execute";
 
 function App() {
   const { address, isConnecting, isDisconnected } = useAccount();
@@ -31,11 +29,11 @@ function App() {
 
   //Registry class instance
   const useTokenBoundAccount = async (args: AccountArgs) => {
-    const tokenBoundAddress = await tokenBoundAccount(args);
+    const tokenBoundAddress = await getAccount(args);
     console.log(tokenBoundAddress);
   };
   const useTokenBoundCreateAccount = async () => {
-    const createdAccountAddress = await tokenBoundCreateAccount({
+    const createdAccountAddress = await createAccount({
       implementation: implementation,
       chainId: chainId,
       tokenContract: tokenContract,
@@ -67,6 +65,30 @@ function App() {
 
       setQueryStarted(false);
     }
+  };
+
+  const handleEncodeFunctionData = async (e: {
+    preventDefault: () => void;
+  }) => {
+    e.preventDefault();
+    const encodedData = await encodeExecuteCall(
+      zoraJSON,
+      "safeTransferFrom",
+      [
+        "0x1D6b509a0df53cE05c35EC07Ede7f97E3c603c4a",
+        "0xb16DCe62747EdF40Be910f3e9D7CE421ab7a1174",
+        4,
+      ],
+      "0x1D6b509a0df53cE05c35EC07Ede7f97E3c603c4a",
+      BigInt(0)
+    );
+    console.log(encodedData);
+
+    const { functionName, args } = decodeFunctionData({
+      abi: demoAccountABI,
+      data: encodedData,
+    });
+    console.log({ functionName, args });
   };
 
   return (
@@ -138,6 +160,14 @@ function App() {
             }`}
           >
             createAccount()
+          </button>
+          <button
+            onClick={handleEncodeFunctionData}
+            className={`rounded-md bg-black/90 px-3.5 py-2.5 my-4 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 ${
+              queryStarted ? "blur-sm" : ""
+            }`}
+          >
+            encodeFunctionData
           </button>
         </div>
       </form>

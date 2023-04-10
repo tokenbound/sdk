@@ -11,5 +11,3 @@ export const testClient = createTestClient({
   mode: "anvil",
   transport: http("http://127.0.0.1:8545"),
 });
-
-// TODO: add wallet client for signing transactions
