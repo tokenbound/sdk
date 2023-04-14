@@ -45,19 +45,14 @@ export function App() {
   useEffect(() => {
     async function testEthersSdk() {
       const account = await getAccountEthers(
-        "0x1472D0f5c6c151df96352Ec271B8dF1093370A7A",
-        "1",
+        "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb",
+        "9",
         provider
       );
 
       console.log(account);
 
-      const encoded = await prepareExecuteCallEthers(
-        "0x1472D0f5c6c151df96352Ec271B8dF1093370A7A",
-        "0x1472D0f5c6c151df96352Ec271B8dF1093370A7A",
-        0,
-        "0x"
-      );
+      const encoded = await prepareExecuteCallEthers(account, account, 0, "0x");
 
       console.log(encoded);
     }
