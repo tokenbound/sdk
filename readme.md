@@ -4,13 +4,13 @@ This repo houses the tokenbound SDK, a front end library for interacting with [E
 
 ### Packages
 
-- **[@tokenbound/sdk]()** - SDK client for projects using viem
-- **[@tokenbound/sdk-ethers]()** - SDK client for projects using ethers
-- **[@tokenbound/react]()** - Low-level react hooks for interacting with token bound accounts
+- **[@tokenbound/sdk](https://github.com/tokenbound/sdk/tree/main/packages/sdk)** - SDK client for projects using viem
+- **[@tokenbound/sdk-ethers](https://github.com/tokenbound/sdk/tree/main/packages/sdk-ethers)** - SDK client for projects using ethers
+- **[@tokenbound/react](https://github.com/tokenbound/sdk/tree/main/packages/react)** - Low-level react hooks for interacting with token bound accounts
 
 ### Examples
 
-- **[examples/vite-wagmi]()** - An example app using the tokenbound SDK in a vite project with wagmi
+- **[examples/vite-wagmi](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi)** - An example app using the tokenbound SDK in a vite project with wagmi
 
 ### Development
 
