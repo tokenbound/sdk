@@ -53,7 +53,7 @@ export async function createAccount(
     tokenContract,
     tokenId,
     0,
-    ""
+    "0x"
   );
 }
 
