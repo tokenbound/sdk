@@ -9,7 +9,7 @@ export default defineConfig({
   contracts: [
     {
       abi: REGISTRY_ABI as any,
-      address: "0x1472d0f5c6c151df96352ec271b8df1093370a7a",
+      address: "0x02101dfB77FDE026414827Fdc604ddAF224F0921",
       name: "ERC6551Registry",
     },
     {
