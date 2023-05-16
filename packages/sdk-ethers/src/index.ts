@@ -23,7 +23,7 @@ export function getAccount(
     "0"
   );
   const codeHash = utils.keccak256(code);
-  const saltHex = utils.hexZeroPad(BigNumber.from(0).toHexString(), 32);
+  const saltHex = utils.hexZeroPad(BigNumber.from("0").toHexString(), 32);
   return utils.getCreate2Address(
     erc6551RegistryAddress,
     saltHex,
