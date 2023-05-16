@@ -11,9 +11,9 @@ export const erc6551AccountImplementationAddress =
   "0x36963236d915e4e9b5f70677eBD1ea3e69Cfbbd6" as const;
 
 export function getAccount(
-  chainId: number,
   tokenContract: string,
   tokenId: string,
+  chainId: number,
 ): string {
   const code = getCreationCode(
     erc6551AccountImplementationAddress,
