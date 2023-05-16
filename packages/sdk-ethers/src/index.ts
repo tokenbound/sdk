@@ -47,13 +47,17 @@ export async function createAccount(
 
   const { chainId } = await signer.provider.getNetwork();
 
+  const initData = new utils.Interface([
+    "function initialize()",
+  ]).encodeFunctionData("initialize");
+
   return registry.createAccount(
     erc6551AccountImplementationAddress,
     chainId,
     tokenContract,
     tokenId,
     0,
-    "0x"
+    initData
   );
 }
 

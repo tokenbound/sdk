@@ -22,7 +22,7 @@ export async function getAccount(
   client: PublicClient
 ): Promise<`0x${string}`> {
   const registry = getContract({
-    address: "0x1472d0f5c6c151df96352ec271b8df1093370a7a",
+    address: erc6551RegistryAddress,
     abi: erc6551RegistryAbi,
     publicClient: client,
   });
@@ -46,12 +46,25 @@ export async function createAccount(
   client: WalletClient
 ) {
   const registry = getContract({
-    address: "0x1472d0f5c6c151df96352ec271b8df1093370a7a",
+    address: erc6551RegistryAddress,
     abi: erc6551RegistryAbi,
     walletClient: client,
   });
 
   const chainId = await client.getChainId();
+
+  const initData = encodeFunctionData({
+    abi: [
+      {
+        inputs: [],
+        name: "initialize",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+    functionName: "initialize",
+  });
 
   return registry.write.createAccount([
     erc6551AccountImplementationAddress,
@@ -59,7 +72,7 @@ export async function createAccount(
     tokenContract,
     tokenId,
     0,
-    "",
+    initData,
   ]);
 }
 
