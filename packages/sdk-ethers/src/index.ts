@@ -1,4 +1,4 @@
-import { Contract, Signer, utils, BigNumberish, BigNumber } from "ethers";
+import { Contract, Signer, utils, providers, BigNumberish, BigNumber } from "ethers";
 import erc6551RegistryAbi from "../abis/ERC6551Registry.json";
 import erc6551AccountAbi from "../abis/IERC6551Account.json";
 
@@ -10,7 +10,29 @@ export const erc6551RegistryAddress =
 export const erc6551AccountImplementationAddress =
   "0x2d25602551487c3f3354dd80d76d54383a243358" as const;
 
-export function getAccount(
+export async function getAccount(
+  tokenContract: string,
+  tokenId: string,
+  provider: providers.BaseProvider
+) {
+  const registry = new Contract(
+    erc6551RegistryAddress,
+    erc6551RegistryAbi,
+    provider
+  );
+
+  const { chainId } = await provider.getNetwork();
+
+  return registry.callStatic.account(
+    erc6551AccountImplementationAddress,
+    chainId,
+    tokenContract,
+    tokenId,
+    0
+  );
+}
+
+export function computeAccount(
   tokenContract: string,
   tokenId: string,
   chainId: number,
