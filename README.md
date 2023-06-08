@@ -20,5 +20,5 @@ $ git clone <repo>
 # install dependencies
 $ pnpm install
 # build packages
-$ pnpm run build --filter "@tokenbound/*"
+$ pnpm --filter "@tokenbound/*" build
 ```
