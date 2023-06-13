@@ -20,11 +20,11 @@
     "preview": "vite preview"
   },
   "peerDependencies": {
-    "viem": "^0.3.1"
+    "viem": "^1.0.7"
   },
   "devDependencies": {
-    "typescript": "^4.9.3",
-    "viem": "^0.3.1",
+    "typescript": "^5.0.4",
+    "viem": "^1.0.7",
     "vite": "^4.2.0",
     "vite-plugin-dts": "^2.2.0"
   }

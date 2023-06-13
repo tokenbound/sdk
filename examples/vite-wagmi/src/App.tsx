@@ -1,16 +1,20 @@
 import { ConnectKitButton } from "connectkit";
-import { useAccount, useProvider, useSigner } from "wagmi";
+import {
+  useAccount,
+  // useProvider, useSigner
+} from "wagmi";
 
 import { Account } from "./components";
 
 import { createPublicClient, http } from "viem";
 import { goerli } from "viem/chains";
-import { getAccount, prepareExecuteCall } from "@tokenbound/sdk";
-import {
-  erc6551AccountImplementationAddress,
-  getAccount as getAccountEthers,
-  prepareExecuteCall as prepareExecuteCallEthers,
-} from "@tokenbound/sdk-ethers";
+import { getAccount, prepareExecuteCall } from "@tokenbound/sdk-combined";
+
+// import {
+//   erc6551AccountImplementationAddress,
+//   getAccount as getAccountEthers,
+//   prepareExecuteCall as prepareExecuteCallEthers,
+// } from "@tokenbound/sdk-ethers";
 
 import { useEffect } from "react";
 
@@ -21,9 +25,8 @@ const client = createPublicClient({
 
 export function App() {
   const { isConnected } = useAccount();
-
-  const provider = useProvider();
-  const { data: signer, isError, isLoading } = useSigner();
+  // const provider = useProvider();
+  // const { data: signer, isError, isLoading } = useSigner();
 
   useEffect(() => {
     async function testViemSdk() {
@@ -33,32 +36,32 @@ export function App() {
         client
       );
 
-      console.log(account);
+      console.log("viem getAccount", account);
 
       const encoded = await prepareExecuteCall(account, account, 0n, "");
-      console.log(encoded);
+      console.log("viem prepareExecuteCall", encoded);
     }
 
     testViemSdk();
   }, []);
 
-  useEffect(() => {
-    async function testEthersSdk() {
-      const account = await getAccountEthers(
-        "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb",
-        "9",
-        provider
-      );
+  // useEffect(() => {
+  //   async function testEthersSdk() {
+  //     const account = await getAccount(
+  //       "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb",
+  //       "9",
+  //       provider
+  //     );
 
-      console.log(account);
+  //     console.log("ETHERS", account);
 
-      const encoded = await prepareExecuteCallEthers(account, account, 0, "0x");
+  //     // const encoded = await prepareExecuteCallEthers(account, account, 0, "0x");
 
-      console.log(encoded);
-    }
+  //     // console.log(encoded);
+  //   }
 
-    testEthersSdk();
-  }, []);
+  //   testEthersSdk();
+  // }, []);
 
   return (
     <>
