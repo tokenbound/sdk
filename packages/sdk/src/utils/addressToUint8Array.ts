@@ -21,11 +21,28 @@
 //   return uint8Array
 // }
 
+// export function addressToUint8Array(address: `0x${string}`): Uint8Array {
+//   const cleanAddress = address.replace(/^0x/i, '');
+//   // const bytes = new Uint8Array(20)
+//   const bytes = new Uint8Array(183)
+//   for (let i = 0; i < 183; i++) {
+//     bytes[i] = parseInt(cleanAddress.substr(i * 2, 2), 16)
+//   }
+//   return bytes
+// }
+
 export function addressToUint8Array(address: `0x${string}`): Uint8Array {
-  const cleanAddress = address.replace(/^0x/i, '');
-  const bytes = new Uint8Array(20)
-  for (let i = 0; i < 20; i++) {
-    bytes[i] = parseInt(cleanAddress.substr(i * 2, 2), 16)
+  // Remove the '0x' prefix from the address
+  const cleanAddress = address.slice(2);
+  
+  console.log(cleanAddress.length)
+
+  // Convert hexadecimal string to Uint8Array
+  const array = new Uint8Array(cleanAddress.length / 2);
+
+  for (let i = 0; i < cleanAddress.length; i += 2) {
+      array[i / 2] = parseInt(cleanAddress.substr(i, 2), 16);
   }
-  return bytes
+
+  return array;
 }

@@ -1,5 +1,5 @@
 import { PublicClient, WalletClient,createPublicClient, http } from "viem"
-import { mainnet } from 'viem/chains'
+// import { mainnet } from 'viem/chains'
 // import * as chains from '@wagmi/chains'
 import * as all from "viem/chains"
 
@@ -82,9 +82,7 @@ function getChain(chainId: number) {
 
 class TokenboundClient {
   private signer?: AbstractEthersSigner
-  // private signer?: any
   private walletClient?: WalletClient
-  
   private publicClient: PublicClient | null
 
   constructor(options: TokenboundClientOptions) {
@@ -125,6 +123,8 @@ class TokenboundClient {
 
       const chain = this.walletClient?.chain ?? await this.signer?.getChainId().then((chainId: number) => getChain(chainId))
       
+      console.log('CHAIN', chain)
+
       this.publicClient = createPublicClient({ 
         chain: chain,
         transport: http()
