@@ -52,13 +52,13 @@ export type ExecuteCallParams = {
 }
 
 export type ComputeAccountParams = {
-  tokenContract: string
+  tokenContract: `0x${string}`
   tokenId: string
   chainId: number
 }
 
 export type GetCreationCodeParams = {
-  implementation_: string
+  implementation_: `0x${string}`
   chainId_: number
   tokenContract_: string
   tokenId_: string
