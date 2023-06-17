@@ -9,7 +9,7 @@ import { erc6551AccountImplementationAddress, erc6551RegistryAddress } from "../
 export async function prepareCreateAccount(
   tokenContract: string,
   tokenId: string,
-  chainId: number // @BJ TODO: confirm w/ Jayden (not in spec)
+  chainId: number
 ): Promise<{
   to: `0x${string}`
   value: BigNumber
