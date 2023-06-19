@@ -1,4 +1,4 @@
-import { Contract, Signer, utils, BigNumber } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { erc6551AccountAbi, erc6551RegistryAbi} from '../../abis'
 import { erc6551AccountImplementationAddress, erc6551RegistryAddress } from "../constants";
 
@@ -12,7 +12,7 @@ export async function prepareCreateAccount(
   chainId: number
 ): Promise<{
   to: `0x${string}`
-  value: BigNumber
+  value: bigint
   data: string
 }> {
   
@@ -33,7 +33,7 @@ export async function prepareCreateAccount(
 
   return {
     to: erc6551RegistryAddress,
-    value: BigNumber.from(0),
+    value: BigInt(0),
     data: registryInterface.encodeFunctionData("createAccount", [
       erc6551AccountImplementationAddress,
       chainId,

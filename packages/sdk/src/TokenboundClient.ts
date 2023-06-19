@@ -1,6 +1,4 @@
-import { PublicClient, WalletClient,createPublicClient, http } from "viem"
-import * as allChains from "viem/chains"
-
+import { WalletClient } from "viem"
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
 import { 
   getAccount,
@@ -12,9 +10,10 @@ import {
   prepareCreateAccount
 } from './functions'
 import { loadEthersImplementation } from "./loaders"
-import { AbstractBigNumber, AbstractEthersSigner } from "./types"
+import { AbstractEthersSigner } from "./types"
 
 export type TokenboundClientOptions = {
+  chainId: number
   signer?: any
   walletClient?: WalletClient
 }
@@ -62,31 +61,15 @@ export type GetCreationCodeParams = {
   salt_: string
 }
 
-/**
- * Gets the chain object for the given chain id.
- * @param chainId - Chain id of the target EVM chain.
- * @returns Viem's chain object.
- */
-function getChain(chainId: number) {
-  for (const chain of Object.values(allChains)) {
-    if (chain.id === chainId) {
-      return chain;
-    }
-  }
-
-  throw new Error(`Chain with id ${chainId} not found`);
-}
-
 class TokenboundClient {
+  private chainId: number
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
-  private publicClient: PublicClient | null 
-
   public isInitialized: boolean = false
 
   constructor(options: TokenboundClientOptions) {
 
-    this.publicClient = null
+    this.chainId = options.chainId
 
     if (options.signer && options.walletClient) {
       throw new Error("Only one of `signer` or `walletClient` should be provided.")
@@ -96,43 +79,18 @@ class TokenboundClient {
       this.signer = options.signer
     } else if (options.walletClient) {
       this.walletClient = options.walletClient
-    } else {
-      throw new Error("Either `signer` or `walletClient` must be provided.")
     }
 
-    this.initialize()
-
-  }
-
-  // When using a signer (vs. a walletClient),
-  // users must call initialize() client-side on the TokenboundClient instance
-  // after instantiating it to ensure access to this.publicClient + isInitialized
-  public async initialize() {
-
-      const chain = this.walletClient?.chain ?? await this.signer?.getChainId().then((chainId: number) => getChain(chainId))
-            
-      this.publicClient = createPublicClient({ 
-        chain: chain,
-        transport: http()
-      })
-
-      this.isInitialized = true
-
-      // this.publicClient && console.log('THIS PUBLIC CLIENT', this.publicClient)
-      // console.log('CHAIN', chain)
-      // this.signer && console.log('THIS SIGNER', this.signer)
+    this.isInitialized = true
 
   }
 
   public async getAccount(params: GetAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId } = params;
     
-    if (!this.publicClient) {
-      throw new Error("No public client available.")
-    }
-    
     try {
-      return getAccount(tokenContract, tokenId, this.publicClient);
+      // Here we call computeAccount rather than getAccount so we can avoid making a contract call via publicClient
+      return computeAccount(tokenContract, tokenId, this.chainId)
     } catch (error) {
       throw error
     }
@@ -140,30 +98,29 @@ class TokenboundClient {
 
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
     to: `0x${string}`
-    value: bigint | AbstractBigNumber // bigint as default, AbstractBigNumber if ethers
+    value: bigint
     data: string
   }> {
     const { tokenContract, tokenId } = params
-    const chainId = await this.walletClient?.getChainId() ?? await this.signer?.getChainId()
 
-    if(!chainId) {
+    if(!this.chainId) {
       throw new Error("Missing chainId.")
     }
 
     if(this.signer) { // Ethers version
       console.log('--> Ethers version of prepareCreateAccount')
       const { ethersPrepareCreateAccount } = await loadEthersImplementation()
-      return await ethersPrepareCreateAccount(tokenContract, tokenId, chainId)
+      return await ethersPrepareCreateAccount(tokenContract, tokenId, this.chainId)
     }
 
-    return prepareCreateAccount(tokenContract, tokenId, chainId)
+    return prepareCreateAccount(tokenContract, tokenId, this.chainId)
   }
 
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId } = params
 
     try {
-      if(this.signer) { // Ethers version
+      if(this.signer) { // Ethers
         console.log('--> Ethers version of createAccount')
         const { ethersCreateAccount } = await loadEthersImplementation()
         return await ethersCreateAccount(tokenContract,tokenId, this.signer)
@@ -205,11 +162,6 @@ class TokenboundClient {
     return executeCall(account, to, value, data, walletClient)
   }
 
-  public computeAccount(params: ComputeAccountParams): `0x${string}` {
-    const { tokenContract, tokenId, chainId } = params
-    return computeAccount(tokenContract, tokenId, chainId)
-  }
-
   public getCreationCode(params: GetCreationCodeParams): Uint8Array {
     const { implementation_, chainId_, tokenContract_, tokenId_, salt_ } = params
     return getCreationCode(implementation_, chainId_, tokenContract_, tokenId_, salt_)
@@ -222,7 +174,6 @@ export {
   erc6551AccountAbi, 
   erc6551RegistryAbi,
   getAccount,
-  computeAccount,
   createAccount,
   getCreationCode,
   prepareExecuteCall,
