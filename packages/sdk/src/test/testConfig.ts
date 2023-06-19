@@ -1,0 +1,11 @@
+export const TEST_CONFIG = {
+    TOKEN_CONTRACT: `0x7a77F2cFB02546F217d39157471d5B5914DD7644` as `0x${string}`,
+    TOKEN_ID: "1",
+    CHAIN_ID: 5,
+    
+    TB_ACCOUNT: `0x5194b1c04Ed6464b3225324d6794f7d2698D8d1c` as `0x${string}`,
+    RECIPIENT_ADDRESS: `0x02101dfb77fde026414827fdc604ddaf224f0921` as `0x${string}`,
+    
+    EXAMPLE_AMOUNT: 0n,
+    EXAMPLE_DATA: ""
+}

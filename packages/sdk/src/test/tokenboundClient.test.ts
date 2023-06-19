@@ -4,28 +4,18 @@ import {
     isAddress
 } from "viem"
 
-import {
-    TokenboundClient,
-  } from '../TokenboundClient'
+import { TokenboundClient } from '../TokenboundClient'
+import { TEST_CONFIG } from "./testConfig"
 
-const TOKEN_CONTRACT = `0x7a77F2cFB02546F217d39157471d5B5914DD7644`
-const TOKEN_ID = "1"
-const CHAIN_ID = 5
-
-const TB_ACCOUNT = `0x5194b1c04Ed6464b3225324d6794f7d2698D8d1c`
-const RECIPIENT_ADDRESS = `0x02101dfb77fde026414827fdc604ddaf224f0921`
-
-const EXAMPLE_AMOUNT = 0n
-const EXAMPLE_DATA = ""
 
 const tokenboundClient = new TokenboundClient({ 
     // signer, 
-    chainId: CHAIN_ID
+    chainId: TEST_CONFIG.CHAIN_ID
  })
 
 test("tokenboundClient.getAccount", async () => {
-    const result = await tokenboundClient.getAccount({tokenContract: TOKEN_CONTRACT, tokenId: TOKEN_ID})
-    expect(result).toEqual(TB_ACCOUNT)
+    const result = await tokenboundClient.getAccount({tokenContract: TEST_CONFIG.TOKEN_CONTRACT, tokenId: TEST_CONFIG.TOKEN_ID})
+    expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
 })
 
 test.todo("tokenboundClient.getCreationCode")
@@ -33,11 +23,11 @@ test.todo("tokenboundClient.getCreationCode")
 test("tokenboundClient.prepareExecuteCall", async () => {
 
     const preparedCall = await tokenboundClient.prepareExecuteCall({
-        account: TB_ACCOUNT,
-        to: RECIPIENT_ADDRESS,
-        value: EXAMPLE_AMOUNT,
-        data: EXAMPLE_DATA}
-    )
+        account: TEST_CONFIG.TB_ACCOUNT,
+        to: TEST_CONFIG.RECIPIENT_ADDRESS,
+        value: TEST_CONFIG.EXAMPLE_AMOUNT,
+        data: TEST_CONFIG.EXAMPLE_DATA
+    })
 
     expect(isAddress(preparedCall.to)).toEqual(true)
     expect(typeof preparedCall.value).toEqual('bigint')
@@ -49,8 +39,8 @@ test.todo("tokenboundClient.executeCall")
 test("tokenboundClient.prepareCreateAccount", async () => {
 
     const preparedAccount = await tokenboundClient.prepareCreateAccount({
-        tokenContract: TOKEN_CONTRACT,
-        tokenId: TOKEN_ID,
+        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+        tokenId: TEST_CONFIG.TOKEN_ID,
         }
     )
 
