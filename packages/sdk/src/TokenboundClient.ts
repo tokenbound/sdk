@@ -69,7 +69,6 @@ class TokenboundClient {
 
   constructor(options: TokenboundClientOptions) {
 
-
     if(!options.chainId) {
       throw new Error("chainId is required.")
     }
@@ -109,10 +108,6 @@ class TokenboundClient {
     data: string
   }> {
     const { tokenContract, tokenId } = params
-
-    // if(!this.chainId) {
-    //   throw new Error("Missing chainId.")
-    // }
 
     if(this.signer) { // Ethers version
       console.log('--> Ethers version of prepareCreateAccount')
@@ -155,17 +150,15 @@ class TokenboundClient {
 
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
     const { account, to, value, data } = params
-    const {walletClient, signer} = this
-
     try {
-
-      if(signer) { // Ethers
+      if(this.signer) { // Ethers
+        console.log('--> Ethers version of executeCall')
         const { ethersExecuteCall } = await loadEthersImplementation()
-        return await ethersExecuteCall(account, to, value, data, signer)
+        return await ethersExecuteCall(account, to, value, data, this.signer)
       }
-      else if(walletClient) {
-        console.log('walletClient in executeCall', walletClient, account)
-        return executeCall(account, to, value, data, walletClient)
+      else if(this.walletClient) {
+        console.log('walletClient in executeCall', this.walletClient, account)
+        return executeCall(account, to, value, data, this.walletClient)
       }
       else {
         throw new Error("No wallet client or signer available.")
@@ -173,7 +166,6 @@ class TokenboundClient {
     } catch (error) {
       throw error
     }
-
   }
 
   public getCreationCode(params: GetCreationCodeParams): Uint8Array {

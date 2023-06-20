@@ -40,11 +40,6 @@ export function App() {
       // if (signer) {
       // signer?.sendTransaction(preparedAccount)
       // signer?.sendTransaction(preparedExecuteCall)
-      // const createAccount = await tokenboundClient.createAccount({
-      //   tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-      //   tokenId: '1',
-      // })
-      //   console.log('tokenBound createAccount', createAccount)
       // }
     }
 

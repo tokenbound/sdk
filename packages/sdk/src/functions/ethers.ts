@@ -89,7 +89,16 @@ export async function executeCall(
   data: string,
   signer: Signer
 ) {
+  console.log('account', account)
+  console.log('erc6551AccountAbi', erc6551AccountAbi)
+  console.log('signer', signer)
+
   const accountContract = new Contract(account, erc6551AccountAbi, signer);
 
-  return accountContract.executeCall([to, value, data]);
+  console.log('accountContract', accountContract)  
+  console.log({to,value,data})
+
+  // return accountContract.executeCall([to, value, data])
+  return accountContract.executeCall(to, value, data)
+
 }

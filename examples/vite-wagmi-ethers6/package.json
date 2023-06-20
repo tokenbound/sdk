@@ -1,5 +1,5 @@
 {
-  "name": "vite-wagmi-ethers",
+  "name": "vite-wagmi-ethers6",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
     "@tokenbound/sdk": "workspace:^",
     "buffer": "^6.0.3",
     "connectkit": "1.4.0",
-    "ethers": "^5.7.2",
+    "ethers": "^6.6.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

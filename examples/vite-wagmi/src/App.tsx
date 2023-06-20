@@ -24,7 +24,6 @@ export function App() {
     account: address,
     transport: window.ethereum ? custom(window.ethereum) : http(),
   })
-  // const [account] = await walletClient.getAddresses()
 
   const tokenboundClient = new TokenboundClient({ walletClient, chainId: 5 })
 
@@ -55,11 +54,13 @@ export function App() {
 
       if (address) {
         // walletClient?.sendTransaction({
+        //   chain: goerli,
         //   account: address,
         //   ...preparedCreateAccount,
         //   data: preparedCreateAccount.data as `0x${string}`, // override type
         // })
         // walletClient?.sendTransaction({
+        //   chain: goerli,
         //   account: address,
         //   ...preparedExecuteCall,
         //   data: preparedExecuteCall.data as `0x${string}`,
@@ -77,25 +78,37 @@ export function App() {
       tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
       tokenId: '1',
     })
-  }, [])
+  }, [tokenboundClient])
 
   const executeCall = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const executedCall = await tokenboundClient.executeCall({
-      account: address, // from account,
-      to: address, // to,
-      value: 0n, // value,
-      data: '', // data
+      account: address,
+      to: address,
+      value: 0n,
+      data: '0x',
     })
-  }, [])
+  }, [tokenboundClient])
 
   return (
     <>
       <h1>wagmi + ConnectKit + Vite</h1>
       <ConnectKitButton />
       {isConnected && <Account />}
-      <button onClick={() => executeCall()}>EXECUTE CALL</button>
-      <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
+      {address && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            margin: '32px 0 0',
+            maxWidth: '320px',
+          }}
+        >
+          <button onClick={() => executeCall()}>EXECUTE CALL</button>
+          <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
+        </div>
+      )}
     </>
   )
 }
