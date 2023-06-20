@@ -1,122 +1,101 @@
 import { ConnectKitButton } from 'connectkit'
-import {
-  useAccount,
-  // useProvider, useSigner
-} from 'wagmi'
+import { useAccount } from 'wagmi'
 
 import { Account } from './components'
 
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createWalletClient, http, custom, WalletClient } from 'viem'
 import { goerli } from 'viem/chains'
-import {
-  getAccount,
-  prepareExecuteCall,
-  TokenboundClient,
-  GetAccountParams,
-  executeCall,
-} from '@tokenbound/sdk'
+import { TokenboundClient } from '@tokenbound/sdk'
 
-// import {
-//   erc6551AccountImplementationAddress,
-//   getAccount as getAccountEthers,
-//   prepareExecuteCall as prepareExecuteCallEthers,
-// } from "@tokenbound/sdk-ethers";
+import { useCallback, useEffect } from 'react'
+import { WindowProvider } from 'wagmi'
 
-import { useEffect } from 'react'
-
-const client = createPublicClient({
-  chain: goerli,
-  transport: http(),
-})
-
-const walletClient = createWalletClient({
-  chain: goerli,
-  // transport: custom(window.ethereum),
-  transport: http(),
-})
-
-const tbClient = new TokenboundClient({ walletClient })
-// const [address] = await walletClient.getAddresses()
-
-// console.log(tbClient)
+declare global {
+  interface Window {
+    ethereum?: WindowProvider
+  }
+}
 
 export function App() {
-  const { isConnected } = useAccount()
-  // const provider = useProvider();
-  // const { data: signer, isError, isLoading } = useSigner();
+  const { isConnected, address } = useAccount()
 
-  useEffect(() => {
-    async function testStandaloneViemSdk() {
-      const [address] = await walletClient.getAddresses()
-      console.log('address', address)
+  const walletClient: WalletClient = createWalletClient({
+    chain: goerli,
+    account: address,
+    transport: window.ethereum ? custom(window.ethereum) : http(),
+  })
+  // const [account] = await walletClient.getAddresses()
 
-      const account = await getAccount(
-        '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-        '9',
-        client
-      )
-
-      console.log('viem getAccount', account)
-
-      const encoded = await prepareExecuteCall(account, account, 0n, '')
-      console.log('viem prepareExecuteCall', encoded)
-
-      // const call = await executeCall(
-      //   account, // from account,
-      //   account, // to,
-      //   0n, // value,
-      //   '', // data
-      //   walletClient // client
-      // )
-    }
-
-    testStandaloneViemSdk()
-  }, [])
+  const tokenboundClient = new TokenboundClient({ walletClient, chainId: 5 })
 
   useEffect(() => {
     async function testTokenboundClass() {
-      const account = await tbClient.getAccount({
+      if (!tokenboundClient) return
+
+      const tokenboundAccount = tokenboundClient.getAccount({
         tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
         tokenId: '9',
       })
 
-      console.log('tokenBound getAccount', account)
-
-      const encoded = await tbClient.prepareExecuteCall({
-        account: account,
-        to: account,
+      const preparedExecuteCall = await tokenboundClient.prepareExecuteCall({
+        account: tokenboundAccount,
+        to: tokenboundAccount,
         value: 0n,
         data: '',
       })
-      console.log('tokenBound prepareExecuteCall', encoded)
+
+      const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
+        tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+        tokenId: '1',
+      })
+
+      console.log('getAccount', tokenboundAccount)
+      console.log('preparedExecuteCall', preparedExecuteCall)
+      console.log('preparedAccount', preparedCreateAccount)
+
+      if (address) {
+        // walletClient?.sendTransaction({
+        //   account: address,
+        //   ...preparedCreateAccount,
+        //   data: preparedCreateAccount.data as `0x${string}`, // override type
+        // })
+        // walletClient?.sendTransaction({
+        //   account: address,
+        //   ...preparedExecuteCall,
+        //   data: preparedExecuteCall.data as `0x${string}`,
+        // })
+        // console.log(executedCall)
+      }
     }
 
     testTokenboundClass()
   }, [])
 
-  // useEffect(() => {
-  //   async function testEthersSdk() {
-  //     const account = await getAccount(
-  //       "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb",
-  //       "9",
-  //       provider
-  //     );
+  const createAccount = useCallback(async () => {
+    if (!tokenboundClient || !address) return
+    const createAccount = await tokenboundClient.createAccount({
+      tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+      tokenId: '1',
+    })
+  }, [])
 
-  //     console.log("ETHERS", account);
-
-  //     // const encoded = await prepareExecuteCallEthers(account, account, 0, "0x");
-
-  //     // console.log(encoded);
-  //   }
-
-  //   testEthersSdk();
-  // }, []);
+  const executeCall = useCallback(async () => {
+    if (!tokenboundClient || !address) return
+    const executedCall = await tokenboundClient.executeCall({
+      account: address, // from account,
+      to: address, // to,
+      value: 0n, // value,
+      data: '', // data
+    })
+  }, [])
 
   return (
     <>
       <h1>wagmi + ConnectKit + Vite</h1>
       <ConnectKitButton />
       {isConnected && <Account />}
+      <button onClick={() => executeCall()}>EXECUTE CALL</button>
+      <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
     </>
   )
 }

@@ -63,21 +63,27 @@ export type GetCreationCodeParams = {
 
 class TokenboundClient {
   private chainId: number
+  public isInitialized: boolean = false
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
-  public isInitialized: boolean = false
 
   constructor(options: TokenboundClientOptions) {
 
-    this.chainId = options.chainId
+
+    if(!options.chainId) {
+      throw new Error("chainId is required.")
+    }
 
     if (options.signer && options.walletClient) {
       throw new Error("Only one of `signer` or `walletClient` should be provided.")
     }
+    
+    this.chainId = options.chainId
 
     if (options.signer) {
       this.signer = options.signer
     } else if (options.walletClient) {
+      console.log('setting WALLET CLIENT')
       this.walletClient = options.walletClient
     }
 
@@ -85,11 +91,12 @@ class TokenboundClient {
 
   }
 
-  public async getAccount(params: GetAccountParams): Promise<`0x${string}`> {
+  public getAccount(params: GetAccountParams): `0x${string}` {
     const { tokenContract, tokenId } = params;
     
     try {
-      // Here we call computeAccount rather than getAccount so we can avoid making a contract call via publicClient
+      // Here we call computeAccount rather than getAccount so we avoid
+      // making an async contract call via publicClient
       return computeAccount(tokenContract, tokenId, this.chainId)
     } catch (error) {
       throw error
@@ -103,9 +110,9 @@ class TokenboundClient {
   }> {
     const { tokenContract, tokenId } = params
 
-    if(!this.chainId) {
-      throw new Error("Missing chainId.")
-    }
+    // if(!this.chainId) {
+    //   throw new Error("Missing chainId.")
+    // }
 
     if(this.signer) { // Ethers version
       console.log('--> Ethers version of prepareCreateAccount')
@@ -150,16 +157,23 @@ class TokenboundClient {
     const { account, to, value, data } = params
     const {walletClient, signer} = this
 
-    if (!walletClient || !signer) {
-      throw new Error("No wallet client available.")
+    try {
+
+      if(signer) { // Ethers
+        const { ethersExecuteCall } = await loadEthersImplementation()
+        return await ethersExecuteCall(account, to, value, data, signer)
+      }
+      else if(walletClient) {
+        console.log('walletClient in executeCall', walletClient, account)
+        return executeCall(account, to, value, data, walletClient)
+      }
+      else {
+        throw new Error("No wallet client or signer available.")
+      }  
+    } catch (error) {
+      throw error
     }
 
-    if(signer) { // Ethers version
-      const { ethersExecuteCall } = await loadEthersImplementation()
-      return await ethersExecuteCall(account, to, value, data, signer)
-    }
-
-    return executeCall(account, to, value, data, walletClient)
   }
 
   public getCreationCode(params: GetCreationCodeParams): Uint8Array {

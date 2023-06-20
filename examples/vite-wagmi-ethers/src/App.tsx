@@ -4,7 +4,7 @@ import { TokenboundClient } from '@tokenbound/sdk'
 
 import { Account } from './components'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 
 export function App() {
   const { isConnected } = useAccount()
@@ -31,19 +31,17 @@ export function App() {
         tokenId: '1',
       })
 
-      useMemo(() => {
-        console.log('tokenBound getAccount', account)
-        console.log('tokenBound prepareExecuteCall', preparedExecuteCall)
-        console.log('tokenBound preparedAccount', preparedAccount)
-      }, [account, preparedExecuteCall, preparedAccount])
+      console.log('tokenBound getAccount', account)
+      console.log('tokenBound prepareExecuteCall', preparedExecuteCall)
+      console.log('tokenBound preparedAccount', preparedAccount)
 
       // if (signer) {
       // signer?.sendTransaction(preparedAccount)
       // signer?.sendTransaction(preparedExecuteCall)
-      //   const createAccount = await tokenboundClient.createAccount({
-      //     tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-      //     tokenId: '1',
-      //   })
+      // const createAccount = await tokenboundClient.createAccount({
+      //   tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+      //   tokenId: '1',
+      // })
       //   console.log('tokenBound createAccount', createAccount)
       // }
     }
