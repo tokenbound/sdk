@@ -10,6 +10,7 @@ Once the webpage has loaded, changes made to files inside the `src/` directory (
 
 To learn more about [Vite](https://vitejs.dev/), [ConnectKit](https://docs.family.co/connectkit) or [wagmi](https://wagmi.sh), check out the following resources:
 
+- [viem Documentation](https://viem.sh) – learn about viem Hooks and API.
 - [wagmi Documentation](https://wagmi.sh) – learn about wagmi Hooks and API.
 - [wagmi Examples](https://wagmi.sh/examples/connect-wallet) – a suite of simple examples using wagmi.
 - [ConnectKit Documentation](https://docs.family.co/connectkit) – learn more about ConnectKit (configuration, theming, advanced usage, etc).
