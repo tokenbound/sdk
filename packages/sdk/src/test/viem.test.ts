@@ -17,8 +17,6 @@ import {
 
 import { TEST_CONFIG } from "./testConfig"
 
-
-
 test(".getAccount", async () => {
     const publicClient = createPublicClient({ 
         chain: goerli,

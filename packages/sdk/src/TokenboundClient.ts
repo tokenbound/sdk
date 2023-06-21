@@ -9,7 +9,6 @@ import {
   executeCall,
   prepareCreateAccount
 } from './functions'
-// import { loadEthersImplementation } from "./loaders"
 import { AbstractEthersSigner } from "./types"
 
 export type TokenboundClientOptions = {
@@ -89,6 +88,13 @@ class TokenboundClient {
 
   }
 
+
+/**
+ * Returns the tokenbound account address for a given token contract and token ID.
+ * @param params.tokenContract The address of the token contract.
+ * @param params.tokenId The token ID.
+ * @returns The tokenbound account address.
+ */
   public getAccount(params: GetAccountParams): `0x${string}` {
     const { tokenContract, tokenId } = params;
     
@@ -101,6 +107,12 @@ class TokenboundClient {
     }
   }
 
+/**
+ * Returns the prepared transaction to create a tokenbound account for a given token contract and token ID.
+ * @param params.tokenContract The address of the token contract.
+ * @param params.tokenId The token ID.
+ * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
+ */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
     to: `0x${string}`
     value: bigint
@@ -111,6 +123,12 @@ class TokenboundClient {
     return prepareCreateAccount(tokenContract, tokenId, this.chainId)
   }
 
+/**
+ * Returns the transaction hash of the transaction that created the tokenbound account for a given token contract and token ID.
+ * @param params.tokenContract The address of the token contract.
+ * @param params.tokenId The token ID.
+ * @returns a Promise that resolves to the transaction hash of the transaction that created the tokenbound account.
+ */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId } = params
 
@@ -133,6 +151,14 @@ class TokenboundClient {
 
   }
 
+/**
+ * Returns prepared transaction to execute a call on a tokenbound account
+ * @param params.account The tokenbound account address
+ * @param params.to The recipient address
+ * @param params.value The value to send, in wei
+ * @param params.data The data to send
+ * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
+ */
   public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<{
     to: `0x${string}`
     value: bigint
@@ -142,6 +168,14 @@ class TokenboundClient {
     return prepareExecuteCall(account, to, value, data)
   }
 
+/**
+ * Returns a hash of the transaction that executed a call on a tokenbound account
+ * @param params.account The tokenbound account address
+ * @param params.to The recipient address
+ * @param params.value The value to send, in wei
+ * @param params.data The data to send
+ * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
+ */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
     const { account, to, value, data } = params
     try {
@@ -165,11 +199,6 @@ class TokenboundClient {
       throw error
     }
   }
-
-  public getCreationCode(params: GetCreationCodeParams): Uint8Array {
-    const { implementation_, chainId_, tokenContract_, tokenId_, salt_ } = params
-    return getCreationCode(implementation_, chainId_, tokenContract_, tokenId_, salt_)
-  }
   
 }
 
@@ -180,6 +209,7 @@ export {
   getAccount,
   createAccount,
   getCreationCode,
+  computeAccount,
   prepareExecuteCall,
   executeCall
 }

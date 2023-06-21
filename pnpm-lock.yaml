@@ -206,9 +206,6 @@ importers:
 
   packages/sdk:
     dependencies:
-      ethers:
-        specifier: '>=5.7.2'
-        version: 5.7.2
       viem:
         specifier: ^1.0.7
         version: 1.0.7(typescript@5.1.3)
