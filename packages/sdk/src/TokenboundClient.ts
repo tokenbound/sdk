@@ -9,7 +9,7 @@ import {
   executeCall,
   prepareCreateAccount
 } from './functions'
-import { loadEthersImplementation } from "./loaders"
+// import { loadEthersImplementation } from "./loaders"
 import { AbstractEthersSigner } from "./types"
 
 export type TokenboundClientOptions = {
@@ -93,7 +93,7 @@ class TokenboundClient {
     const { tokenContract, tokenId } = params;
     
     try {
-      // Here we call computeAccount rather than getAccount so we avoid
+      // Here we call computeAccount rather than getAccount to avoid
       // making an async contract call via publicClient
       return computeAccount(tokenContract, tokenId, this.chainId)
     } catch (error) {
@@ -117,8 +117,9 @@ class TokenboundClient {
     try {
       if(this.signer) { // Ethers
         console.log('--> Ethers version of createAccount', this.signer)
-        const { ethersCreateAccount } = await loadEthersImplementation()
-        return await ethersCreateAccount(tokenContract, tokenId, this.signer)
+        const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId})
+        return await this.signer.sendTransaction(prepareCreateAccount)
+
       }
       else if(this.walletClient) {
         return createAccount(tokenContract, tokenId, this.walletClient)
@@ -146,8 +147,11 @@ class TokenboundClient {
     try {
       if(this.signer) { // Ethers
         console.log('--> Ethers version of executeCall')
-        const { ethersExecuteCall } = await loadEthersImplementation()
-        return await ethersExecuteCall(account, to, value, data, this.signer)
+        return await this.signer.sendTransaction({
+          to: to,
+          value: value,
+          data: data
+        })
 
       }
       else if(this.walletClient) {

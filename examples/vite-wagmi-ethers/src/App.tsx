@@ -9,7 +9,7 @@ import { useEthersSigner } from './hooks'
 
 export function App() {
   const { isConnected, address } = useAccount()
-  const signer = useEthersSigner()
+  const signer = useEthersSigner({ chainId: 5 })
   // or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()
 
   const tokenboundClient = new TokenboundClient({ signer, chainId: 5 })
@@ -37,10 +37,10 @@ export function App() {
       console.log('prepareExecuteCall', preparedExecuteCall)
       console.log('preparedAccount', preparedAccount)
 
-      if (signer) {
-        // signer?.sendTransaction(preparedAccount)
-        signer?.sendTransaction(preparedExecuteCall)
-      }
+      // if (signer) {
+      // signer?.sendTransaction(preparedAccount)
+      // signer?.sendTransaction(preparedExecuteCall)
+      // }
     }
 
     testTokenboundClass()
