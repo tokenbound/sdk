@@ -37,15 +37,10 @@ export function App() {
       console.log('prepareExecuteCall', preparedExecuteCall)
       console.log('preparedAccount', preparedAccount)
 
-      // if (signer) {
-      // signer?.sendTransaction(preparedAccount)
-      // signer?.sendTransaction(preparedExecuteCall)
-      // const createAccount = await tokenboundClient.createAccount({
-      //   tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-      //   tokenId: '1',
-      // })
-      //   console.log('tokenBound createAccount', createAccount)
-      // }
+      if (signer) {
+        // signer?.sendTransaction(preparedAccount)
+        signer?.sendTransaction(preparedExecuteCall)
+      }
     }
 
     testTokenboundClass()
@@ -71,7 +66,7 @@ export function App() {
 
   return (
     <>
-      <h1>wagmi + ConnectKit + Vite</h1>
+      <h1>Ethers 5 Signer + ConnectKit + Vite</h1>
       <ConnectKitButton />
       {isConnected && <Account />}
       {address && (

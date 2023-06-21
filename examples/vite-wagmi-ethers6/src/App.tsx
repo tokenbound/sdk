@@ -7,11 +7,25 @@ import { Account } from './components'
 import { useCallback, useEffect } from 'react'
 import { useEthersSigner } from './hooks'
 
+// import { WindowProvider } from 'wagmi'
+// import { BrowserProvider, JsonRpcSigner } from 'ethers'
+
+// declare global {
+//   interface Window {
+//     ethereum?: WindowProvider
+//   }
+// }
+
 export function App() {
   const { isConnected, address } = useAccount()
-  const signer = useEthersSigner()
+
+  // const provider = window.ethereum ? new BrowserProvider(window.ethereum) : null
+  // const signer = provider && address ? new JsonRpcSigner(provider, address) : null
+
+  const signer = useEthersSigner({ chainId: 5 })
   // or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()
 
+  console.log('SIGNER', signer)
   const tokenboundClient = new TokenboundClient({ signer, chainId: 5 })
 
   useEffect(() => {
@@ -38,8 +52,8 @@ export function App() {
       console.log('preparedAccount', preparedAccount)
 
       // if (signer) {
-      // signer?.sendTransaction(preparedAccount)
-      // signer?.sendTransaction(preparedExecuteCall)
+      //   signer?.sendTransaction(preparedAccount)
+      //   signer?.sendTransaction(preparedExecuteCall)
       // }
     }
 
@@ -66,7 +80,7 @@ export function App() {
 
   return (
     <>
-      <h1>wagmi + ConnectKit + Vite</h1>
+      <h1>Ethers 6 Signer + ConnectKit + Vite</h1>
       <ConnectKitButton />
       {isConnected && <Account />}
       {address && (

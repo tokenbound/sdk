@@ -82,7 +82,6 @@ class TokenboundClient {
     if (options.signer) {
       this.signer = options.signer
     } else if (options.walletClient) {
-      console.log('setting WALLET CLIENT')
       this.walletClient = options.walletClient
     }
 
@@ -105,15 +104,9 @@ class TokenboundClient {
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
     to: `0x${string}`
     value: bigint
-    data: string
+    data: `0x${string}`
   }> {
     const { tokenContract, tokenId } = params
-
-    if(this.signer) { // Ethers version
-      console.log('--> Ethers version of prepareCreateAccount')
-      const { ethersPrepareCreateAccount } = await loadEthersImplementation()
-      return await ethersPrepareCreateAccount(tokenContract, tokenId, this.chainId)
-    }
 
     return prepareCreateAccount(tokenContract, tokenId, this.chainId)
   }
@@ -123,9 +116,9 @@ class TokenboundClient {
 
     try {
       if(this.signer) { // Ethers
-        console.log('--> Ethers version of createAccount')
+        console.log('--> Ethers version of createAccount', this.signer)
         const { ethersCreateAccount } = await loadEthersImplementation()
-        return await ethersCreateAccount(tokenContract,tokenId, this.signer)
+        return await ethersCreateAccount(tokenContract, tokenId, this.signer)
       }
       else if(this.walletClient) {
         return createAccount(tokenContract, tokenId, this.walletClient)
@@ -155,6 +148,7 @@ class TokenboundClient {
         console.log('--> Ethers version of executeCall')
         const { ethersExecuteCall } = await loadEthersImplementation()
         return await ethersExecuteCall(account, to, value, data, this.signer)
+
       }
       else if(this.walletClient) {
         console.log('walletClient in executeCall', this.walletClient, account)

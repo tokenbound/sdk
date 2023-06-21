@@ -52,21 +52,10 @@ export function App() {
       console.log('preparedExecuteCall', preparedExecuteCall)
       console.log('preparedAccount', preparedCreateAccount)
 
-      if (address) {
-        // walletClient?.sendTransaction({
-        //   chain: goerli,
-        //   account: address,
-        //   ...preparedCreateAccount,
-        //   data: preparedCreateAccount.data as `0x${string}`, // override type
-        // })
-        // walletClient?.sendTransaction({
-        //   chain: goerli,
-        //   account: address,
-        //   ...preparedExecuteCall,
-        //   data: preparedExecuteCall.data as `0x${string}`,
-        // })
-        // console.log(executedCall)
-      }
+      // if (address) {
+      //   walletClient?.sendTransaction(preparedCreateAccount)
+      //   walletClient?.sendTransaction(preparedExecuteCall)
+      // }
     }
 
     testTokenboundClass()
@@ -92,7 +81,7 @@ export function App() {
 
   return (
     <>
-      <h1>wagmi + ConnectKit + Vite</h1>
+      <h1>viem walletClient + ConnectKit + Vite</h1>
       <ConnectKitButton />
       {isConnected && <Account />}
       {address && (

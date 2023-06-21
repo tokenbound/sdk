@@ -55,7 +55,7 @@ export async function prepareCreateAccount(
 ): Promise<{
   to: `0x${string}`
   value: bigint
-  data: string
+  data: `0x${string}`
 }> {
   
   const initData = encodeFunctionData({

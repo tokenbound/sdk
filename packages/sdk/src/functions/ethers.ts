@@ -2,48 +2,48 @@ import { Contract, Signer, utils } from "ethers";
 import { erc6551AccountAbi, erc6551RegistryAbi} from '../../abis'
 import { erc6551AccountImplementationAddress, erc6551RegistryAddress } from "../constants";
 
-/**
- * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
- * @internal
- */
-export async function prepareCreateAccount(
-  tokenContract: string,
-  tokenId: string,
-  chainId: number
-): Promise<{
-  to: `0x${string}`
-  value: bigint
-  data: string
-}> {
+// /**
+//  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
+//  * @internal
+//  */
+// export async function prepareCreateAccount(
+//   tokenContract: string,
+//   tokenId: string,
+//   chainId: number
+// ): Promise<{
+//   to: `0x${string}`
+//   value: bigint
+//   data: `0x${string}`
+// }> {
   
-  // Create an ethers.js Interface for the contract
-  const registryInterface = new utils.Interface(erc6551RegistryAbi);
-  const accountInterface = new utils.Interface([
-    {
-      inputs: [],
-      name: "initialize",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    }
-  ]);
+//   // Create an ethers.js Interface for the contract
+//   const registryInterface = new utils.Interface(erc6551RegistryAbi);
+//   const accountInterface = new utils.Interface([
+//     {
+//       inputs: [],
+//       name: "initialize",
+//       outputs: [],
+//       stateMutability: "nonpayable",
+//       type: "function",
+//     }
+//   ]);
 
-  // Generate the initialization data
-  const initData = accountInterface.encodeFunctionData("initialize");
+//   // Generate the initialization data
+//   const initData = accountInterface.encodeFunctionData("initialize");
 
-  return {
-    to: erc6551RegistryAddress,
-    value: BigInt(0),
-    data: registryInterface.encodeFunctionData("createAccount", [
-      erc6551AccountImplementationAddress,
-      chainId,
-      tokenContract,
-      tokenId,
-      0,
-      initData,
-    ]),
-  }
-}
+//   return {
+//     to: erc6551RegistryAddress,
+//     value: BigInt(0),
+//     data: registryInterface.encodeFunctionData("createAccount", [
+//       erc6551AccountImplementationAddress,
+//       chainId,
+//       tokenContract,
+//       tokenId,
+//       0,
+//       initData,
+//     ]) as `0x${string}`,
+//   }
+// }
 
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
@@ -98,7 +98,6 @@ export async function executeCall(
   console.log('accountContract', accountContract)  
   console.log({to,value,data})
 
-  // return accountContract.executeCall([to, value, data])
   return accountContract.executeCall(to, value, data)
 
 }
