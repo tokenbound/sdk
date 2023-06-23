@@ -1,65 +1,64 @@
 import { ConnectKitButton } from 'connectkit'
 import { useAccount } from 'wagmi'
+import { TokenboundClient } from '@tokenbound/sdk'
 
 import { Account } from './components'
 
-import { createWalletClient, http, custom, WalletClient } from 'viem'
-import { goerli } from 'viem/chains'
-import { TokenboundClient } from '@tokenbound/sdk'
-
 import { useCallback, useEffect } from 'react'
-import { WindowProvider } from 'wagmi'
+import { useEthersSigner } from './hooks'
 
-declare global {
-  interface Window {
-    ethereum?: WindowProvider
-  }
-}
+// import { WindowProvider } from 'wagmi'
+// import { BrowserProvider, JsonRpcSigner } from 'ethers'
+
+// declare global {
+//   interface Window {
+//     ethereum?: WindowProvider
+//   }
+// }
 
 export function App() {
   const { isConnected, address } = useAccount()
 
-  const walletClient: WalletClient = createWalletClient({
-    chain: goerli,
-    account: address,
-    transport: window.ethereum ? custom(window.ethereum) : http(),
-  })
+  // const provider = window.ethereum ? new BrowserProvider(window.ethereum) : null
+  // const signer = provider && address ? new JsonRpcSigner(provider, address) : null
 
-  const tokenboundClient = new TokenboundClient({ walletClient, chainId: 5 })
+  const signer = useEthersSigner({ chainId: 5 })
+  // or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()
+
+  console.log('SIGNER', signer)
+  const tokenboundClient = new TokenboundClient({ signer, chainId: 5 })
 
   useEffect(() => {
     async function testTokenboundClass() {
-      if (!tokenboundClient) return
-
-      const tokenboundAccount = tokenboundClient.getAccount({
+      const account = await tokenboundClient.getAccount({
         tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
         tokenId: '9',
       })
 
       const preparedExecuteCall = await tokenboundClient.prepareExecuteCall({
-        account: tokenboundAccount,
-        to: tokenboundAccount,
+        account: account,
+        to: account,
         value: 0n,
         data: '',
       })
 
-      const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
+      const preparedAccount = await tokenboundClient.prepareCreateAccount({
         tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
         tokenId: '1',
       })
 
-      console.log('getAccount', tokenboundAccount)
-      console.log('preparedExecuteCall', preparedExecuteCall)
-      console.log('preparedAccount', preparedCreateAccount)
+      console.log('getAccount', account)
+      console.log('prepareExecuteCall', preparedExecuteCall)
+      console.log('preparedAccount', preparedAccount)
 
-      // if (address) {
-      //   walletClient?.sendTransaction(preparedCreateAccount)
-      //   walletClient?.sendTransaction(preparedExecuteCall)
+      // if (signer) {
+      //   signer?.sendTransaction(preparedAccount)
+      //   signer?.sendTransaction(preparedExecuteCall)
       // }
     }
 
     testTokenboundClass()
-  }, [])
+  }, [tokenboundClient])
 
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
@@ -81,7 +80,7 @@ export function App() {
 
   return (
     <>
-      <h1>viem walletClient + ConnectKit + Vite</h1>
+      <h1>Ethers 6 Signer + ConnectKit + Vite</h1>
       <ConnectKitButton />
       {isConnected && <Account />}
       {address && (

@@ -1,11 +1,19 @@
-import { 
-  // getDefaultClient,
-   getDefaultConfig } from "connectkit";
-// import { createClient, goerli } from "wagmi";
-import { createConfig } from "wagmi";
-import { goerli, mainnet } from 'wagmi/chains'
+// import { getDefaultClient } from "connectkit";
+// import { createClient } from "wagmi";
+// import { goerli } from "wagmi";
 
-// const chains = [mainnet, goerli]
+// export const wagmiClient = createClient(
+//   getDefaultClient({
+//     autoConnect: true,
+//     appName: "My wagmi + ConnectKit App",
+//     chains: [goerli],
+//   })
+// )
+
+import { getDefaultConfig } from "connectkit";
+import { createConfig } from "wagmi";
+import { goerli } from 'wagmi/chains'
+
 const chains = [goerli]
 
 export const wagmiConfig = createConfig(
@@ -18,11 +26,3 @@ export const wagmiConfig = createConfig(
     appUrl: 'https://tokenbound.org',
   })
 )
-
-// export const client = createConfig(
-//   getDefaultConfig({
-//     autoConnect: true,
-//     appName: "My wagmi + ConnectKit App",
-//     chains: [goerli],
-//   })
-// );

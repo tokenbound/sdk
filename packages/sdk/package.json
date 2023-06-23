@@ -1,11 +1,11 @@
 {
   "name": "@tokenbound/sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "files": [
     "dist"
   ],
-  "types": "./dist/index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "main": "./dist/tokenbound-sdk.umd.cjs",
   "module": "./dist/tokenbound-sdk.js",
   "exports": {
@@ -17,15 +17,20 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "clean": "rm -rf node_modules/"
   },
-  "peerDependencies": {
-    "viem": "^0.3.1"
+  "dependencies": {
+    "viem": "^1.0.7"
   },
   "devDependencies": {
-    "typescript": "^4.9.3",
-    "viem": "^0.3.1",
+    "@vitest/coverage-c8": "^0.31.3",
+    "viem": "^1.0.7",
+    "typescript": "^5.0.4",
     "vite": "^4.2.0",
-    "vite-plugin-dts": "^2.2.0"
+    "vite-plugin-dts": "^2.2.0",
+    "vitest": "^0.31.3"
   }
 }
