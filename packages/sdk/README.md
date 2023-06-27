@@ -10,15 +10,34 @@ $ npm install @tokenbound/sdk
 
 # Usage
 
+### Instantiate TokenboundClient
+
+Using viem's WalletClient:
+
+```javascript
+import { TokenboundClient } from "@tokenbound/sdk";
+const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 });
+```
+
+or, with a legacy Wagmi / Ethers signer:
+
+```javascript
+import { TokenboundClient } from "@tokenbound/sdk";
+const tokenboundClient = new TokenboundClient({ signer, chainId: 1 });
+```
+
+
+
 ### Get account address
 
 ```javascript
-import { getAccount } from "@tokenbound/sdk";
-const accountAddress = await getAccount(
-  "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb", // ERC-721 token contract
-  "9", // ERC-721 tokenId
-  publicClient // viem public client
-);
+import { TokenboundClient } from "@tokenbound/sdk";
+const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 });
+
+const tokenBoundAccount = tokenboundClient.getAccount({
+  tokenContract: "<token_contract_address>",
+  tokenId: "<token_id>",
+});
 ```
 
 ### Encode call to account
@@ -27,16 +46,16 @@ const accountAddress = await getAccount(
 import { prepareExecuteCall } from "@tokenbound/sdk";
 
 const to = "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb"; // any address
-const value = 0n; // amount of ETH to send
+const value = 0n; // amount of ETH to send in WEI
 const data = ""; // calldata
 
-const transactionData = await prepareExecuteCall(
-  accountAddress,
-  to,
-  value,
-  data
-);
+const preparedCall = await tokenboundClient.prepareExecuteCall({
+  account: "<account_address>",
+  to: "<recipient_address>",
+  value: value,
+  data: data,
+});
 
 // Execute encoded call
-const hash = await walletClient.sendTransaction(transactionData);
+const hash = await walletClient.sendTransaction(preparedCall);
 ```
