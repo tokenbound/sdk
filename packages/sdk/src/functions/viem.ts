@@ -6,7 +6,8 @@ import {
   WalletClient,
   encodeFunctionData,
   encodeAbiParameters,
-  pad
+  pad,
+  getAddress
 } from "viem"
 
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../../abis'
@@ -51,12 +52,15 @@ export async function getAccount(
 export async function prepareCreateAccount(
   tokenContract: string,
   tokenId: string,
-  chainId: number
+  chainId: number,
+  customImplementationAddress?: `0x${string}`,
 ): Promise<{
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
 }> {
+
+  const implementationAddress = customImplementationAddress ? getAddress(customImplementationAddress): erc6551AccountImplementationAddress
   
   const initData = encodeFunctionData({
     abi: [
@@ -78,7 +82,7 @@ export async function prepareCreateAccount(
       abi: erc6551RegistryAbi,
       functionName: "createAccount",
       args: [
-        erc6551AccountImplementationAddress,
+        implementationAddress,
         chainId,
         tokenContract,
         tokenId,
@@ -98,7 +102,11 @@ export async function createAccount(
   tokenContract: string,
   tokenId: string,
   client: WalletClient,
+  customImplementationAddress?: `0x${string}`,
 ): Promise<`0x${string}`> {
+
+  const implementationAddress = customImplementationAddress ? getAddress(customImplementationAddress): erc6551AccountImplementationAddress
+
   const registry = getContract({
     address: erc6551RegistryAddress,
     abi: erc6551RegistryAbi,
@@ -121,7 +129,7 @@ export async function createAccount(
   })
 
   return registry.write.createAccount([
-    erc6551AccountImplementationAddress,
+    implementationAddress,
     chainId,
     tokenContract,
     tokenId,
@@ -191,10 +199,11 @@ export function computeAccount(
   tokenContract: string,
   tokenId: string,
   chainId: number,
+  customImplementationAddress?: `0x${string}`,
 ): `0x${string}` {
 
   const code = getCreationCode(
-    erc6551AccountImplementationAddress,
+    customImplementationAddress ? getAddress(customImplementationAddress) : erc6551AccountImplementationAddress,
     chainId,
     tokenContract,
     tokenId,

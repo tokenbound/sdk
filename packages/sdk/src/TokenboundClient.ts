@@ -18,18 +18,21 @@ export type TokenboundClientOptions = {
 }
 
 export type GetAccountParams = {
-  tokenContract: string
+  tokenContract: `0x${string}`
   tokenId: string
+  customImplementationAddress?: `0x${string}`
 }
 
 export type PrepareCreateAccountParams = {
   tokenContract: `0x${string}`
   tokenId: string
+  customImplementationAddress?: `0x${string}`
 }
 
 export type CreateAccountParams = {
-  tokenContract: string
+  tokenContract: `0x${string}`
   tokenId: string
+  customImplementationAddress?: `0x${string}`
 }
 
 export type PrepareExecuteCallParams = {
@@ -96,12 +99,12 @@ class TokenboundClient {
  * @returns The tokenbound account address.
  */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const { tokenContract, tokenId } = params;
+    const { tokenContract, tokenId, customImplementationAddress } = params;
     
     try {
       // Here we call computeAccount rather than getAccount to avoid
       // making an async contract call via publicClient
-      return computeAccount(tokenContract, tokenId, this.chainId)
+      return computeAccount(tokenContract, tokenId, this.chainId, customImplementationAddress)
     } catch (error) {
       throw error
     }
@@ -134,7 +137,6 @@ class TokenboundClient {
 
     try {
       if(this.signer) { // Ethers
-        console.log('--> Ethers version of createAccount', this.signer)
         const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId})
         return await this.signer.sendTransaction(prepareCreateAccount)
 
@@ -180,7 +182,6 @@ class TokenboundClient {
     const { account, to, value, data } = params
     try {
       if(this.signer) { // Ethers
-        console.log('--> Ethers version of executeCall')
         return await this.signer.sendTransaction({
           to: to,
           value: value,
@@ -189,7 +190,6 @@ class TokenboundClient {
 
       }
       else if(this.walletClient) {
-        console.log('walletClient in executeCall', this.walletClient, account)
         return executeCall(account, to, value, data, this.walletClient)
       }
       else {
