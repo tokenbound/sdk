@@ -1,10 +1,12 @@
-This is a [wagmi](https://wagmi.sh) + [ConnectKit](https://docs.family.co/connectkit) + [Vite](https://vitejs.dev/) project bootstrapped with [`create-wagmi`](https://github.com/wagmi-dev/wagmi/tree/main/packages/create-wagmi)
+This is a [wagmi](https://wagmi.sh) + [viem](https://viem.sh) + [ConnectKit](https://docs.family.co/connectkit) + [Vite](https://vitejs.dev/) project bootstrapped with [`create-wagmi`](https://github.com/wagmi-dev/wagmi/tree/main/packages/create-wagmi)
 
 # Getting Started
 
 Run `npm run dev` in your terminal, and then open [localhost:5173](http://localhost:5173) in your browser.
 
 Once the webpage has loaded, changes made to files inside the `src/` directory (e.g. `src/App.tsx`) will automatically update the webpage.
+
+If making local changes to the [SDK](https://github.com/tokenbound/sdk/tree/main/packages/sdk), note that `npm build` must be run inside the `tokenbound-sdk/packages/sdk` directory before the changes will be reflected in this example implementation.
 
 # Learn more
 
