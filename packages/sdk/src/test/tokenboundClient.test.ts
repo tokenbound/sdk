@@ -8,12 +8,14 @@ import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./testConfig"
 
 const tokenboundClient = new TokenboundClient({ 
-    // signer, 
     chainId: TEST_CONFIG.CHAIN_ID
  })
 
 test("tokenboundClient.getAccount", async () => {
-    const result = await tokenboundClient.getAccount({tokenContract: TEST_CONFIG.TOKEN_CONTRACT, tokenId: TEST_CONFIG.TOKEN_ID})
+    const result = await tokenboundClient.getAccount({
+        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+        tokenId: TEST_CONFIG.TOKEN_ID
+    })
     expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
 })
 

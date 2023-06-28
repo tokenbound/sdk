@@ -13,19 +13,31 @@ const tokenboundClient = new TokenboundClient({
  })
 
 test("tokenboundClient.getAccount -> customImplementation", async () => {
-    const result = await tokenboundClient.getAccount({tokenContract: TEST_CONFIG.TOKEN_CONTRACT, tokenId: TEST_CONFIG.TOKEN_ID, implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS})
-    // console.log('RESULT::::', result)
+    const result = await tokenboundClient.getAccount({
+        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+        tokenId: TEST_CONFIG.TOKEN_ID,
+        implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS
+    })
     expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_TB_ACCOUNT)
 })
 
 test("tokenboundClient.getAccount -> customRegistry", async () => {
-    const result = await tokenboundClient.getAccount({tokenContract: TEST_CONFIG.TOKEN_CONTRACT, tokenId: TEST_CONFIG.TOKEN_ID, registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS})
+    const result = await tokenboundClient.getAccount({
+        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+        tokenId: TEST_CONFIG.TOKEN_ID,
+        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
+    })
     console.log('RESULT::::', result)
     expect(result).toEqual(TEST_CONFIG.CUSTOM_REGISTRY_TB_ACCOUNT)
 })
 
 test("tokenboundClient.getAccount -> customImplementation + customRegistry", async () => {
-    const result = await tokenboundClient.getAccount({tokenContract: TEST_CONFIG.TOKEN_CONTRACT, tokenId: TEST_CONFIG.TOKEN_ID, implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS, registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS})
+    const result = await tokenboundClient.getAccount({
+        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+        tokenId: TEST_CONFIG.TOKEN_ID,
+        implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
+        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
+    })
     expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_AND_REGISTRY_TB_ACCOUNT)
 })
 
