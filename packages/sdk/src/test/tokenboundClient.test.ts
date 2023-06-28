@@ -7,7 +7,6 @@ import {
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./testConfig"
 
-
 const tokenboundClient = new TokenboundClient({ 
     // signer, 
     chainId: TEST_CONFIG.CHAIN_ID
@@ -48,4 +47,5 @@ test("tokenboundClient.prepareCreateAccount", async () => {
     expect(typeof preparedAccount.value).toEqual('bigint')
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
+
 test.todo(".createAccount")

@@ -26,8 +26,6 @@ import { TokenboundClient } from "@tokenbound/sdk";
 const tokenboundClient = new TokenboundClient({ signer, chainId: 1 });
 ```
 
-
-
 ### Get account address
 
 ```javascript
@@ -58,4 +56,17 @@ const preparedCall = await tokenboundClient.prepareExecuteCall({
 
 // Execute encoded call
 const hash = await walletClient.sendTransaction(preparedCall);
+```
+
+### Custom Implementations
+
+The SDK supports custom 6551 implementations. If you've deployed your own implementation, you can pass the ```implementationAddress``` and ```registryAddress``` to ```getAccount```, ```prepareCreateAccount```, ```createAccount```, and ```computeAccount```
+
+```javascript
+    const result = await tokenboundClient.getAccount({
+      tokenContract: "<token_contract_address>",
+      tokenId: "<token_id>",
+      implementationAddress: "<custom_implementation_address>",
+      registryAddress: "<custom_registry_address>",
+      })
 ```

@@ -17,23 +17,20 @@ export type TokenboundClientOptions = {
   walletClient?: WalletClient
 }
 
-export type GetAccountParams = {
+type Custom6551ImplementationParams = {
+  implementationAddress?: `0x${string}`
+  registryAddress?: `0x${string}`
+}
+type AccountParams = {
   tokenContract: `0x${string}`
   tokenId: string
-  customImplementationAddress?: `0x${string}`
 }
 
-export type PrepareCreateAccountParams = {
-  tokenContract: `0x${string}`
-  tokenId: string
-  customImplementationAddress?: `0x${string}`
-}
+export type GetAccountParams = AccountParams & Custom6551ImplementationParams
 
-export type CreateAccountParams = {
-  tokenContract: `0x${string}`
-  tokenId: string
-  customImplementationAddress?: `0x${string}`
-}
+export type PrepareCreateAccountParams = AccountParams & Custom6551ImplementationParams
+
+export type CreateAccountParams = AccountParams & Custom6551ImplementationParams
 
 export type PrepareExecuteCallParams = {
   account: string
@@ -49,11 +46,9 @@ export type ExecuteCallParams = {
   data: string
 }
 
-export type ComputeAccountParams = {
-  tokenContract: `0x${string}`
-  tokenId: string
+export type ComputeAccountParams = AccountParams & {
   chainId: number
-}
+} & Custom6551ImplementationParams
 
 export type GetCreationCodeParams = {
   implementation_: `0x${string}`
@@ -99,12 +94,12 @@ class TokenboundClient {
  * @returns The tokenbound account address.
  */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const { tokenContract, tokenId, customImplementationAddress } = params;
+    const { tokenContract, tokenId, implementationAddress, registryAddress } = params;
     
     try {
       // Here we call computeAccount rather than getAccount to avoid
       // making an async contract call via publicClient
-      return computeAccount(tokenContract, tokenId, this.chainId, customImplementationAddress)
+      return computeAccount(tokenContract, tokenId, this.chainId, implementationAddress, registryAddress)
     } catch (error) {
       throw error
     }
@@ -121,9 +116,9 @@ class TokenboundClient {
     value: bigint
     data: `0x${string}`
   }> {
-    const { tokenContract, tokenId } = params
+    const { tokenContract, tokenId, implementationAddress, registryAddress } = params
 
-    return prepareCreateAccount(tokenContract, tokenId, this.chainId)
+    return prepareCreateAccount(tokenContract, tokenId, this.chainId, implementationAddress, registryAddress)
   }
 
 /**
@@ -133,11 +128,11 @@ class TokenboundClient {
  * @returns a Promise that resolves to the transaction hash of the transaction that created the tokenbound account.
  */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
-    const { tokenContract, tokenId } = params
+    const { tokenContract, tokenId, implementationAddress, registryAddress } = params
 
     try {
       if(this.signer) { // Ethers
-        const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId})
+        const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId, implementationAddress, registryAddress})
         return await this.signer.sendTransaction(prepareCreateAccount)
 
       }

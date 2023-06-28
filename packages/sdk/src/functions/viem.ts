@@ -23,11 +23,15 @@ export { erc6551AccountAbi, erc6551RegistryAbi }
 export async function getAccount(
   tokenContract: string,
   tokenId: string,
-  client: PublicClient
+  client: PublicClient,
+  implementationAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`,
 ): Promise<`0x${string}`> {
 
+  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddress
+
   const registry = getContract({
-    address: erc6551RegistryAddress,
+    address: erc6551registry,
     abi: erc6551RegistryAbi,
     publicClient: client as PublicClient,
   })
@@ -35,7 +39,7 @@ export async function getAccount(
   const chainId = await client.getChainId()
 
   const account = await registry.read.account([
-    erc6551AccountImplementationAddress,
+    implementationAddress ? getAddress(implementationAddress) : erc6551AccountImplementationAddress,
     chainId,
     tokenContract,
     tokenId,
@@ -53,15 +57,17 @@ export async function prepareCreateAccount(
   tokenContract: string,
   tokenId: string,
   chainId: number,
-  customImplementationAddress?: `0x${string}`,
+  implementationAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`,
 ): Promise<{
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
 }> {
 
-  const implementationAddress = customImplementationAddress ? getAddress(customImplementationAddress): erc6551AccountImplementationAddress
-  
+  const implementation = implementationAddress ? getAddress(implementationAddress): erc6551AccountImplementationAddress
+  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddress
+
   const initData = encodeFunctionData({
     abi: [
       {
@@ -76,13 +82,13 @@ export async function prepareCreateAccount(
   })
 
   return {
-    to: erc6551RegistryAddress as `0x${string}`,
+    to: erc6551registry,
     value: BigInt(0),
     data: encodeFunctionData({
       abi: erc6551RegistryAbi,
       functionName: "createAccount",
       args: [
-        implementationAddress,
+        implementation,
         chainId,
         tokenContract,
         tokenId,
@@ -102,13 +108,15 @@ export async function createAccount(
   tokenContract: string,
   tokenId: string,
   client: WalletClient,
-  customImplementationAddress?: `0x${string}`,
+  implementationAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`,
 ): Promise<`0x${string}`> {
 
-  const implementationAddress = customImplementationAddress ? getAddress(customImplementationAddress): erc6551AccountImplementationAddress
+  const implementation = implementationAddress ? getAddress(implementationAddress): erc6551AccountImplementationAddress
+  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddress
 
   const registry = getContract({
-    address: erc6551RegistryAddress,
+    address: erc6551registry,
     abi: erc6551RegistryAbi,
     walletClient: client,
   })
@@ -129,7 +137,7 @@ export async function createAccount(
   })
 
   return registry.write.createAccount([
-    implementationAddress,
+    implementation,
     chainId,
     tokenContract,
     tokenId,
@@ -199,11 +207,15 @@ export function computeAccount(
   tokenContract: string,
   tokenId: string,
   chainId: number,
-  customImplementationAddress?: `0x${string}`,
+  implementationAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`,
 ): `0x${string}` {
 
+  const implementation = implementationAddress ? getAddress(implementationAddress): erc6551AccountImplementationAddress
+  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddress
+
   const code = getCreationCode(
-    customImplementationAddress ? getAddress(customImplementationAddress) : erc6551AccountImplementationAddress,
+    implementation,
     chainId,
     tokenContract,
     tokenId,
@@ -215,7 +227,7 @@ export function computeAccount(
   
   return getContractAddress({
     bytecode: code,
-    from: erc6551RegistryAddress,
+    from: erc6551registry,
     opcode: 'CREATE2',
     salt: saltHex,
   })

@@ -1,3 +1,5 @@
+import { getAddress } from "viem"
+
 export const TEST_CONFIG = {
     TOKEN_CONTRACT: `0x7a77F2cFB02546F217d39157471d5B5914DD7644` as `0x${string}`,
     TOKEN_ID: "1",
@@ -6,6 +8,14 @@ export const TEST_CONFIG = {
     TB_ACCOUNT: `0x5194b1c04Ed6464b3225324d6794f7d2698D8d1c` as `0x${string}`,
     RECIPIENT_ADDRESS: `0x02101dfb77fde026414827fdc604ddaf224f0921` as `0x${string}`,
     
+    CUSTOM_IMPLEMENTATION_ADDRESS: getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4'),
+    CUSTOM_REGISTRY_ADDRESS: getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4'),
+
+    // Account address responses based on custom implementation / registry addresses
+    CUSTOM_IMPLEMENTATION_TB_ACCOUNT: "0x00f964768A74d61B968514013e1Fb2bf35cC3836" as `0x${string}`,
+    CUSTOM_REGISTRY_TB_ACCOUNT: "0xd4a77353AF604C1930A80d718Dd821E6bbFd0c5d" as `0x${string}`,
+    CUSTOM_IMPLEMENTATION_AND_REGISTRY_TB_ACCOUNT: "0xC2AC7f70EaFb315ad75Df85d94755e0662EF705E" as `0x${string}`,
+
     EXAMPLE_AMOUNT: 0n,
     EXAMPLE_DATA: ""
 }
