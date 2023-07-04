@@ -4,11 +4,11 @@ import {
     isAddress
 } from "viem"
 
-import { TokenboundClient } from '../TokenboundClient'
+import { Custom6551Implementation, TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./testConfig"
 
 // A custom 6551 implementation, deployed to Sepolia testnet
-const CUSTOM_6551_IMPLEMENTATION = {
+const CUSTOM_6551_IMPLEMENTATION: Custom6551Implementation = {
     implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
     registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
 }
