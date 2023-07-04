@@ -15,29 +15,22 @@ export type TokenboundClientOptions = {
   chainId: number
   signer?: any
   walletClient?: WalletClient
+  customImplementation?: Custom6551Implementation
 }
 
-type Custom6551ImplementationParams = {
-  implementationAddress?: `0x${string}`
-  registryAddress?: `0x${string}`
+export type Custom6551Implementation = {
+  implementationAddress: `0x${string}`
+  registryAddress: `0x${string}`
 }
-type AccountParams = {
+
+export type TBAccountParams = {
   tokenContract: `0x${string}`
   tokenId: string
 }
 
-export type GetAccountParams = AccountParams & Custom6551ImplementationParams
-
-export type PrepareCreateAccountParams = AccountParams & Custom6551ImplementationParams
-
-export type CreateAccountParams = AccountParams & Custom6551ImplementationParams
-
-export type PrepareExecuteCallParams = {
-  account: string
-  to: string
-  value: bigint
-  data: string
-}
+export type GetAccountParams = TBAccountParams & Partial<Custom6551Implementation>
+export type PrepareCreateAccountParams = TBAccountParams & Partial<Custom6551Implementation>
+export type CreateAccountParams = TBAccountParams & Partial<Custom6551Implementation>
 
 export type ExecuteCallParams = {
   account: string
@@ -46,9 +39,11 @@ export type ExecuteCallParams = {
   data: string
 }
 
-export type ComputeAccountParams = AccountParams & {
+export type PrepareExecuteCallParams = ExecuteCallParams
+
+export type ComputeAccountParams = TBAccountParams & {
   chainId: number
-} & Custom6551ImplementationParams
+} & Custom6551Implementation
 
 export type GetCreationCodeParams = {
   implementation_: `0x${string}`
@@ -63,6 +58,7 @@ class TokenboundClient {
   public isInitialized: boolean = false
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
+  private customImplementation?: Custom6551Implementation
 
   constructor(options: TokenboundClientOptions) {
 
@@ -82,6 +78,10 @@ class TokenboundClient {
       this.walletClient = options.walletClient
     }
 
+    if (options.customImplementation) {
+      this.customImplementation = options.customImplementation
+    }
+
     this.isInitialized = true
 
   }
@@ -91,15 +91,18 @@ class TokenboundClient {
  * Returns the tokenbound account address for a given token contract and token ID.
  * @param params.tokenContract The address of the token contract.
  * @param params.tokenId The token ID.
+ * @param params.implementationAddress The address of the implementation contract.
+ * @param params.registryAddress The address of the registry contract.
  * @returns The tokenbound account address.
  */
   public getAccount(params: GetAccountParams): `0x${string}` {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params;
+    const implementation = this.customImplementation?.implementationAddress || implementationAddress
     
     try {
       // Here we call computeAccount rather than getAccount to avoid
       // making an async contract call via publicClient
-      return computeAccount(tokenContract, tokenId, this.chainId, implementationAddress, registryAddress)
+      return computeAccount(tokenContract, tokenId, this.chainId, implementation, registryAddress)
     } catch (error) {
       throw error
     }
@@ -109,6 +112,8 @@ class TokenboundClient {
  * Returns the prepared transaction to create a tokenbound account for a given token contract and token ID.
  * @param params.tokenContract The address of the token contract.
  * @param params.tokenId The token ID.
+ * @param params.implementationAddress The address of the implementation contract.
+ * @param params.registryAddress The address of the registry contract.
  * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
  */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
@@ -117,22 +122,27 @@ class TokenboundClient {
     data: `0x${string}`
   }> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
+    const implementation = this.customImplementation?.implementationAddress || implementationAddress
 
-    return prepareCreateAccount(tokenContract, tokenId, this.chainId, implementationAddress, registryAddress)
+    return prepareCreateAccount(tokenContract, tokenId, this.chainId, implementation, registryAddress)
   }
 
 /**
  * Returns the transaction hash of the transaction that created the tokenbound account for a given token contract and token ID.
  * @param params.tokenContract The address of the token contract.
  * @param params.tokenId The token ID.
+ * @param params.implementationAddress The address of the implementation contract.
+ * @param params.registryAddress The address of the registry contract.
  * @returns a Promise that resolves to the transaction hash of the transaction that created the tokenbound account.
  */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
+    const implementation = this.customImplementation?.implementationAddress || implementationAddress
+
 
     try {
       if(this.signer) { // Ethers
-        const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId, implementationAddress, registryAddress})
+        const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId, implementationAddress: implementation, registryAddress})
         return await this.signer.sendTransaction(prepareCreateAccount)
 
       }
