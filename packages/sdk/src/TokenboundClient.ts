@@ -89,10 +89,10 @@ class TokenboundClient {
 
 /**
  * Returns the tokenbound account address for a given token contract and token ID.
- * @param params.tokenContract The address of the token contract.
- * @param params.tokenId The token ID.
- * @param params.implementationAddress The address of the implementation contract.
- * @param params.registryAddress The address of the registry contract.
+ * @param {`0x${string}`} params.tokenContract The address of the token contract.
+ * @param {string} params.tokenId The token ID.
+ * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
+ * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
  * @returns The tokenbound account address.
  */
   public getAccount(params: GetAccountParams): `0x${string}` {
@@ -110,10 +110,10 @@ class TokenboundClient {
 
 /**
  * Returns the prepared transaction to create a tokenbound account for a given token contract and token ID.
- * @param params.tokenContract The address of the token contract.
- * @param params.tokenId The token ID.
- * @param params.implementationAddress The address of the implementation contract.
- * @param params.registryAddress The address of the registry contract.
+ * @param {`0x${string}`} params.tokenContract The address of the token contract.
+ * @param {string} params.tokenId The token ID.
+ * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
+ * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
  * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
  */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
@@ -129,10 +129,10 @@ class TokenboundClient {
 
 /**
  * Returns the transaction hash of the transaction that created the tokenbound account for a given token contract and token ID.
- * @param params.tokenContract The address of the token contract.
- * @param params.tokenId The token ID.
- * @param params.implementationAddress The address of the implementation contract.
- * @param params.registryAddress The address of the registry contract.
+ * @param {`0x${string}`} params.tokenContract The address of the token contract.
+ * @param {string} params.tokenId The token ID.
+ * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
+ * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
  * @returns a Promise that resolves to the transaction hash of the transaction that created the tokenbound account.
  */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
@@ -160,10 +160,10 @@ class TokenboundClient {
 
 /**
  * Returns prepared transaction to execute a call on a tokenbound account
- * @param params.account The tokenbound account address
- * @param params.to The recipient address
- * @param params.value The value to send, in wei
- * @param params.data The data to send
+ * @param {string} params.account The tokenbound account address
+ * @param {string} params.to The recipient address
+ * @param {bigint} params.value The value to send, in wei
+ * @param {string} params.data The data to send
  * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
  */
   public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<{
@@ -177,10 +177,10 @@ class TokenboundClient {
 
 /**
  * Returns a hash of the transaction that executed a call on a tokenbound account
- * @param params.account The tokenbound account address
- * @param params.to The recipient address
- * @param params.value The value to send, in wei
- * @param params.data The data to send
+ * @param {string} params.account The tokenbound account address
+ * @param {string} params.to The recipient address
+ * @param {bigint} params.value The value to send, in wei
+ * @param {string} params.data The data to send
  * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
  */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
