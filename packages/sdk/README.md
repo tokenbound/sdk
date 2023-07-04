@@ -60,13 +60,21 @@ const hash = await walletClient.sendTransaction(preparedCall);
 
 ### Custom Implementations
 
-The SDK supports custom 6551 implementations. If you've deployed your own implementation, you can pass the ```implementationAddress``` and ```registryAddress``` to ```getAccount```, ```prepareCreateAccount```, ```createAccount```, and ```computeAccount```
+The SDK supports custom 6551 implementations.
+
+If you've deployed your own implementation, you can optionally pass the custom configuration when instantiating your TokenboundClient:
 
 ```javascript
-    const result = await tokenboundClient.getAccount({
-      tokenContract: "<token_contract_address>",
-      tokenId: "<token_id>",
-      implementationAddress: "<custom_implementation_address>",
-      registryAddress: "<custom_registry_address>",
-      })
+import { TokenboundClient, Custom6551Implementation } from "@tokenbound/sdk";
+
+const CUSTOM_6551_IMPLEMENTATION: Custom6551Implementation = {
+  implementationAddress: "<custom_implementation_address>",
+  registryAddress: "<custom_registry_address>",
+};
+
+const tokenboundClient = new TokenboundClient({
+    signer: <signer>,
+    chainId: <chainId>,
+    customImplementation: CUSTOM_6551_IMPLEMENTATION
+})
 ```
