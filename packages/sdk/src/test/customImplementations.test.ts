@@ -7,46 +7,41 @@ import {
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./testConfig"
 
+// A custom 6551 implementation, deployed to Sepolia testnet
+const CUSTOM_6551_IMPLEMENTATION = {
+    implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
+    registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
+}
+
 const tokenboundClient = new TokenboundClient({ 
     // signer, 
-    chainId: TEST_CONFIG.CHAIN_ID
- })
+    chainId: TEST_CONFIG.CHAIN_ID,
+    customImplementation: CUSTOM_6551_IMPLEMENTATION
+})
 
-test("tokenboundClient.getAccount -> customImplementation", async () => {
-    const result = await tokenboundClient.getAccount({
+test("tokenboundClient.getAccount → customImplementation", () => {
+    const result = tokenboundClient.getAccount({
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
         tokenId: TEST_CONFIG.TOKEN_ID,
-        implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS
     })
     expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_TB_ACCOUNT)
 })
 
-test("tokenboundClient.getAccount -> customRegistry", async () => {
-    const result = await tokenboundClient.getAccount({
+test("tokenboundClient.getAccount → override customImplementation", () => {
+    const result = tokenboundClient.getAccount({
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
         tokenId: TEST_CONFIG.TOKEN_ID,
-        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
+        implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS_OVERRIDE,
+        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS_OVERRIDE
     })
-    console.log('RESULT::::', result)
-    expect(result).toEqual(TEST_CONFIG.CUSTOM_REGISTRY_TB_ACCOUNT)
+    expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_OVERRIDDEN_TB_ACCOUNT)
 })
 
-test("tokenboundClient.getAccount -> customImplementation + customRegistry", async () => {
-    const result = await tokenboundClient.getAccount({
-        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-        tokenId: TEST_CONFIG.TOKEN_ID,
-        implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
-        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
-    })
-    expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_AND_REGISTRY_TB_ACCOUNT)
-})
-
-test("tokenboundClient.prepareCreateAccount -> customImplementation", async () => {
+test("tokenboundClient.prepareCreateAccount → customImplementation", async () => {
 
     const preparedAccount = await tokenboundClient.prepareCreateAccount({
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-        tokenId: TEST_CONFIG.TOKEN_ID,
-        implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS
+        tokenId: TEST_CONFIG.TOKEN_ID
         }
     )
 
@@ -54,12 +49,11 @@ test("tokenboundClient.prepareCreateAccount -> customImplementation", async () =
     expect(typeof preparedAccount.value).toEqual('bigint')
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
-test("tokenboundClient.prepareCreateAccount -> customRegistry", async () => {
+test("tokenboundClient.prepareCreateAccount → customRegistry", async () => {
 
     const preparedAccount = await tokenboundClient.prepareCreateAccount({
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-        tokenId: TEST_CONFIG.TOKEN_ID,
-        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
+        tokenId: TEST_CONFIG.TOKEN_ID
         }
     )
 

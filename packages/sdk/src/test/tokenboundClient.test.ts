@@ -11,8 +11,8 @@ const tokenboundClient = new TokenboundClient({
     chainId: TEST_CONFIG.CHAIN_ID
  })
 
-test("tokenboundClient.getAccount", async () => {
-    const result = await tokenboundClient.getAccount({
+test("tokenboundClient.getAccount", () => {
+    const result = tokenboundClient.getAccount({
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
         tokenId: TEST_CONFIG.TOKEN_ID
     })
