@@ -4,19 +4,14 @@ import {
     isAddress
 } from "viem"
 
-import { Custom6551Implementation, TokenboundClient } from '../TokenboundClient'
+import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./testConfig"
 
-// A custom 6551 implementation, deployed to Sepolia testnet
-const CUSTOM_6551_IMPLEMENTATION: Custom6551Implementation = {
-    implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
-    registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS
-}
 
 const tokenboundClient = new TokenboundClient({ 
     // signer, 
     chainId: TEST_CONFIG.CHAIN_ID,
-    customImplementation: CUSTOM_6551_IMPLEMENTATION
+    implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
 })
 
 test("tokenboundClient.getAccount → customImplementation", () => {
@@ -32,7 +27,7 @@ test("tokenboundClient.getAccount → override customImplementation", () => {
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
         tokenId: TEST_CONFIG.TOKEN_ID,
         implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS_OVERRIDE,
-        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS_OVERRIDE
+
     })
     expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_OVERRIDDEN_TB_ACCOUNT)
 })
@@ -53,7 +48,8 @@ test("tokenboundClient.prepareCreateAccount → customRegistry", async () => {
 
     const preparedAccount = await tokenboundClient.prepareCreateAccount({
         tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-        tokenId: TEST_CONFIG.TOKEN_ID
+        tokenId: TEST_CONFIG.TOKEN_ID,
+        registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS_OVERRIDE
         }
     )
 

@@ -62,19 +62,24 @@ const hash = await walletClient.sendTransaction(preparedCall);
 
 The SDK supports custom 6551 implementations.
 
-If you've deployed your own implementation, you can optionally pass the custom configuration when instantiating your TokenboundClient:
+If you've deployed your own implementation, you can optionally pass custom configuration parameters when instantiating your TokenboundClient:
 
 ```javascript
-import { TokenboundClient, Custom6551Implementation } from "@tokenbound/sdk";
-
-const CUSTOM_6551_IMPLEMENTATION: Custom6551Implementation = {
-  implementationAddress: "<custom_implementation_address>",
-  registryAddress: "<custom_registry_address>",
-};
+import { TokenboundClient } from "@tokenbound/sdk";
 
 const tokenboundClient = new TokenboundClient({
     signer: <signer>,
     chainId: <chainId>,
-    customImplementation: CUSTOM_6551_IMPLEMENTATION
+    implementationAddress: "<custom_implementation_address>",
 })
+
+// Custom implementation AND custom registry (uncommon for most implementations)
+const tokenboundClientWithCustomRegistry = new TokenboundClient({
+    signer: <signer>,
+    chainId: <chainId>,
+    implementationAddress: "<custom_implementation_address>",
+    registryAddress: "<custom_registry_address>",
+})
+
+
 ```

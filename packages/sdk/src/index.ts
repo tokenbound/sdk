@@ -19,8 +19,7 @@ import {
   PrepareExecuteCallParams,
   ExecuteCallParams,
   ComputeAccountParams,
-  GetCreationCodeParams,
-  Custom6551Implementation
+  GetCreationCodeParams
 } from './TokenboundClient'
 
 export { 
@@ -44,6 +43,5 @@ export type {
   PrepareExecuteCallParams,
   ExecuteCallParams,
   ComputeAccountParams,
-  GetCreationCodeParams,
-  Custom6551Implementation
+  GetCreationCodeParams
 }

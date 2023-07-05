@@ -15,12 +15,13 @@ export type TokenboundClientOptions = {
   chainId: number
   signer?: any
   walletClient?: WalletClient
-  customImplementation?: Custom6551Implementation
+  implementationAddress?: `0x${string}`
+  registryAddress?: `0x${string}`
 }
 
-export type Custom6551Implementation = {
+type Custom6551Implementation = {
   implementationAddress: `0x${string}`
-  registryAddress: `0x${string}`
+  registryAddress?: `0x${string}`
 }
 
 export type TBAccountParams = {
@@ -43,7 +44,7 @@ export type PrepareExecuteCallParams = ExecuteCallParams
 
 export type ComputeAccountParams = TBAccountParams & {
   chainId: number
-} & Custom6551Implementation
+} & Partial<Custom6551Implementation>
 
 export type GetCreationCodeParams = {
   implementation_: `0x${string}`
@@ -58,7 +59,8 @@ class TokenboundClient {
   public isInitialized: boolean = false
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
-  private customImplementation?: Custom6551Implementation
+  private implementationAddress?: `0x${string}`
+  private registryAddress?: `0x${string}`
 
   constructor(options: TokenboundClientOptions) {
 
@@ -78,8 +80,11 @@ class TokenboundClient {
       this.walletClient = options.walletClient
     }
 
-    if (options.customImplementation) {
-      this.customImplementation = options.customImplementation
+    if (options.implementationAddress) {
+      this.implementationAddress = options.implementationAddress
+    }
+    if (options.registryAddress) {
+      this.registryAddress = options.registryAddress
     }
 
     this.isInitialized = true
@@ -97,12 +102,13 @@ class TokenboundClient {
  */
   public getAccount(params: GetAccountParams): `0x${string}` {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params;
-    const implementation = this.customImplementation?.implementationAddress || implementationAddress
+    const implementation = implementationAddress ?? this.implementationAddress
+    const registry = registryAddress ?? this.registryAddress
     
     try {
       // Here we call computeAccount rather than getAccount to avoid
       // making an async contract call via publicClient
-      return computeAccount(tokenContract, tokenId, this.chainId, implementation, registryAddress)
+      return computeAccount(tokenContract, tokenId, this.chainId, implementation, registry)
     } catch (error) {
       throw error
     }
@@ -122,9 +128,10 @@ class TokenboundClient {
     data: `0x${string}`
   }> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
-    const implementation = this.customImplementation?.implementationAddress || implementationAddress
+    const implementation = implementationAddress ?? this.implementationAddress
+    const registry = registryAddress ?? this.registryAddress
 
-    return prepareCreateAccount(tokenContract, tokenId, this.chainId, implementation, registryAddress)
+    return prepareCreateAccount(tokenContract, tokenId, this.chainId, implementation, registry)
   }
 
 /**
@@ -137,12 +144,17 @@ class TokenboundClient {
  */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
-    const implementation = this.customImplementation?.implementationAddress || implementationAddress
-
+    const implementation = implementationAddress ?? this.implementationAddress
+    const registry = registryAddress ?? this.registryAddress
 
     try {
       if(this.signer) { // Ethers
-        const prepareCreateAccount = await this.prepareCreateAccount({tokenContract: tokenContract as `0x${string}`, tokenId: tokenId, implementationAddress: implementation, registryAddress})
+        const prepareCreateAccount = await this.prepareCreateAccount({
+          tokenContract: tokenContract as `0x${string}`,
+          tokenId: tokenId,
+          implementationAddress: implementation,
+          registryAddress: registry
+        })
         return await this.signer.sendTransaction(prepareCreateAccount)
 
       }
