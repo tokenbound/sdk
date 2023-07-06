@@ -16,7 +16,8 @@ Using viem's WalletClient:
 
 ```javascript
 import { TokenboundClient } from "@tokenbound/sdk";
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 });
+import { goerli } from 'viem/chains'
+const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id });
 ```
 
 or, with a legacy Wagmi / Ethers signer:
@@ -30,7 +31,8 @@ const tokenboundClient = new TokenboundClient({ signer, chainId: 1 });
 
 ```javascript
 import { TokenboundClient } from "@tokenbound/sdk";
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 });
+import { goerli } from 'viem/chains';
+const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id });
 
 const tokenBoundAccount = tokenboundClient.getAccount({
   tokenContract: "<token_contract_address>",

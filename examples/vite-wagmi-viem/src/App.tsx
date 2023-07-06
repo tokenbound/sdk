@@ -24,7 +24,7 @@ export function App() {
     transport: window.ethereum ? custom(window.ethereum) : http(),
   })
 
-  const tokenboundClient = new TokenboundClient({ walletClient, chainId: 5 })
+  const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id })
 
   useEffect(() => {
     async function testTokenboundClass() {
