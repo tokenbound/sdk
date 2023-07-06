@@ -7,14 +7,15 @@ import {
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./testConfig"
 
-
 const tokenboundClient = new TokenboundClient({ 
-    // signer, 
     chainId: TEST_CONFIG.CHAIN_ID
  })
 
-test("tokenboundClient.getAccount", async () => {
-    const result = await tokenboundClient.getAccount({tokenContract: TEST_CONFIG.TOKEN_CONTRACT, tokenId: TEST_CONFIG.TOKEN_ID})
+test("tokenboundClient.getAccount", () => {
+    const result = tokenboundClient.getAccount({
+        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+        tokenId: TEST_CONFIG.TOKEN_ID
+    })
     expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
 })
 
@@ -48,4 +49,5 @@ test("tokenboundClient.prepareCreateAccount", async () => {
     expect(typeof preparedAccount.value).toEqual('bigint')
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
+
 test.todo(".createAccount")

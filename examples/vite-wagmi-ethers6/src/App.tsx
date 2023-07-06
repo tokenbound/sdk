@@ -7,20 +7,8 @@ import { Account } from './components'
 import { useCallback, useEffect } from 'react'
 import { useEthersSigner } from './hooks'
 
-// import { WindowProvider } from 'wagmi'
-// import { BrowserProvider, JsonRpcSigner } from 'ethers'
-
-// declare global {
-//   interface Window {
-//     ethereum?: WindowProvider
-//   }
-// }
-
 export function App() {
   const { isConnected, address } = useAccount()
-
-  // const provider = window.ethereum ? new BrowserProvider(window.ethereum) : null
-  // const signer = provider && address ? new JsonRpcSigner(provider, address) : null
 
   const signer = useEthersSigner({ chainId: 5 })
   // or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()

@@ -1,5 +1,5 @@
 import { ConnectKitButton } from 'connectkit'
-import { useAccount } from 'wagmi'
+import { useAccount, WindowProvider } from 'wagmi'
 
 import { Account } from './components'
 
@@ -8,7 +8,6 @@ import { goerli } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
 
 import { useCallback, useEffect } from 'react'
-import { WindowProvider } from 'wagmi'
 
 declare global {
   interface Window {
