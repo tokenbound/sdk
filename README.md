@@ -9,9 +9,9 @@ This repo houses the Tokenbound SDK, a front-end library for interacting with [E
 
 ### Examples
 
-- **[examples/vite-wagmi](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi)** - An example app using the tokenbound SDK in a vite project with wagmi
-- **[examples/vite-wagmi](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers)** - An example app using the tokenbound SDK in a vite project with ethers v5
-- **[examples/vite-wagmi](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers6)** - An example app using the tokenbound SDK in a vite project with ethers v6
+- **[examples/vite-wagmi-viem](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-viem)** - An example app using the tokenbound SDK in a vite project with wagmi
+- **[examples/vite-wagmi-ethers](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers)** - An example app using the tokenbound SDK in a vite project with ethers v5
+- **[examples/vite-wagmi-ethers6](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers6)** - An example app using the tokenbound SDK in a vite project with ethers v6
 
 ### Development
 
