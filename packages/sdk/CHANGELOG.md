@@ -1,5 +1,12 @@
 # @tokenbound/sdk
 
+## 0.3.1
+
+### Patch Changes
+
+- a6f4b75: Enable custom account implementations
+- 4429984: bug fix for Ethers executeCall and add RainbowKit example
+
 ## 0.3.0
 
 ### Minor Changes
