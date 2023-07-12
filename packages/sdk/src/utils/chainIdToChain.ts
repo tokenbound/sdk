@@ -9,9 +9,9 @@ import { Chain } from "viem"
 export function chainIdToChain(chainId: number): Chain {
   for (const chain of Object.values(allChains)) {
     if (chain.id === chainId) {
-      return chain;
+      return chain
     }
   }
-
-  throw new Error(`Chain with id ${chainId} not found`);
+  
+  throw new Error(`Chain with id ${chainId} not found`)
 }

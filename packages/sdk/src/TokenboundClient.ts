@@ -10,6 +10,7 @@ import {
   prepareCreateAccount
 } from './functions'
 import { AbstractEthersSigner } from "./types"
+import { chainIdToChain } from "./utils"
 
 export type TokenboundClientOptions = {
   chainId: number
@@ -34,8 +35,8 @@ export type PrepareCreateAccountParams = TBAccountParams & Partial<Custom6551Imp
 export type CreateAccountParams = TBAccountParams & Partial<Custom6551Implementation>
 
 export type ExecuteCallParams = {
-  account: string
-  to: string
+  account: `0x${string}`
+  to: `0x${string}`
   value: bigint
   data: string
 }
@@ -197,17 +198,28 @@ class TokenboundClient {
  */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
     const { account, to, value, data } = params
+
+    // Prepare the transaction
+    const preparedExecuteCall =  await this.prepareExecuteCall({
+      account: account,
+      to: to,
+      value: value,
+      data: data
+    })
+
     try {
       if(this.signer) { // Ethers
-        return await this.signer.sendTransaction({
-          to: to,
-          value: value,
-          data: data
-        })
-
+        return await this.signer.sendTransaction(preparedExecuteCall)
       }
       else if(this.walletClient) {
-        return executeCall(account, to, value, data, this.walletClient)
+        return await this.walletClient.sendTransaction({
+          // chain and account need to be added explicitly
+          // because they're optional when instantiating a WalletClient
+          chain: chainIdToChain(this.chainId),
+          account: account as `0x${string}`,
+          ...preparedExecuteCall
+        })
+
       }
       else {
         throw new Error("No wallet client or signer available.")
