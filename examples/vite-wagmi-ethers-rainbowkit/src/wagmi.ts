@@ -17,7 +17,7 @@ export const { chains, publicClient } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'Tokenbound SDK Example with Rainbow',
+  appName: 'Tokenbound SDK Example with RainbowKit',
   projectId: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
   chains
 });
