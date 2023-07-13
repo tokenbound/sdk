@@ -1,24 +1,18 @@
 import React, { useCallback, useState } from 'react'
-import { useAccount, useNetwork, useConnect, useDisconnect, useWalletClient } from 'wagmi'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { TokenboundClient } from '@tokenbound/sdk'
 import { useHasMounted } from '../hooks'
 
-// import { foundry } from 'viem/chains'
-
-export function Tests({ tokenboundClient }: { tokenboundClient: TokenboundClient }) {
+export function TxTests({ tokenboundClient }: { tokenboundClient?: TokenboundClient }) {
   const { address, connector, isConnected } = useAccount()
-  // const { chain } = useNetwork()
-  // const { data: walletClient } = useWalletClient({ chainId: foundry?.id })
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect()
   const { disconnect } = useDisconnect()
+  const hasMounted = useHasMounted()
 
   const [tokenboundAccountAddress, setTokenboundAccountAddress] = useState<
     `0x${string}` | null
-  >(null)
-  const [executedCallAddress, setExecutedCallAddress] = useState<`0x${string}` | null>(
-    null
-  )
-  const hasMounted = useHasMounted()
+  >()
+  const [executedCallAddress, setExecutedCallAddress] = useState<`0x${string}` | null>()
 
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
@@ -26,23 +20,22 @@ export function Tests({ tokenboundClient }: { tokenboundClient: TokenboundClient
       tokenContract: '0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b', // BJ's Lil' Noun
       tokenId: '606',
     })
+
     accountAddress && setTokenboundAccountAddress(accountAddress)
   }, [tokenboundClient])
 
   const executeCall = useCallback(async () => {
     if (!tokenboundClient || !address) return
-    const executedCallAddress = await tokenboundClient.executeCall({
+    const executedCall = await tokenboundClient.executeCall({
       account: address,
       to: address,
       value: 0n,
       data: '0x',
     })
-    executedCallAddress && setExecutedCallAddress(executedCallAddress)
+    executedCall && setExecutedCallAddress(executedCall)
   }, [tokenboundClient])
 
   if (!hasMounted) return null
-
-  // console.log('setTokenboundAccountAddress', tokenboundAccountAddress)
 
   return (
     <div>
