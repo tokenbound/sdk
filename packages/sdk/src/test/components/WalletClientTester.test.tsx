@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { QueryClient } from '@tanstack/react-query'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { assert, beforeEach, describe, expect, it } from 'vitest'
 import { MockConnector } from 'wagmi/connectors/mock'
-import '@testing-library/jest-dom/extend-expect'
+// import '@testing-library/jest-dom/extend-expect'
 
 import {
   Providers,
@@ -26,7 +26,10 @@ describe('<WalletClientTester />', () => {
   }
 
   beforeEach(async () => {
-    user = userEvent.setup()
+    act(() => {
+      user = userEvent.setup()
+      assert(user)
+    })
 
     // Create a config with a mock wallet client (foundry chain)
     config = setupConfig({
@@ -38,19 +41,17 @@ describe('<WalletClientTester />', () => {
         }),
       ],
     })
+    assert(config)
 
     // Render with a WagmiConfig wrapper, so we can test calls with the mock configuration
-    act(() => {
-      renderWithWagmiConfig(<WalletClientTester />, {
-        wrapper: ({ children }: { children: React.ReactNode }) => (
-          <Providers config={config}>{children}</Providers>
-        ),
-      })
+    renderWithWagmiConfig(<WalletClientTester />, {
+      wrapper: ({ children }: { children: React.ReactNode }) => (
+        <Providers config={config}>{children}</Providers>
+      ),
     })
 
-    // Connect wallet
-    const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
     act(() => {
+      const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
       user.click(connectButton)
     })
 
@@ -63,12 +64,10 @@ describe('<WalletClientTester />', () => {
   })
 
   it('can createAccount', async () => {
-    const createAccountButton = screen.getByTestId(
-      'tb-create-account-button'
-    ) as HTMLButtonElement
-
-    // Create Account
     act(() => {
+      const createAccountButton = screen.getByTestId(
+        'tb-create-account-button'
+      ) as HTMLButtonElement
       user.click(createAccountButton)
     })
 
@@ -80,12 +79,10 @@ describe('<WalletClientTester />', () => {
   })
 
   it('can executeCall', async () => {
-    const executeCallButton = screen.getByTestId(
-      'tb-execute-call-button'
-    ) as HTMLButtonElement
-
-    // Execute Call
     act(() => {
+      const executeCallButton = screen.getByTestId(
+        'tb-execute-call-button'
+      ) as HTMLButtonElement
       user.click(executeCallButton)
     })
 
