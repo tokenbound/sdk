@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "test": "cd packages/sdk && pnpm test && exit 1",
+    "test": "cd packages/sdk && pnpm test",
     "prepare": "husky install"
   },
   "keywords": [],
