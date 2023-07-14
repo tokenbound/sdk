@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
+    "clean": "rm -rf node_modules",
     "test": "cd packages/sdk && pnpm test",
-    "prepare": "husky install",
-    "type-check": "tsc --pretty"
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
