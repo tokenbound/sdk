@@ -9,7 +9,7 @@ import {
   executeCall,
   prepareCreateAccount
 } from './functions'
-import { AbstractEthersSigner } from "./types"
+import { AbstractEthersSigner, AbstractEthersTransactionResponse } from "./types"
 import { chainIdToChain } from "./utils"
 
 export type TokenboundClientOptions = {
@@ -156,7 +156,9 @@ class TokenboundClient {
           implementationAddress: implementation,
           registryAddress: registry
         })
-        return await this.signer.sendTransaction(prepareCreateAccount)
+
+        // Extract the txHash from the TransactionResponse
+        return await this.signer.sendTransaction(prepareCreateAccount).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
 
       }
       else if(this.walletClient) {
@@ -194,7 +196,7 @@ class TokenboundClient {
  * @param {string} params.to The recipient address
  * @param {bigint} params.value The value to send, in wei
  * @param {string} params.data The data to send
- * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
+ * @returns a Promise that resolves to the transaction hash of the executed call
  */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
     const { account, to, value, data } = params
@@ -209,7 +211,8 @@ class TokenboundClient {
 
     try {
       if(this.signer) { // Ethers
-        return await this.signer.sendTransaction(preparedExecuteCall)
+        // Extract the txHash from the TransactionResponse
+        return  await this.signer.sendTransaction(preparedExecuteCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       }
       else if(this.walletClient) {
         return await this.walletClient.sendTransaction({
