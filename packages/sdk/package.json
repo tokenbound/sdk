@@ -23,7 +23,7 @@
     "clean": "rm -rf node_modules/"
   },
   "dependencies": {
-    "viem": "^1.2.13"
+    "viem": "^1.2.15"
   },
   "devDependencies": {
     "@tokenbound/sdk": "workspace:^",

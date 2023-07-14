@@ -15,6 +15,8 @@ This repo houses the Tokenbound SDK, a front-end library for interacting with [E
 
 ### Development
 
+1. Clone repository and install dependencies:
+
 ```bash
 # clone the repo
 $ git clone <repo>
@@ -22,4 +24,30 @@ $ git clone <repo>
 $ pnpm install
 # build packages
 $ pnpm --filter "@tokenbound/*" build
+```
+
+NOTE: Any local changes to SDK require a rebuild to be available to the example apps in ```/example```
+
+2. Install [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) to run a local Ethereum node.
+3. Configure environment variables. See `.env.example` for instructions
+4. Run dev server 
+
+## Unit/integration tests
+
+Unit and integration tests are run by [Vitest](https://vitest.dev) and rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library. See usage of ```renderWithWagmiConfig``` in ```packages/sdk/src/tests```.
+
+These tests require a local Anvil node so test transactions can be run against a mainnet fork.
+
+### Run Anvil
+
+1. Start Anvil in a terminal session
+
+```bash
+pnpm anvil
+```
+
+2. Start Vitest in a different terminal session from the SDK root
+
+```bash
+pnpm test
 ```
