@@ -1,5 +1,7 @@
+import { foundry } from 'viem/chains'
+import { AnvilAccount } from '../../types'
 
-import { AnvilAccount } from "../types"
+export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]
 
 // Anvil Accounts for local testing
 export const ANVIL_ACCOUNTS: AnvilAccount[] = [

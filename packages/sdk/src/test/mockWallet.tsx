@@ -11,7 +11,7 @@ import {
 } from 'wagmi'
 import { MockConnector } from 'wagmi/connectors/mock'
 
-import { getMockWalletClient, getPublicClient } from './utils'
+import { getMockWalletClient, getPublicClient } from './utils/clients'
 
 import { foundry } from 'viem/chains'
 
@@ -46,4 +46,5 @@ export { renderWithWagmiConfig }
 export type UserEvent = ReturnType<typeof userEvent.setup>
 export { default as userEvent } from '@testing-library/user-event'
 
-export { ADDRESS_REGEX, getMockWalletClient } from './utils'
+export { getMockWalletClient } from './utils'
+export { ADDRESS_REGEX } from './constants'

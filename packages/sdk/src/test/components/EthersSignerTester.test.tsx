@@ -15,7 +15,7 @@ import {
   setupConfig,
   userEvent,
   waitFor,
-} from '..'
+} from '../mockWallet'
 import { EthersSignerTester } from './EthersSignerTester'
 import { PublicClient, WebSocketPublicClient, Config } from 'wagmi'
 

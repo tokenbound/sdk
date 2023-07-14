@@ -15,7 +15,7 @@ import {
   setupConfig,
   userEvent,
   waitFor,
-} from '..'
+} from '../mockWallet'
 import { WalletClientTester } from './WalletClientTester'
 import { PublicClient, WebSocketPublicClient, Config } from 'wagmi'
 

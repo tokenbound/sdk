@@ -14,6 +14,6 @@ export default defineConfig({
       './test/pages/**',
     ],
     globals: true,
-    setupFiles: './src/test/setup.ts',
+    setupFiles: './src/test/config/setup.ts',
   },
 })
