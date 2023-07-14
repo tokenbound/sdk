@@ -51,3 +51,7 @@ pnpm anvil
 ```bash
 pnpm test
 ```
+
+### Pre-commit Hooks
+
+Husky has been configured to run tests as a pre-commit hook to ensure tests pass
