@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "test": "cd packages/sdk && pnpm test",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "type-check": "tsc --pretty --noEmit"
   },
   "keywords": [],
   "author": "",
