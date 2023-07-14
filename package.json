@@ -5,18 +5,18 @@
   "scripts": {
     "test": "cd packages/sdk && pnpm test",
     "prepare": "husky install",
-    "type-check": "tsc --pretty --noEmit"
+    "type-check": "tsc --pretty"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@changesets/cli": "^2.26.1",
-    "eslint": "^8.36.0",
+    "@changesets/cli": "^2.26.2",
+    "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-unused-imports": "^2.0.0",
-    "prettier": "^2.8.8",
-    "@ianvs/prettier-plugin-sort-imports": "^3.7.2",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "prettier": "^3.0.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.0.2",
     "husky": "^8.0.3"
   }
 }
