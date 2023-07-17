@@ -11,7 +11,8 @@
   "exports": {
     ".": {
       "import": "./dist/tokenbound-sdk.js",
-      "require": "./dist/tokenbound-sdk.umd.cjs"
+      "require": "./dist/tokenbound-sdk.umd.cjs",
+      "types": "./dist/src/index.d.ts"
     }
   },
   "scripts": {
