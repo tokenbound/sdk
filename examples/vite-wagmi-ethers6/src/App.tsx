@@ -5,12 +5,12 @@ import { TokenboundClient } from '@tokenbound/sdk'
 import { Account } from './components'
 
 import { useCallback, useEffect } from 'react'
-import { useEthersSigner } from './hooks'
+import { useEthers6Signer } from './hooks'
 
 export function App() {
   const { isConnected, address } = useAccount()
 
-  const signer = useEthersSigner({ chainId: 5 })
+  const signer = useEthers6Signer({ chainId: 5 })
   // or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()
 
   console.log('SIGNER', signer)
