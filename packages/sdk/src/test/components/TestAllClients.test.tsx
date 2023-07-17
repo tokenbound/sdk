@@ -21,12 +21,12 @@ import { EthersSignerTester } from './EthersSignerTester'
 import { PublicClient, WebSocketPublicClient, Config } from 'wagmi'
 
 describe('ComboTester', () => {
-  runClientTestsForComponent('<EthersSignerTester />', EthersSignerTester)
-  runClientTestsForComponent('<Ethers6SignerTester />', Ethers6SignerTester)
-  runClientTestsForComponent('<WalletClientTester />', WalletClientTester)
+  runClientTxTestsForComponent('<EthersSignerTester />', EthersSignerTester)
+  runClientTxTestsForComponent('<Ethers6SignerTester />', Ethers6SignerTester)
+  runClientTxTestsForComponent('<WalletClientTester />', WalletClientTester)
 });
 
-function runClientTestsForComponent(componentName: string, TestComponent: React.ComponentType) {
+function runClientTxTestsForComponent(componentName: string, TestComponent: React.ComponentType) {
 
   describe(componentName, () => {
     let user: UserEvent
