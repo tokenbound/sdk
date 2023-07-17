@@ -37,6 +37,8 @@ NOTE: Any local SDK changes require a rebuild to be useable in the example apps 
 
 Unit and integration tests are run by [Vitest](https://vitest.dev) and rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library. See usage of ```renderWithWagmiConfig``` in ```packages/sdk/src/tests```.
 
+This configuration allows us to use a single wagmi configuration to test the viem walletClient, Ethers 5, and Ethers 6 implementations with [wagmi's Ethers adaptors](https://wagmi.sh/react/ethers-adapters)
+
 These tests require a local Anvil node so test transactions can be run against a mainnet fork.
 
 ### Run Anvil
