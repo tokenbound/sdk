@@ -5,10 +5,11 @@ import { TxTests } from './TxTests'
 
 import { useEthers6Signer } from '../hooks/useEthers6Signer'
 
-export function EthersSignerTester() {
+export function Ethers6SignerTester() {
   const signer = useEthers6Signer({ chainId: foundry.id })
   const tokenboundClient = signer
     ? new TokenboundClient({ signer, chainId: foundry.id })
     : undefined
+    
   return <TxTests tokenboundClient={tokenboundClient} />
 }
