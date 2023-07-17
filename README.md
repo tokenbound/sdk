@@ -26,11 +26,11 @@ $ pnpm install
 $ pnpm --filter "@tokenbound/*" build
 ```
 
-NOTE: Any local changes to SDK require a rebuild to be available to the example apps in ```/example```
+NOTE: Any local SDK changes require a rebuild to be useable in the example apps in ```/example```
 
 2. Install [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) to run a local Ethereum node.
 3. Configure environment variables. See `.env.example` for instructions
-4. Run dev server 
+4. Run dev server: ```pnpm dev```
 
 ## Unit/integration tests
 
@@ -54,4 +54,4 @@ pnpm test
 
 ### Pre-commit Hooks
 
-Husky has been configured to run tests as a pre-commit hook to ensure tests pass
+Husky has been configured to run a pre-commit hook to ensure tests pass
