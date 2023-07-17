@@ -10,5 +10,6 @@ export function EthersSignerTester() {
   const tokenboundClient = signer
     ? new TokenboundClient({ signer, chainId: foundry.id })
     : undefined
+
   return <TxTests tokenboundClient={tokenboundClient} />
 }
