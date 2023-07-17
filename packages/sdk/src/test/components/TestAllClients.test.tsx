@@ -2,7 +2,6 @@ import * as React from 'react'
 import { QueryClient } from '@tanstack/react-query'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import { MockConnector } from 'wagmi/connectors/mock'
-// import '@testing-library/jest-dom/extend-expect'
 
 import {
   Providers,
