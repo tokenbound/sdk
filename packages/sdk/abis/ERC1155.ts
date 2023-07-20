@@ -1,3 +1,5 @@
+import { Abi } from "viem"
+
 export const erc1155Abi = [
     {
       inputs: [
@@ -32,5 +34,4 @@ export const erc1155Abi = [
       stateMutability: 'nonpayable',
       type: 'function',
     },
-  ]
-  
+  ] as Abi

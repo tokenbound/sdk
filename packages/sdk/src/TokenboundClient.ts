@@ -1,6 +1,8 @@
-import { WalletClient, encodeFunctionData, getContract, Abi } from "viem"
-import { erc721ABI } from "wagmi"
-import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi } from '../abis'
+import { WalletClient, encodeFunctionData, 
+  // getContract,
+  // Abi,
+} from "viem"
+import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi } from '../abis'
 import { 
   getAccount,
   computeAccount,
@@ -12,22 +14,22 @@ import {
 } from './functions'
 import { AbstractEthersSigner, AbstractEthersTransactionResponse } from "./types"
 import { chainIdToChain } from "./utils"
-// import ACCOUNT_ABI from "../abis/IERC6551Account.json";
-// import {erc6551AccountAbi} from "../abis/";
+
+type TokenType = "ERC721" | "ERC1155"
 
 type NFTParams = {
   tokenContract: `0x${string}`
   tokenId: string
 }
 
-type TokenType = "ERC721" | "ERC1155"
-
 interface TokenTypeParams {
   tokenType: TokenType
 }
 
-type NFTTransferParams = TokenTypeParams & NFTParams & {
+export type NFTTransferParams = TokenTypeParams & NFTParams & {
   recipientAddress: `0x${string}`
+  account: `0x${string}`
+  data: string
 }
 
 export type TokenboundClientOptions = {
@@ -43,8 +45,6 @@ type Custom6551Implementation = {
   registryAddress?: `0x${string}`
 }
 
-
-
 export type TBAccountParams = NFTParams
 
 export type GetAccountParams = TBAccountParams & Partial<Custom6551Implementation>
@@ -57,8 +57,6 @@ export type ExecuteCallParams = {
   value: bigint
   data: string
 }
-
-export type ExecuteTransferParams = ExecuteCallParams & NFTTransferParams
 
 export type PrepareExecuteCallParams = ExecuteCallParams
 
@@ -251,11 +249,9 @@ class TokenboundClient {
     }
   }
 
-  
-
 
   
-  public async transferNFT(params: ExecuteTransferParams): Promise<`0x${string}`> {
+  public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
     const { account, 
       // to, value,
       tokenType,
@@ -266,7 +262,9 @@ class TokenboundClient {
 
     const is1155: boolean = tokenType === 'ERC1155'
 
-    const transferArgs: readonly unknown[] = is1155 ?
+    // 'safeTransferFrom(address,address,uint256,uint256,bytes)' // ERC1155
+    // 'safeTransferFrom(address,address,uint256)' // ERC721
+    const transferArgs: unknown[] = is1155 ?
     [
       account,
       recipientAddress,
@@ -280,14 +278,15 @@ class TokenboundClient {
     ] 
 
     const callData = encodeFunctionData({
-      abi: is1155 ? erc1155Abi as Abi : erc721ABI,
+      abi: is1155 ? erc1155Abi : erc721Abi,
       functionName: 'safeTransferFrom',
-      // 'safeTransferFrom(address,address,uint256,uint256,bytes)' // ERC1155
-      // 'safeTransferFrom(address,address,uint256)' // ERC721
       args: transferArgs
     })
 
-
+    const preparedTransaction = {
+      to: tokenContract,
+      data: callData
+    }
 
     // return contract.write.executeCall([
     //   recipientAddress as `0x${string}`,
@@ -295,7 +294,6 @@ class TokenboundClient {
     //   callData as `0x${string}`,
     // ])
     
-
 
     // const result = await accountContract.executeCall(
     //   populatedTransfer.to,
@@ -320,47 +318,48 @@ class TokenboundClient {
 
 
     // Prepare the transaction
-    const preparedTransferCall =  await this.prepareExecuteCall({
-      account: account,
-      // to: to,
-      to: recipientAddress,
-      value: 0n,
-      data: callData
-    })
+    // const preparedTransferCall =  await this.prepareExecuteCall({
+    //   account: account,
+    //   // to: to,
+    //   to: recipientAddress,
+    //   value: 0n,
+    //   data: callData
+    // }) // The issue with using prepareExecuteCall is that the tokenContract is never used
 
     try {
 
-
- 
       if(this.signer) { // Ethers
         // Extract the txHash from the TransactionResponse
-        return  await this.signer.sendTransaction(preparedTransferCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+        // return  await this.signer.sendTransaction(preparedTransferCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+        return  await this.signer.sendTransaction(preparedTransaction).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       }
       else if(this.walletClient) {
 
-        const nftContract = getContract({
-          ...{ 
-            abi: is1155 ? erc1155Abi as Abi : erc721ABI,
-            address: tokenContract
-          },
-          walletClient: this.walletClient,
-          // @BJ: how to do this for ethers?
-        })
-        
-        return await nftContract.write.executeCall([
-          recipientAddress as `0x${string}`,
-          0n,
-          callData as `0x${string}`,
-        ])
+        // ↓↓↓↓↓↓ Mimics tb.org implementation
 
-
-        // return await this.walletClient.sendTransaction({
-        //   // chain and account need to be added explicitly
-        //   // because they're optional when instantiating a WalletClient
-        //   chain: chainIdToChain(this.chainId),
-        //   account: account as `0x${string}`,
-        //   ...preparedTransferCall
+        // const nftContract = getContract({
+        //   abi: is1155 ? erc1155Abi as Abi : erc721ABI,
+        //   address: tokenContract,
+        //   walletClient: this.walletClient,
+        //   // @BJ: how to do this for ethers?
         // })
+        
+        // return await nftContract.write.executeCall([
+        //   recipientAddress as `0x${string}`,
+        //   0n,
+        //   callData as `0x${string}`,
+        // ])
+
+        // ↑↑↑↑↑↑ Mimics tb.org implementation
+
+        return await this.walletClient.sendTransaction({
+          // chain and account need to be added explicitly
+          // because they're optional when instantiating a WalletClient
+          chain: chainIdToChain(this.chainId),
+          account: account as `0x${string}`,
+          // ...preparedTransferCall
+          ...preparedTransaction
+        })
 
       }
       else {
@@ -370,52 +369,6 @@ class TokenboundClient {
       throw error
     }
   }
-
-
-  // const { trigger: triggerNftTransfer } = useSWRMutation(
-  //   `/${accountAddress}/nftTransfer`,
-  //   async (_, { arg }) => {
-  //     let populatedTransfer
-
-  //     if (arg.tokenType === NftTokenType.ERC1155) {
-  //       const erc1155Contract = new ethers.Contract(
-  //         arg.tokenContract,
-  //         erc1155ABI,
-  //         signer
-  //       )
-  //       populatedTransfer = await erc1155Contract.populateTransaction[
-  //         'safeTransferFrom(address,address,uint256,uint256,bytes)'
-  //       ](accountAddress, arg.recipientAddress, arg.tokenId, 1, '0x')
-  //     } else {
-  //       // default to nft transfer
-  //       const erc721Contract = new ethers.Contract(
-  //         arg.tokenContract,
-  //         erc721ABI,
-  //         signer
-  //       )
-  //       populatedTransfer = await erc721Contract.populateTransaction[
-  //         'safeTransferFrom(address,address,uint256)'
-  //       ](accountAddress, arg.recipientAddress, arg.tokenId)
-  //     }
-
-  //     const accountContract = new ethers.Contract(
-  //       accountAddress,
-  //       erc6551AccountAbi,
-  //       signer
-  //     )
-
-  //     const result = await accountContract.executeCall(
-  //       populatedTransfer.to,
-  //       0,
-  //       populatedTransfer.data
-  //     )
-
-  //     return await result.wait()
-  //   }
-  // )
-
-
-
 
 }
 
