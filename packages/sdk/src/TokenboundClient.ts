@@ -208,7 +208,7 @@ class TokenboundClient {
   }
 
 /**
- * Returns a hash of the transaction that executed a call on a tokenbound account
+ * Executes a transaction call on a tokenbound account
  * @param {string} params.account The tokenbound account address
  * @param {string} params.to The recipient address
  * @param {bigint} params.value The value to send, in wei
@@ -250,18 +250,28 @@ class TokenboundClient {
   }
 
 
-  
+  /**
+   * Executes a transaction call on a tokenbound account
+   * @param {string} params.account The tokenbound account address
+   * @param {string} params.tokenType The type of token, either 'ERC721' or 'ERC1155'
+   * @param {string} params.tokenContract The address of the token contract
+   * @param {string} params.tokenId The token ID
+   * @param {string} params.recipientAddress The address to which the token should be transferred
+   * @param {string} params.data The data to send
+   * @returns a Promise that resolves to the transaction hash of the executed call
+   */
   public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
     const { account, 
       // to, value,
       tokenType,
-      recipientAddress,
       tokenContract,
-      tokenId
+      tokenId,
+      recipientAddress
     } = params
 
     const is1155: boolean = tokenType === 'ERC1155'
 
+    // Configure required args based on token type
     const transferArgs: unknown[] = is1155 ?
     [
       // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
