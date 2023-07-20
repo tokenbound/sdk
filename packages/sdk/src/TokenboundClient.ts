@@ -262,16 +262,16 @@ class TokenboundClient {
 
     const is1155: boolean = tokenType === 'ERC1155'
 
-    // 'safeTransferFrom(address,address,uint256,uint256,bytes)' // ERC1155
-    // 'safeTransferFrom(address,address,uint256)' // ERC721
     const transferArgs: unknown[] = is1155 ?
     [
+      // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
       account,
       recipientAddress,
       tokenId,
       1,
       '0x'
     ] : [
+      // ERC721: safeTransferFrom(address,address,uint256)
       account,
       recipientAddress,
       tokenId
