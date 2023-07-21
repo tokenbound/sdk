@@ -11,14 +11,15 @@
   "exports": {
     ".": {
       "import": "./dist/tokenbound-sdk.js",
-      "require": "./dist/tokenbound-sdk.umd.cjs"
+      "require": "./dist/tokenbound-sdk.umd.cjs",
+      "types": "./dist/src/index.d.ts"
     }
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --watch=false",
     "coverage": "vitest run --coverage",
     "clean": "rm -rf node_modules/"
   },
