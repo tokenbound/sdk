@@ -1,5 +1,12 @@
 # @tokenbound/sdk
 
+## 0.3.2
+
+### Patch Changes
+
+- 37a5f93: export d.ts
+- 3df57e7: set ethers executeCall and createAccount return types to hash
+
 ## 0.3.1
 
 ### Patch Changes
