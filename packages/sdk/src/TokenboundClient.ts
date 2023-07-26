@@ -1,4 +1,9 @@
 import { WalletClient, encodeFunctionData, 
+  PublicClient,
+  createPublicClient,
+  http,
+  GetBytecodeReturnType,
+  
   // getContract,
   // Abi,
 } from "viem"
@@ -64,6 +69,10 @@ export type ComputeAccountParams = TBAccountParams & {
   chainId: number
 } & Partial<Custom6551Implementation>
 
+export type GetTBAccountBytecodeParams = {
+  accountAddress: `0x${string}`
+}
+
 export type GetCreationCodeParams = {
   implementation_: `0x${string}`
   chainId_: number
@@ -75,6 +84,7 @@ export type GetCreationCodeParams = {
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
+  private publicClient: PublicClient
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
   private implementationAddress?: `0x${string}`
@@ -104,6 +114,13 @@ class TokenboundClient {
     if (options.registryAddress) {
       this.registryAddress = options.registryAddress
     }
+
+    const viemPublicClient = createPublicClient({
+      chain: chainIdToChain(this.chainId),
+      transport: http(),
+    })
+
+    this.publicClient = viemPublicClient
 
     this.isInitialized = true
 
@@ -166,6 +183,9 @@ class TokenboundClient {
     const registry = registryAddress ?? this.registryAddress
 
     try {
+
+      let txHash: `0x${string}` | undefined
+
       if(this.signer) { // Ethers
         const prepareCreateAccount = await this.prepareCreateAccount({
           tokenContract: tokenContract as `0x${string}`,
@@ -175,12 +195,18 @@ class TokenboundClient {
         })
 
         // Extract the txHash from the TransactionResponse
-        return await this.signer.sendTransaction(prepareCreateAccount).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+        txHash = await this.signer.sendTransaction(prepareCreateAccount).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
 
       }
       else if(this.walletClient) {
-        return createAccount(tokenContract, tokenId, this.walletClient)
-      }    
+        txHash = await createAccount(tokenContract, tokenId, this.walletClient)
+      }
+      
+      if(txHash){
+        const accountAddress: `0x${string}` = await getAccount(tokenContract, tokenId, this.publicClient, implementation, registry)
+        return accountAddress
+      }
+      
       else {
         throw new Error("No wallet client or signer available.")
       }  
@@ -220,23 +246,23 @@ class TokenboundClient {
 
     // Prepare the transaction
     const preparedExecuteCall =  await this.prepareExecuteCall({
-      account: account,
-      to: to,
-      value: value,
-      data: data
+      account,
+      to,
+      value,
+      data
     })
 
     try {
       if(this.signer) { // Ethers
         // Extract the txHash from the TransactionResponse
-        return  await this.signer.sendTransaction(preparedExecuteCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+        return await this.signer.sendTransaction(preparedExecuteCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       }
       else if(this.walletClient) {
         return await this.walletClient.sendTransaction({
           // chain and account need to be added explicitly
           // because they're optional when instantiating a WalletClient
           chain: chainIdToChain(this.chainId),
-          account: account as `0x${string}`,
+          account,
           ...preparedExecuteCall
         })
 
@@ -251,6 +277,21 @@ class TokenboundClient {
 
 
   /**
+   * Check if a tokenbound account has been deployed
+   * @param {string} params.accountAddress The tokenbound account address
+   * @returns a Promise that resolves to the boolean value of whether the account is deployed
+   */
+  public async isAccountDeployed({accountAddress}: GetTBAccountBytecodeParams): Promise<boolean> {
+
+    try {
+      return await this.publicClient.getBytecode({address: accountAddress}).then((bytecode: GetBytecodeReturnType) => bytecode? bytecode.length > 2: false)
+    } catch (error) {
+      throw error
+    }
+
+  }
+
+  /**
    * Executes a transaction call on a tokenbound account
    * @param {string} params.account The tokenbound account address
    * @param {string} params.tokenType The type of token, either 'ERC721' or 'ERC1155'
@@ -261,8 +302,8 @@ class TokenboundClient {
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
-    const { account, 
-      // to, value,
+    const { 
+      account, 
       tokenType,
       tokenContract,
       tokenId,
@@ -272,112 +313,56 @@ class TokenboundClient {
     const is1155: boolean = tokenType === 'ERC1155'
 
     // Configure required args based on token type
-    const transferArgs: unknown[] = is1155 ?
-    [
-      // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
-      account,
-      recipientAddress,
-      tokenId,
-      1,
-      '0x'
-    ] : [
-      // ERC721: safeTransferFrom(address,address,uint256)
-      account,
-      recipientAddress,
-      tokenId
-    ] 
+    const transferArgs: unknown[] = is1155
+      ? [
+          // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
+          account,
+          recipientAddress,
+          tokenId,
+          1,
+          '0x',
+        ]
+      : [
+          // ERC721: safeTransferFrom(address,address,uint256)
+          account,
+          recipientAddress,
+          tokenId,
+        ]
 
     const callData = encodeFunctionData({
       abi: is1155 ? erc1155Abi : erc721Abi,
       functionName: 'safeTransferFrom',
-      args: transferArgs
+      args: transferArgs,
     })
-
-    const preparedTransaction = {
-      to: tokenContract,
-      data: callData
-    }
-
-    // return contract.write.executeCall([
-    //   recipientAddress as `0x${string}`,
-    //   0n,
-    //   callData as `0x${string}`,
-    // ])
-    
-
-    // const result = await accountContract.executeCall(
-    //   populatedTransfer.to,
-    //   0,
-    //   populatedTransfer.data
-    // )
-
-
-    // {
-    //   to: account as `0x${string}`,
-    //   value,
-    //   data: encodeFunctionData({
-    //     abi: erc6551AccountAbi,
-    //     functionName: "executeCall",
-    //     args: [
-    //       to as `0x${string}`,
-    //       value,
-    //       data as `0x${string}`
-    //     ],
-    //   }),
-    // }
-
-
-    // Prepare the transaction
-    // const preparedTransferCall =  await this.prepareExecuteCall({
-    //   account: account,
-    //   // to: to,
-    //   to: recipientAddress,
-    //   value: 0n,
-    //   data: callData
-    // }) // The issue with using prepareExecuteCall is that the tokenContract is never used
 
     try {
 
+      const { request } = await this.publicClient.simulateContract({
+        address: account as `0x${string}`,
+        abi: erc6551AccountAbi as any,
+        functionName: 'executeCall',
+        args: [account, 0, callData],
+        account: this.walletClient?.account,
+      })
+
       if(this.signer) { // Ethers
-        // Extract the txHash from the TransactionResponse
-        // return  await this.signer.sendTransaction(preparedTransferCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
-        return  await this.signer.sendTransaction(preparedTransaction).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+       
+        // TODO: ethers version
+        // Would need to be something like:
+        // const { abi, address } = wagmiContractConfig
+        // const contract = new Contract(address, abi, signer)
+        // const hash = await contract.executeCall()
+
       }
       else if(this.walletClient) {
-
-        // ↓↓↓↓↓↓ Mimics tb.org implementation
-
-        // const nftContract = getContract({
-        //   abi: is1155 ? erc1155Abi as Abi : erc721ABI,
-        //   address: tokenContract,
-        //   walletClient: this.walletClient,
-        //   // @BJ: how to do this for ethers?
-        // })
-        
-        // return await nftContract.write.executeCall([
-        //   recipientAddress as `0x${string}`,
-        //   0n,
-        //   callData as `0x${string}`,
-        // ])
-
-        // ↑↑↑↑↑↑ Mimics tb.org implementation
-
-        return await this.walletClient.sendTransaction({
-          // chain and account need to be added explicitly
-          // because they're optional when instantiating a WalletClient
-          chain: chainIdToChain(this.chainId),
-          account: account as `0x${string}`,
-          // ...preparedTransferCall
-          ...preparedTransaction
-        })
-
+        return await this.walletClient?.writeContract(request)
       }
-      else {
-        throw new Error("No wallet client or signer available.")
-      }  
+
     } catch (error) {
+      console.log(error)
       throw error
     }
+  
   }
 
 }
