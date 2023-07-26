@@ -41,7 +41,6 @@ test("tokenboundClient.prepareCreateAccount → customImplementation", async () 
     )
 
     expect(isAddress(preparedAccount.to)).toEqual(true)
-    expect(typeof preparedAccount.value).toEqual('bigint')
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
 test("tokenboundClient.prepareCreateAccount → customRegistry", async () => {
@@ -54,7 +53,6 @@ test("tokenboundClient.prepareCreateAccount → customRegistry", async () => {
     )
 
     expect(isAddress(preparedAccount.to)).toEqual(true)
-    expect(typeof preparedAccount.value).toEqual('bigint')
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
 test.todo(".createAccount")

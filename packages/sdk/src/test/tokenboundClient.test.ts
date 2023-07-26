@@ -31,7 +31,6 @@ test("tokenboundClient.prepareExecuteCall", async () => {
     })
 
     expect(isAddress(preparedCall.to)).toEqual(true)
-    expect(typeof preparedCall.value).toEqual('bigint')
     expect(isHex(preparedCall.data)).toEqual(true)
 })
 
@@ -46,7 +45,6 @@ test("tokenboundClient.prepareCreateAccount", async () => {
     )
 
     expect(isAddress(preparedAccount.to)).toEqual(true)
-    expect(typeof preparedAccount.value).toEqual('bigint')
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
 

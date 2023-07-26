@@ -125,7 +125,6 @@ class TokenboundClient {
  */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
     to: `0x${string}`
-    value: bigint
     data: `0x${string}`
   }> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
@@ -183,7 +182,6 @@ class TokenboundClient {
  */
   public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<{
     to: `0x${string}`
-    value: bigint
     data: `0x${string}`
   }> {
     const { account, to, value, data } = params
