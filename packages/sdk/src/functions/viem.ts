@@ -91,7 +91,7 @@ export async function prepareCreateAccount(
     data: encodeFunctionData({
       abi: erc6551RegistryAbi,
       functionName: 'createAccount',
-      args: [implementation, chainId, tokenContract, tokenId, 0, initData],
+      args: [implementation, chainId, tokenContract, tokenId, 0, implementationAddress ? "" : initData],
     }),
   }
 }
