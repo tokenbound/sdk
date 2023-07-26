@@ -1,13 +1,9 @@
-import { WalletClient, encodeFunctionData, 
+import { WalletClient,
   PublicClient,
   createPublicClient,
-  http,
-  GetBytecodeReturnType,
-  
-  // getContract,
-  // Abi,
+  http
 } from "viem"
-import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi } from '../abis'
+import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
 import { 
   getAccount,
   computeAccount,
@@ -68,10 +64,6 @@ export type PrepareExecuteCallParams = ExecuteCallParams
 export type ComputeAccountParams = TBAccountParams & {
   chainId: number
 } & Partial<Custom6551Implementation>
-
-export type GetTBAccountBytecodeParams = {
-  accountAddress: `0x${string}`
-}
 
 export type GetCreationCodeParams = {
   implementation_: `0x${string}`
@@ -175,7 +167,7 @@ class TokenboundClient {
  * @param {string} params.tokenId The token ID.
  * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
  * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
- * @returns a Promise that resolves to the transaction hash of the transaction that created the tokenbound account.
+ * @returns a Promise that resolves to the account address of the created token bound account.
  */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
@@ -203,8 +195,7 @@ class TokenboundClient {
       }
       
       if(txHash){
-        const accountAddress: `0x${string}` = await getAccount(tokenContract, tokenId, this.publicClient, implementation, registry)
-        return accountAddress
+        return getAccount(tokenContract, tokenId, this.publicClient, implementation, registry)
       }
       
       else {
@@ -273,96 +264,6 @@ class TokenboundClient {
     } catch (error) {
       throw error
     }
-  }
-
-
-  /**
-   * Check if a tokenbound account has been deployed
-   * @param {string} params.accountAddress The tokenbound account address
-   * @returns a Promise that resolves to the boolean value of whether the account is deployed
-   */
-  public async isAccountDeployed({accountAddress}: GetTBAccountBytecodeParams): Promise<boolean> {
-
-    try {
-      return await this.publicClient.getBytecode({address: accountAddress}).then((bytecode: GetBytecodeReturnType) => bytecode? bytecode.length > 2: false)
-    } catch (error) {
-      throw error
-    }
-
-  }
-
-  /**
-   * Executes a transaction call on a tokenbound account
-   * @param {string} params.account The tokenbound account address
-   * @param {string} params.tokenType The type of token, either 'ERC721' or 'ERC1155'
-   * @param {string} params.tokenContract The address of the token contract
-   * @param {string} params.tokenId The token ID
-   * @param {string} params.recipientAddress The address to which the token should be transferred
-   * @param {string} params.data The data to send
-   * @returns a Promise that resolves to the transaction hash of the executed call
-   */
-  public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
-    const { 
-      account, 
-      tokenType,
-      tokenContract,
-      tokenId,
-      recipientAddress
-    } = params
-
-    const is1155: boolean = tokenType === 'ERC1155'
-
-    // Configure required args based on token type
-    const transferArgs: unknown[] = is1155
-      ? [
-          // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
-          account,
-          recipientAddress,
-          tokenId,
-          1,
-          '0x',
-        ]
-      : [
-          // ERC721: safeTransferFrom(address,address,uint256)
-          account,
-          recipientAddress,
-          tokenId,
-        ]
-
-    const callData = encodeFunctionData({
-      abi: is1155 ? erc1155Abi : erc721Abi,
-      functionName: 'safeTransferFrom',
-      args: transferArgs,
-    })
-
-    try {
-
-      const { request } = await this.publicClient.simulateContract({
-        address: account as `0x${string}`,
-        abi: erc6551AccountAbi as any,
-        functionName: 'executeCall',
-        args: [account, 0, callData],
-        account: this.walletClient?.account,
-      })
-
-      if(this.signer) { // Ethers
-       
-        // TODO: ethers version
-        // Would need to be something like:
-        // const { abi, address } = wagmiContractConfig
-        // const contract = new Contract(address, abi, signer)
-        // const hash = await contract.executeCall()
-
-      }
-      else if(this.walletClient) {
-        return await this.walletClient?.writeContract(request)
-      }
-
-    } catch (error) {
-      console.log(error)
-      throw error
-    }
-  
   }
 
 }
