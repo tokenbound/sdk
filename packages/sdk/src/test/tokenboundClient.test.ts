@@ -5,7 +5,7 @@ import {
 } from "viem"
 
 import { TokenboundClient } from '../TokenboundClient'
-import { TEST_CONFIG } from "./testConfig"
+import { TEST_CONFIG } from "./config"
 
 const tokenboundClient = new TokenboundClient({ 
     chainId: TEST_CONFIG.CHAIN_ID

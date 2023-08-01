@@ -24,14 +24,28 @@
     "clean": "rm -rf node_modules/"
   },
   "dependencies": {
-    "viem": "^1.2.13"
+    "viem": "^1.2.15"
   },
   "devDependencies": {
+    "@tokenbound/sdk": "workspace:^",
     "@vitest/coverage-c8": "^0.33.0",
-    "viem": "^1.2.13",
     "typescript": "^5.1.6",
     "vite": "^4.4.3",
     "vite-plugin-dts": "^3.2.0",
-    "vitest": "^0.33.0"
+    "connectkit": "^1.4.0",
+    "vitest": "^0.33.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "jsdom": "^21.1.0",
+    "@tanstack/react-query": "^4.29.19",
+    "@testing-library/dom": "^9.3.1",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/react": "^18.0.17",
+    "@types/testing-library__jest-dom": "^5.14.8",
+    "wagmi": "^1.3.8",
+    "ethers": "^5.7.2",
+    "ethers6": "npm:ethers@^6.6.4"
   }
 }

@@ -3,17 +3,31 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rm -rf node_modules",
+    "test": "cd packages/sdk && pnpm test",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@changesets/cli": "^2.26.1",
-    "eslint": "^8.36.0",
+    "@changesets/cli": "^2.26.2",
+    "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-unused-imports": "^2.0.0",
-    "prettier": "^2.8.8",
-    "@ianvs/prettier-plugin-sort-imports": "^3.7.2"
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "prettier": "^3.0.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.0.2",
+    "husky": "^8.0.3",
+    "typescript": "^5.0.4",
+    "lint-staged": "^13.2.3"
+  },
+  "lint-staged": {
+    "./**/*.{js,ts,jsx,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
   }
 }
