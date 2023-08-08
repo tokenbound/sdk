@@ -12,19 +12,19 @@
     "@tokenbound/sdk": "workspace:^",
     "buffer": "^6.0.3",
     "connectkit": "^1.5.0",
-    "ethers": "^6.6.2",
+    "ethers": "^6.7.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "util": "^0.12.5",
-    "viem": "^1.4.1",
+    "viem": "^1.5.3",
     "wagmi": "^1.3.9"
   },
   "devDependencies": {
-    "@types/react": "^18.2.17",
+    "@types/react": "^18.2.19",
     "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.3",
+    "@vitejs/plugin-react": "^4.0.4",
     "typescript": "^5.1.6",
-    "vite": "^4.4.8"
+    "vite": "^4.4.9"
   }
 }
