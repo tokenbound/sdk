@@ -15,7 +15,7 @@ import {
 
 } from "../index";
 
-import { TEST_CONFIG } from "./testConfig"
+import { TEST_CONFIG } from "./config"
 
 test(".getAccount", async () => {
     const publicClient = createPublicClient({ 

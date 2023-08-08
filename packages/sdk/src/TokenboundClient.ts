@@ -1,8 +1,4 @@
-import { WalletClient,
-  PublicClient,
-  createPublicClient,
-  http
-} from "viem"
+import { WalletClient } from "viem"
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
 import { 
   getAccount,
@@ -76,7 +72,6 @@ export type GetCreationCodeParams = {
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
-  private publicClient: PublicClient
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
   private implementationAddress?: `0x${string}`
@@ -106,13 +101,6 @@ class TokenboundClient {
     if (options.registryAddress) {
       this.registryAddress = options.registryAddress
     }
-
-    const viemPublicClient = createPublicClient({
-      chain: chainIdToChain(this.chainId),
-      transport: http(),
-    })
-
-    this.publicClient = viemPublicClient
 
     this.isInitialized = true
 
@@ -195,7 +183,7 @@ class TokenboundClient {
       }
       
       if(txHash){
-        return getAccount(tokenContract, tokenId, this.publicClient, implementation, registry)
+        return computeAccount(tokenContract, tokenId, this.chainId, implementation, registry)
       }
       
       else {
