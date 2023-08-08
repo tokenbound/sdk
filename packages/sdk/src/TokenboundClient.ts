@@ -12,6 +12,23 @@ import {
 import { AbstractEthersSigner, AbstractEthersTransactionResponse } from "./types"
 import { chainIdToChain } from "./utils"
 
+type TokenType = "ERC721" | "ERC1155"
+
+type NFTParams = {
+  tokenContract: `0x${string}`
+  tokenId: string
+}
+
+interface TokenTypeParams {
+  tokenType: TokenType
+}
+
+export type NFTTransferParams = TokenTypeParams & NFTParams & {
+  recipientAddress: `0x${string}`
+  account: `0x${string}`
+  data: string
+}
+
 export type TokenboundClientOptions = {
   chainId: number
   signer?: any
@@ -25,10 +42,7 @@ type Custom6551Implementation = {
   registryAddress?: `0x${string}`
 }
 
-export type TBAccountParams = {
-  tokenContract: `0x${string}`
-  tokenId: string
-}
+export type TBAccountParams = NFTParams
 
 export type GetAccountParams = TBAccountParams & Partial<Custom6551Implementation>
 export type PrepareCreateAccountParams = TBAccountParams & Partial<Custom6551Implementation>
@@ -141,7 +155,7 @@ class TokenboundClient {
  * @param {string} params.tokenId The token ID.
  * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
  * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
- * @returns a Promise that resolves to the transaction hash of the transaction that created the tokenbound account.
+ * @returns a Promise that resolves to the account address of the created token bound account.
  */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
     const { tokenContract, tokenId, implementationAddress, registryAddress } = params
@@ -149,6 +163,9 @@ class TokenboundClient {
     const registry = registryAddress ?? this.registryAddress
 
     try {
+
+      let txHash: `0x${string}` | undefined
+
       if(this.signer) { // Ethers
         const prepareCreateAccount = await this.prepareCreateAccount({
           tokenContract: tokenContract as `0x${string}`,
@@ -158,12 +175,17 @@ class TokenboundClient {
         })
 
         // Extract the txHash from the TransactionResponse
-        return await this.signer.sendTransaction(prepareCreateAccount).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+        txHash = await this.signer.sendTransaction(prepareCreateAccount).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
 
       }
       else if(this.walletClient) {
-        return createAccount(tokenContract, tokenId, this.walletClient)
-      }    
+        txHash = await createAccount(tokenContract, tokenId, this.walletClient)
+      }
+      
+      if(txHash){
+        return computeAccount(tokenContract, tokenId, this.chainId, implementation, registry)
+      }
+      
       else {
         throw new Error("No wallet client or signer available.")
       }  
@@ -191,7 +213,7 @@ class TokenboundClient {
   }
 
 /**
- * Returns a hash of the transaction that executed a call on a tokenbound account
+ * Executes a transaction call on a tokenbound account
  * @param {string} params.account The tokenbound account address
  * @param {string} params.to The recipient address
  * @param {bigint} params.value The value to send, in wei
@@ -203,23 +225,23 @@ class TokenboundClient {
 
     // Prepare the transaction
     const preparedExecuteCall =  await this.prepareExecuteCall({
-      account: account,
-      to: to,
-      value: value,
-      data: data
+      account,
+      to,
+      value,
+      data
     })
 
     try {
       if(this.signer) { // Ethers
         // Extract the txHash from the TransactionResponse
-        return  await this.signer.sendTransaction(preparedExecuteCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+        return await this.signer.sendTransaction(preparedExecuteCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       }
       else if(this.walletClient) {
         return await this.walletClient.sendTransaction({
           // chain and account need to be added explicitly
           // because they're optional when instantiating a WalletClient
           chain: chainIdToChain(this.chainId),
-          account: account as `0x${string}`,
+          account,
           ...preparedExecuteCall
         })
 
@@ -231,7 +253,7 @@ class TokenboundClient {
       throw error
     }
   }
-  
+
 }
 
 export { 

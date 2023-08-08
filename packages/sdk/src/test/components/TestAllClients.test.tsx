@@ -18,52 +18,54 @@ import {
 import { WalletClientTester } from './WalletClientTester'
 import { Ethers6SignerTester } from './Ethers6SignerTester'
 import { EthersSignerTester } from './EthersSignerTester'
-import { PublicClient, WebSocketPublicClient, Config } from 'wagmi'
+import { PublicClient, WebSocketPublicClient, Config, WalletClient } from 'wagmi'
 
 describe('ComboTester', () => {
   runClientTxTestsForComponent('<EthersSignerTester />', EthersSignerTester)
   runClientTxTestsForComponent('<Ethers6SignerTester />', Ethers6SignerTester)
   runClientTxTestsForComponent('<WalletClientTester />', WalletClientTester)
-});
+})
 
-function runClientTxTestsForComponent(componentName: string, TestComponent: React.ComponentType) {
-
+function runClientTxTestsForComponent(
+  componentName: string,
+  TestComponent: React.ComponentType
+) {
   describe(componentName, () => {
     let user: UserEvent
     let config: Config<PublicClient, WebSocketPublicClient> & {
       queryClient: QueryClient
     }
-  
+
     beforeEach(async () => {
       act(() => {
         user = userEvent.setup()
         assert(user)
       })
-  
+
       // Create a config with a mock wallet client (foundry chain)
       config = setupConfig({
         connectors: [
           new MockConnector({
             options: {
-              walletClient: getMockWalletClient(),
+              walletClient: getMockWalletClient() as WalletClient,
             },
           }),
         ],
       })
       assert(config)
-  
+
       // Render with a WagmiConfig wrapper, so we can test calls with the mock configuration
       renderWithWagmiConfig(<TestComponent />, {
         wrapper: ({ children }: { children: React.ReactNode }) => (
           <Providers config={config}>{children}</Providers>
         ),
       })
-  
+
       act(() => {
         const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
         user.click(connectButton)
       })
-  
+
       await waitFor(() => {
         expect(screen.getByText(ADDRESS_REGEX)).toBeInTheDocument()
         expect(
@@ -71,22 +73,30 @@ function runClientTxTestsForComponent(componentName: string, TestComponent: Reac
         ).toBeInTheDocument()
       })
     })
-  
+
     it('can createAccount', async () => {
       act(() => {
         const createAccountButton = screen.getByTestId(
           'tb-create-account-button'
         ) as HTMLButtonElement
+
+        // console.log('CREATE BUTTON', createAccountButton)
+
         user.click(createAccountButton)
       })
-  
+
       await waitFor(() => {
-        const tbAccountOutput = screen.getByTestId('tb-account-created') as HTMLSpanElement
+        const tbAccountOutput = screen.getByTestId(
+          'tb-account-created'
+        ) as HTMLSpanElement
+
+        console.log('TB ACCOUNT OUTPUT', tbAccountOutput)
+
         expect(tbAccountOutput).toBeInTheDocument()
         expect(tbAccountOutput.textContent).toMatch(ADDRESS_REGEX)
       })
     })
-  
+
     it('can executeCall', async () => {
       act(() => {
         const executeCallButton = screen.getByTestId(
@@ -94,7 +104,7 @@ function runClientTxTestsForComponent(componentName: string, TestComponent: Reac
         ) as HTMLButtonElement
         user.click(executeCallButton)
       })
-  
+
       await waitFor(() => {
         const tbExecutedCallOutput = screen.getByTestId(
           'tb-executed-call'
@@ -105,5 +115,3 @@ function runClientTxTestsForComponent(componentName: string, TestComponent: Reac
     })
   })
 }
-
-

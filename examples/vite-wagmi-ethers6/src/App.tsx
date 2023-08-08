@@ -50,10 +50,11 @@ export function App() {
 
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
-    const createAccount = await tokenboundClient.createAccount({
+    const createdAccount = await tokenboundClient.createAccount({
       tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
       tokenId: '1',
     })
+    alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
   const executeCall = useCallback(async () => {

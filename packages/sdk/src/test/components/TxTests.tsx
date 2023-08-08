@@ -15,11 +15,15 @@ export function TxTests({ tokenboundClient }: { tokenboundClient?: TokenboundCli
   const [executedCallAddress, setExecutedCallAddress] = useState<`0x${string}` | null>()
 
   const createAccount = useCallback(async () => {
+    console.log('in createaccount, PRE-RUN --->')
     if (!tokenboundClient || !address) return
+    console.log('in createaccount, has client and address --->')
     const accountAddress = await tokenboundClient.createAccount({
       tokenContract: '0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b', // BJ's Lil' Noun
       tokenId: '606',
     })
+
+    accountAddress && console.log('ADDRESS OUT', accountAddress)
 
     accountAddress && setTokenboundAccountAddress(accountAddress)
   }, [tokenboundClient])
