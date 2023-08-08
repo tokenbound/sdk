@@ -50,4 +50,17 @@ test("tokenboundClient.prepareCreateAccount", async () => {
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
 
+test("tokenboundClient.isAccountDeployed", async () => {
+
+    const isSapienz0Deployed = await tokenboundClient.isAccountDeployed({
+        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+    })
+    const isSapienz1Deployed = await tokenboundClient.isAccountDeployed({
+        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_1,
+    })
+
+    expect(isSapienz0Deployed).toEqual(true)
+    expect(isSapienz1Deployed).toEqual(false)
+})
+
 test.todo(".createAccount")
