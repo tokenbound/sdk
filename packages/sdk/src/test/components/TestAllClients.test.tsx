@@ -18,7 +18,7 @@ import {
 import { WalletClientTester } from './WalletClientTester'
 import { Ethers6SignerTester } from './Ethers6SignerTester'
 import { EthersSignerTester } from './EthersSignerTester'
-import { PublicClient, WebSocketPublicClient, Config } from 'wagmi'
+import { PublicClient, WebSocketPublicClient, Config, WalletClient } from 'wagmi'
 
 describe('ComboTester', () => {
   runClientTxTestsForComponent('<EthersSignerTester />', EthersSignerTester)
@@ -47,7 +47,7 @@ function runClientTxTestsForComponent(
         connectors: [
           new MockConnector({
             options: {
-              walletClient: getMockWalletClient(),
+              walletClient: getMockWalletClient() as WalletClient,
             },
           }),
         ],
