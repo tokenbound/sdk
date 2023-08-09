@@ -19,6 +19,10 @@ export const TEST_CONFIG = {
     // Account address responses based on overridden custom implementation / registry addresses
     CUSTOM_IMPLEMENTATION_ADDRESS_OVERRIDE: getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4'),
     CUSTOM_REGISTRY_ADDRESS_OVERRIDE: getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4'),
-    CUSTOM_IMPLEMENTATION_OVERRIDDEN_TB_ACCOUNT: "0x00f964768A74d61B968514013e1Fb2bf35cC3836" as `0x${string}`
+    CUSTOM_IMPLEMENTATION_OVERRIDDEN_TB_ACCOUNT: "0x00f964768A74d61B968514013e1Fb2bf35cC3836" as `0x${string}`,
+
+    // Sample 721 and 1155 contracts
+    TEST_721_CONTRACT: `0x9fa9845e71c3e4f43861ba23b762e09aa8da514e` as `0x${string}`, // eg. https://tokenbound.org/assets/goerli/0x9fa9845e71c3e4f43861ba23b762e09aa8da514e/1
+    TEST_1155_CONTRACT: `0x3c73616522d3b3fb05b30910a757d63568ff5249` as `0x${string}`, // eg. https://tokenbound.org/assets/goerli/0x3c73616522d3b3fb05b30910a757d63568ff5249/1
 
 }

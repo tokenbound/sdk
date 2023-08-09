@@ -5,7 +5,7 @@ import { Account } from './components'
 
 import { createWalletClient, http, custom, WalletClient } from 'viem'
 import { goerli } from 'viem/chains'
-import { TokenboundClient } from '@tokenbound/sdk'
+import { NFTMetadata, TokenboundClient } from '@tokenbound/sdk'
 
 import { useCallback, useEffect } from 'react'
 
@@ -14,6 +14,8 @@ declare global {
     ethereum?: WindowProvider
   }
 }
+
+const GOERLI_MOONBIRDS = '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb'
 
 export function App() {
   const { isConnected, address } = useAccount()
@@ -31,7 +33,7 @@ export function App() {
       if (!tokenboundClient) return
 
       const tokenboundAccount = tokenboundClient.getAccount({
-        tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+        tokenContract: GOERLI_MOONBIRDS,
         tokenId: '9',
       })
 
@@ -43,9 +45,22 @@ export function App() {
       })
 
       const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
-        tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+        tokenContract: GOERLI_MOONBIRDS,
         tokenId: '1',
       })
+
+      // const nftMetadata = await tokenboundClient.getNFTMetadata({
+      //   tokenContract: GOERLI_MOONBIRDS,
+      //   tokenId: '1',
+      //   tokenType: 'ERC721',
+      // })
+      const nftMetadata: NFTMetadata = await tokenboundClient.getNFTMetadata({
+        tokenContract: '0x906446624f4a0a33bc64f7b72cc0d12d1454e663',
+        tokenId: '1',
+        tokenType: 'ERC1155',
+      })
+
+      console.log('nftMetadata', nftMetadata)
 
       console.log('getAccount', tokenboundAccount)
       console.log('preparedExecuteCall', preparedExecuteCall)

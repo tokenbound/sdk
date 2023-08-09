@@ -34,4 +34,23 @@ export const erc1155Abi = [
       stateMutability: 'nonpayable',
       type: 'function',
     },
+    {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'id',
+          type: 'uint256',
+        },
+      ],
+      name: 'uri',
+      outputs: [
+        {
+          internalType: 'string',
+          name: '',
+          type: 'string',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },    
   ] as Abi

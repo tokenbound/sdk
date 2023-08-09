@@ -21,6 +21,7 @@ import {
   ComputeAccountParams,
   GetCreationCodeParams
 } from './TokenboundClient'
+import { NFTMetadata, NFTAttribute } from './types'
 
 export { 
   TokenboundClient,
@@ -43,5 +44,7 @@ export type {
   PrepareExecuteCallParams,
   ExecuteCallParams,
   ComputeAccountParams,
-  GetCreationCodeParams
+  GetCreationCodeParams,
+  NFTMetadata,
+  NFTAttribute
 }

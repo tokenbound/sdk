@@ -1,5 +1,10 @@
-import { WalletClient } from "viem"
-import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
+import { 
+  WalletClient,
+  PublicClient,
+  createPublicClient,
+  http
+} from "viem"
+import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi } from '../abis'
 import { 
   getAccount,
   computeAccount,
@@ -9,10 +14,15 @@ import {
   executeCall,
   prepareCreateAccount
 } from './functions'
-import { AbstractEthersSigner, AbstractEthersTransactionResponse } from "./types"
+import { AbstractEthersSigner, AbstractEthersTransactionResponse, NFTMetadata } from "./types"
 import { chainIdToChain } from "./utils"
+import { MetadataURISchema, NFTMetadataSchema } from "./schemas"
 
-type TokenType = "ERC721" | "ERC1155"
+export const NFTTokenType = {
+  ERC721: "ERC721",
+  ERC1155: "ERC1155",
+} as const
+type TokenType = typeof NFTTokenType[keyof typeof NFTTokenType]
 
 type NFTParams = {
   tokenContract: `0x${string}`
@@ -69,11 +79,16 @@ export type GetCreationCodeParams = {
   salt_: string
 }
 
+export type GetTBAccountBytecodeParams = {
+  accountAddress: `0x${string}`
+}
+
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
+  private publicClient: PublicClient
   private implementationAddress?: `0x${string}`
   private registryAddress?: `0x${string}`
 
@@ -101,6 +116,13 @@ class TokenboundClient {
     if (options.registryAddress) {
       this.registryAddress = options.registryAddress
     }
+
+    const viemPublicClient = createPublicClient({
+      chain: chainIdToChain(this.chainId),
+      transport: http(),
+    })
+  
+    this.publicClient = viemPublicClient
 
     this.isInitialized = true
 
@@ -254,6 +276,50 @@ class TokenboundClient {
     }
   }
 
+  /**
+   * Get an NFT's metadata
+   * @param {string} params.tokenType The tokenbound account address
+   * @param {`0x${string}`} params.tokenContract The address of the token contract.
+   * @param {string} params.tokenId The token ID.
+   * @returns a Promise that resolves to an NFTMetadata object
+   */
+  public async getNFTMetadata({tokenType, tokenContract, tokenId}: NFTParams & TokenTypeParams): Promise<NFTMetadata> {
+
+    const is1155: boolean = tokenType === NFTTokenType.ERC1155
+
+    try {
+
+      const nftMetaURI: unknown = await this.publicClient.readContract({
+        address: tokenContract,
+        abi: is1155 ? erc1155Abi : erc721Abi,
+        functionName: is1155 ? 'uri' : 'tokenURI',
+        args: [BigInt(tokenId)],
+      })
+
+      const parseURIResult = MetadataURISchema.safeParse(nftMetaURI)
+      if (!parseURIResult.success) {
+        throw new Error('Unexpected return type from readContract')
+      }
+
+      const validNFTMetaURI: string = parseURIResult.data
+      const nftMetadata = await fetch(validNFTMetaURI).then((res) => res.json())
+      const parseMetadataResult = NFTMetadataSchema.safeParse(nftMetadata)
+
+      if (!parseMetadataResult.success) {
+        console.error(parseMetadataResult.error)
+        throw new Error('Invalid NFT metadata')
+      }
+      else {
+        const validNFTMetadata: NFTMetadata = parseMetadataResult.data
+        return validNFTMetadata
+      }
+      
+    } catch (error) {
+      throw error
+    }
+  
+  }
+  
 }
 
 export { 

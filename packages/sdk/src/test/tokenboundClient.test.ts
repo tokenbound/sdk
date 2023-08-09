@@ -50,4 +50,20 @@ test("tokenboundClient.prepareCreateAccount", async () => {
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
 
-test.todo(".createAccount")
+test("tokenboundClient.getNFTMetadata", async () => {
+
+    const nftMeta721 = await tokenboundClient.getNFTMetadata({
+        tokenContract: TEST_CONFIG.TEST_721_CONTRACT,
+        tokenId: "1",
+        tokenType: "ERC721"
+    }) as Object
+    const nftMeta1155 = await tokenboundClient.getNFTMetadata({
+        tokenContract: TEST_CONFIG.TEST_721_CONTRACT,
+        tokenId: "1",
+        tokenType: "ERC721"
+    }) as Object
+
+    expect(typeof nftMeta721).toBe('object')
+    expect(typeof nftMeta1155).toBe('object')
+  
+})
