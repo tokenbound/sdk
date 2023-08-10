@@ -1,9 +1,11 @@
-import { WalletClient,
-
+import { 
+  WalletClient,
   PublicClient,
   createPublicClient,
   http,
   GetBytecodeReturnType,
+  hexToNumber,  
+  getAddress
 } from "viem"
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
 import { 
@@ -15,14 +17,26 @@ import {
   executeCall,
   prepareCreateAccount
 } from './functions'
-import { AbstractEthersSigner, AbstractEthersTransactionResponse } from "./types"
-import { chainIdToChain } from "./utils"
+import { 
+  AbstractEthersSigner,
+  AbstractEthersTransactionResponse,
+  SegmentedERC1155Bytecode
+} from "./types"
+import { chainIdToChain, segmentBytecode } from "./utils"
 
-type TokenType = "ERC721" | "ERC1155"
+export const NFTTokenType = {
+  ERC721: "ERC721",
+  ERC1155: "ERC1155",
+} as const
+type TokenType = typeof NFTTokenType[keyof typeof NFTTokenType]
 
 type NFTParams = {
   tokenContract: `0x${string}`
   tokenId: string
+}
+
+export type TokenboundAccountNFT = NFTParams & {
+  chainId: number
 }
 
 interface TokenTypeParams {
@@ -75,7 +89,7 @@ export type GetCreationCodeParams = {
   salt_: string
 }
 
-export type GetTBAccountBytecodeParams = {
+export type BytecodeParams = {
   accountAddress: `0x${string}`
 }
 
@@ -277,7 +291,7 @@ class TokenboundClient {
    * @param {string} params.accountAddress The tokenbound account address
    * @returns a Promise that resolves to the boolean value of whether the account is deployed
    */
-  public async isAccountDeployed({accountAddress}: GetTBAccountBytecodeParams): Promise<boolean> {
+  public async isAccountDeployed({accountAddress}: BytecodeParams): Promise<boolean> {
 
     try {
       return await this.publicClient.getBytecode({address: accountAddress}).then((bytecode: GetBytecodeReturnType) => bytecode ? bytecode.length > 2: false)
@@ -286,7 +300,76 @@ class TokenboundClient {
     }
   
   }
+
+  /**
+   * Deconstructs the bytecode of a tokenbound account into its constituent parts.
+   * @param {`0x${string}`} params.accountAddress The address of the tokenbound account.
+   * @returns a Promise that resolves to a SegmentedERC1155Bytecode object, or null if the account is not deployed
+   */
+  public async deconstructBytecode({accountAddress}: BytecodeParams): Promise<SegmentedERC1155Bytecode | null> {
+
+    try {
+      const rawBytecode = await this.publicClient.getBytecode({address: accountAddress})
+      const bytecode = rawBytecode?.slice(2)
+
+      if(!bytecode || !rawBytecode || !(rawBytecode.length > 2)) return null
+
+      const [
+        erc1167Header,
+        rawImplementationAddress,
+        erc1167Footer,
+        rawSalt,
+        rawChainId,
+        rawTokenContract,
+        rawTokenId
+      ] = segmentBytecode(bytecode, 10, 20, 15, 32, 32, 32, 32)
+
+      const chainId = hexToNumber(`0x${rawChainId}`, {size: 32})
+      const implementationAddress: `0x${string}` = getAddress(`0x${rawImplementationAddress}`)
+      const salt = hexToNumber(`0x${rawSalt}`, {size: 32})
+      const tokenContract: `0x${string}` = getAddress(`0x${rawTokenContract.slice(rawTokenContract.length - 40, rawTokenContract.length)}`)
+      const tokenId = hexToNumber(`0x${rawTokenId}`, {size: 32}).toString()
+      
+      return {
+        erc1167Header,
+        implementationAddress,
+        erc1167Footer,
+        salt,
+        tokenId,
+        tokenContract,
+        chainId
+      }
+
+    } catch (error) {
+      throw error
+    }
+
+  }
+
+  /**
+   * Get NFT information from a tokenbound account
+   * @param {`0x${string}`} params.accountAddress The address of the tokenbound account.
+   * @returns a Promise that resolves to an object containing the token contract address, token ID, and chain ID
+   */
+  public async getNFT({accountAddress}: BytecodeParams): Promise<TokenboundAccountNFT> {
+
+    try {
+    
+      const deconstructedBytecode = await this.deconstructBytecode({accountAddress})
+      if(!deconstructedBytecode) throw new Error("The tokenbound account has not been deployed at this address")
+      
+      const { chainId, tokenContract, tokenId } = deconstructedBytecode
+
+      return {
+        tokenContract,
+        tokenId,
+        chainId
+      }
+    } catch (error) {
+      throw error
+    }
   
+  }
 
 }
 

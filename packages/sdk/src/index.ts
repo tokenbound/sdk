@@ -12,6 +12,7 @@ import {
 
 import {
   TokenboundClient,
+  TokenboundAccountNFT,
   TokenboundClientOptions,
   GetAccountParams,
   PrepareCreateAccountParams,
@@ -19,7 +20,7 @@ import {
   PrepareExecuteCallParams,
   ExecuteCallParams,
   ComputeAccountParams,
-  GetCreationCodeParams
+  GetCreationCodeParams,
 } from './TokenboundClient'
 
 export { 
@@ -37,6 +38,7 @@ export {
 
 export type {
   TokenboundClientOptions,
+  TokenboundAccountNFT,
   GetAccountParams,
   PrepareCreateAccountParams,
   CreateAccountParams,
