@@ -327,7 +327,7 @@ class TokenboundClient {
       const chainId = hexToNumber(`0x${rawChainId}`, {size: 32})
       const implementationAddress: `0x${string}` = getAddress(`0x${rawImplementationAddress}`)
       const salt = hexToNumber(`0x${rawSalt}`, {size: 32})
-      const tokenContract: `0x${string}` = getAddress(`0x${rawTokenContract.slice(rawTokenContract.length - 40, rawTokenContract.length)}`)                      // 32 bytes
+      const tokenContract: `0x${string}` = getAddress(`0x${rawTokenContract.slice(rawTokenContract.length - 40, rawTokenContract.length)}`)
       const tokenId = hexToNumber(`0x${rawTokenId}`, {size: 32}).toString()
       
       return {
@@ -356,7 +356,7 @@ class TokenboundClient {
     try {
     
       const deconstructedBytecode = await this.deconstructBytecode({accountAddress})
-      if(!deconstructedBytecode) throw new Error("Not an NFT account")
+      if(!deconstructedBytecode) throw new Error("The tokenbound account has not been deployed at this address")
       
       const { chainId, tokenContract, tokenId } = deconstructedBytecode
 
