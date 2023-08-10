@@ -17,7 +17,11 @@ import {
   executeCall,
   prepareCreateAccount
 } from './functions'
-import { AbstractEthersSigner, AbstractEthersTransactionResponse, SegmentedERC1155Bytecode } from "./types"
+import { 
+  AbstractEthersSigner,
+  AbstractEthersTransactionResponse,
+  SegmentedERC1155Bytecode
+} from "./types"
 import { chainIdToChain, segmentBytecode } from "./utils"
 
 export const NFTTokenType = {
