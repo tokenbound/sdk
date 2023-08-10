@@ -31,7 +31,7 @@
     "abitype": "^0.7.1",
     "ethers": "^5.7.2",
     "typescript": "^4.9.4",
-    "vite": "^4.2.0",
+    "vite": "^4.4.9",
     "vite-plugin-dts": "^2.2.0",
     "wagmi": "~0.12.0"
   }
