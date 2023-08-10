@@ -1,4 +1,10 @@
-import { WalletClient } from "viem"
+import { WalletClient,
+
+  PublicClient,
+  createPublicClient,
+  http,
+  GetBytecodeReturnType,
+} from "viem"
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
 import { 
   getAccount,
@@ -69,11 +75,16 @@ export type GetCreationCodeParams = {
   salt_: string
 }
 
+export type GetTBAccountBytecodeParams = {
+  accountAddress: `0x${string}`
+}
+
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
+  private publicClient: PublicClient
   private implementationAddress?: `0x${string}`
   private registryAddress?: `0x${string}`
 
@@ -101,6 +112,13 @@ class TokenboundClient {
     if (options.registryAddress) {
       this.registryAddress = options.registryAddress
     }
+
+    const viemPublicClient = createPublicClient({
+      chain: chainIdToChain(this.chainId),
+      transport: http(),
+    })
+  
+    this.publicClient = viemPublicClient
 
     this.isInitialized = true
 
@@ -253,6 +271,22 @@ class TokenboundClient {
       throw error
     }
   }
+
+  /**
+   * Check if a tokenbound account has been deployed
+   * @param {string} params.accountAddress The tokenbound account address
+   * @returns a Promise that resolves to the boolean value of whether the account is deployed
+   */
+  public async isAccountDeployed({accountAddress}: GetTBAccountBytecodeParams): Promise<boolean> {
+
+    try {
+      return await this.publicClient.getBytecode({address: accountAddress}).then((bytecode: GetBytecodeReturnType) => bytecode ? bytecode.length > 2: false)
+    } catch (error) {
+      throw error
+    }
+  
+  }
+  
 
 }
 
