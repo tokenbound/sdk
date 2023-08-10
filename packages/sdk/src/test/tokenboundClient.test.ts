@@ -6,6 +6,7 @@ import {
 
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from "./config"
+import { erc6551AccountImplementationAddressV1 } from "../constants"
 
 const tokenboundClient = new TokenboundClient({ 
     chainId: TEST_CONFIG.CHAIN_ID
@@ -63,4 +64,50 @@ test("tokenboundClient.isAccountDeployed", async () => {
     expect(isSapienz1Deployed).toEqual(false)
 })
 
-test.todo(".createAccount")
+test("tokenboundClient.deconstructBytecode", async () => {
+
+    const bytecode = await tokenboundClient.deconstructBytecode({
+        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+    })
+
+    if(!bytecode) throw new Error("Bytecode is undefined")
+    
+    const {
+        chainId,
+        implementationAddress,
+        tokenContract,
+        tokenId,
+        salt,
+        erc1167Header,
+        erc1167Footer
+    } = bytecode
+
+    expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
+    expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
+    expect(implementationAddress).toEqual(erc6551AccountImplementationAddressV1)
+    expect(erc1167Footer).toEqual(TEST_CONFIG.ERC1167_FOOTER)
+    expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
+    expect(tokenId).toEqual('0')
+    expect(salt).toEqual(0)
+
+})
+
+test("tokenboundClient.getNFT", async () => {
+
+    const nft = await tokenboundClient.getNFT({
+        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+    })
+
+    if(!nft) throw new Error("Bytecode is undefined")
+    
+    const {
+        chainId,
+        tokenContract,
+        tokenId,
+    } = nft
+
+    expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
+    expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
+    expect(tokenId).toEqual('0')
+    
+})
