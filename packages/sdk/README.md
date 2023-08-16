@@ -83,5 +83,8 @@ const tokenboundClientWithCustomRegistry = new TokenboundClient({
     registryAddress: "<custom_registry_address>",
 })
 
+### Documentation
+
+See the [Tokenbound docs](https://docs.tokenbound.org/sdk/installation) for complete documentation.
 
 ```

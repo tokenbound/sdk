@@ -289,7 +289,7 @@ class TokenboundClient {
   /**
    * Check if a tokenbound account has been deployed
    * @param {string} params.accountAddress The tokenbound account address
-   * @returns a Promise that resolves to true the account is deployed, otherwise false
+   * @returns a Promise that resolves to true if the account is deployed, otherwise false
    */
   public async checkAccountDeployment({accountAddress}: BytecodeParams): Promise<boolean> {
 
