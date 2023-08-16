@@ -289,9 +289,9 @@ class TokenboundClient {
   /**
    * Check if a tokenbound account has been deployed
    * @param {string} params.accountAddress The tokenbound account address
-   * @returns a Promise that resolves to the boolean value of whether the account is deployed
+   * @returns a Promise that resolves to true the account is deployed, otherwise false
    */
-  public async isAccountDeployed({accountAddress}: BytecodeParams): Promise<boolean> {
+  public async checkAccountDeployment({accountAddress}: BytecodeParams): Promise<boolean> {
 
     try {
       return await this.publicClient.getBytecode({address: accountAddress}).then((bytecode: GetBytecodeReturnType) => bytecode ? bytecode.length > 2: false)

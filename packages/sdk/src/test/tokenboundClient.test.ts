@@ -51,12 +51,12 @@ test("tokenboundClient.prepareCreateAccount", async () => {
     expect(isHex(preparedAccount.data)).toEqual(true)
 })
 
-test("tokenboundClient.isAccountDeployed", async () => {
+test("tokenboundClient.checkAccountDeployment", async () => {
 
-    const isSapienz0Deployed = await tokenboundClient.isAccountDeployed({
+    const isSapienz0Deployed = await tokenboundClient.checkAccountDeployment({
         accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
     })
-    const isSapienz1Deployed = await tokenboundClient.isAccountDeployed({
+    const isSapienz1Deployed = await tokenboundClient.checkAccountDeployment({
         accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_1,
     })
 
