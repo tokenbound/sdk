@@ -5,9 +5,10 @@ import {
   http,
   GetBytecodeReturnType,
   hexToNumber,  
-  getAddress
+  getAddress,
+  encodeFunctionData
 } from "viem"
-import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
+import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi } from '../abis'
 import { 
   getAccount,
   computeAccount,
@@ -46,7 +47,7 @@ interface TokenTypeParams {
 export type NFTTransferParams = TokenTypeParams & NFTParams & {
   recipientAddress: `0x${string}`
   account: `0x${string}`
-  data: string
+  // data: string
 }
 
 export type TokenboundClientOptions = {
@@ -366,6 +367,92 @@ class TokenboundClient {
         chainId
       }
     } catch (error) {
+      throw error
+    }
+  
+  }
+
+  /**
+   * Executes a transaction call on a tokenbound account
+   * @param {string} params.account The tokenbound account address
+   * @param {string} params.tokenType The type of token, either 'ERC721' or 'ERC1155'
+   * @param {string} params.tokenContract The address of the NFT token contract
+   * @param {string} params.tokenId The token ID
+   * @param {string} params.recipientAddress The address to which the token should be transferred
+   * @returns a Promise that resolves to the transaction hash of the executed call
+   */
+  public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
+    const { 
+      account: tbAccountAddress, 
+      tokenType,
+      tokenContract,
+      tokenId,
+      recipientAddress
+    } = params
+
+    const is1155: boolean = tokenType === 'ERC1155'
+
+    // Configure required args based on token type
+    const transferArgs: unknown[] = is1155
+      ? [
+          // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
+          tbAccountAddress,
+          recipientAddress,
+          tokenId,
+          1,
+          '0x',
+        ]
+      : [
+          // ERC721: safeTransferFrom(address,address,uint256)
+          tbAccountAddress,
+          recipientAddress,
+          tokenId,
+        ]
+
+    const callData = encodeFunctionData({
+      abi: is1155 ? erc1155Abi : erc721Abi,
+      functionName: 'safeTransferFrom',
+      args: transferArgs,
+    })
+
+    try {
+
+      if(this.signer) { // Ethers
+
+        const preparedNFTTransfer = {
+          to: tbAccountAddress,
+          value: BigInt(0),
+          data: encodeFunctionData({
+            abi: erc6551AccountAbi,
+            functionName: "executeCall",
+            args: [
+              tokenContract, 0, callData
+            ],
+          }),
+        }
+
+        // Extract the txHash from the TransactionResponse
+        return await this.signer.sendTransaction(preparedNFTTransfer).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
+       
+      }
+      else if(this.walletClient) {
+
+        const { request } = await this.publicClient.simulateContract({
+          address: getAddress(tbAccountAddress),
+          abi: erc6551AccountAbi as any,
+          functionName: 'executeCall',
+          args: [tokenContract, 0, callData],
+          account: this.walletClient?.account,
+        })
+
+        return await this.walletClient?.writeContract(request)
+      }
+      else {
+        throw new Error("No wallet client or signer available.")
+      }  
+
+    } catch (error) {
+      console.log(error)
       throw error
     }
   
