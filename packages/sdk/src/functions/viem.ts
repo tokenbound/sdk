@@ -92,7 +92,7 @@ export async function prepareCreateAccount(
         chainId,
         tokenContract,
         tokenId,
-        0,
+        0, // salt
         initData,
       ],
     }),
@@ -141,7 +141,7 @@ export async function createAccount(
     chainId,
     tokenContract,
     tokenId,
-    0,
+    0, // salt
     initData,
   ])
 }
