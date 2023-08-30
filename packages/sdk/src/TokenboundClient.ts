@@ -391,7 +391,7 @@ class TokenboundClient {
       recipientAddress
     } = params
 
-    const is1155: boolean = tokenType === 'ERC1155'
+    const is1155: boolean = tokenType === NFTTokenType.ERC1155
 
     // Configure required args based on token type
     const transferArgs: unknown[] = is1155
@@ -416,7 +416,7 @@ class TokenboundClient {
       args: transferArgs,
     })
 
-    const executeCallCallData = {
+    const unencodedExecuteCall = {
       abi: erc6551AccountAbi as Abi,
       functionName: "executeCall",
       args: [
@@ -431,7 +431,7 @@ class TokenboundClient {
         const preparedNFTTransfer = {
           to: tbAccountAddress,
           value: BigInt(0),
-          data: encodeFunctionData(executeCallCallData),
+          data: encodeFunctionData(unencodedExecuteCall),
         }
 
         // Extract the txHash from the TransactionResponse
@@ -443,7 +443,7 @@ class TokenboundClient {
         const { request } = await this.publicClient.simulateContract({
           address: getAddress(tbAccountAddress),
           account: this.walletClient?.account,
-          ...executeCallCallData
+          ...unencodedExecuteCall
         })
 
         return await this.walletClient?.writeContract(request)

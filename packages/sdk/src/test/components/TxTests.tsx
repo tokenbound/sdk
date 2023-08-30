@@ -1,30 +1,46 @@
 import React, { useCallback, useState } from 'react'
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  // usePrepareContractWrite,
+  // useContractWrite,
+  // useWaitForTransaction,
+} from 'wagmi'
 import { TokenboundClient } from '@tokenbound/sdk'
 import { useHasMounted } from '../hooks'
 
-export function TxTests({ tokenboundClient }: { tokenboundClient?: TokenboundClient }) {
+// import {
+//   // usePrepareZora1155Mint,
+//   // useZora1155Mint,
+//   zora1155ABI, // Individual implementations of the 1155 contract are proxied, so we
+// } from '../wagmi-cli-hooks/generated'
+// import { encodeAbiParameters, getAddress, parseAbiParameters, parseUnits } from 'viem'
+import { TxTestsMintThenTransfer } from './TxTestsMintThenTransfer'
+import { TesterType } from '../types'
+
+export function TxTests({
+  tokenboundClient,
+  tester,
+}: {
+  tokenboundClient?: TokenboundClient
+  tester: TesterType
+}) {
   const { address, connector, isConnected } = useAccount()
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect()
   const { disconnect } = useDisconnect()
   const hasMounted = useHasMounted()
-
   const [tokenboundAccountAddress, setTokenboundAccountAddress] = useState<
     `0x${string}` | null
   >()
   const [executedCallAddress, setExecutedCallAddress] = useState<`0x${string}` | null>()
 
   const createAccount = useCallback(async () => {
-    console.log('in createaccount, PRE-RUN --->')
     if (!tokenboundClient || !address) return
-    console.log('in createaccount, has client and address --->')
     const accountAddress = await tokenboundClient.createAccount({
       tokenContract: '0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b', // BJ's Lil' Noun
       tokenId: '606',
     })
-
-    accountAddress && console.log('ADDRESS OUT', accountAddress)
-
     accountAddress && setTokenboundAccountAddress(accountAddress)
   }, [tokenboundClient])
 
@@ -87,6 +103,8 @@ export function TxTests({ tokenboundClient }: { tokenboundClient?: TokenboundCli
                 {executedCallAddress}
               </span>
             )}
+
+            {!!address && <TxTestsMintThenTransfer address={address} tester={tester} />}
           </>
         )}
 

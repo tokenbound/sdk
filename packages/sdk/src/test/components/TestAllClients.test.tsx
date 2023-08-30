@@ -15,9 +15,7 @@ import {
   userEvent,
   waitFor,
 } from '../mockWallet'
-import { WalletClientTester } from './WalletClientTester'
-import { Ethers6SignerTester } from './Ethers6SignerTester'
-import { EthersSignerTester } from './EthersSignerTester'
+import { EthersSignerTester, Ethers6SignerTester, WalletClientTester } from './'
 import { PublicClient, WebSocketPublicClient, Config, WalletClient } from 'wagmi'
 
 describe('ComboTester', () => {
@@ -90,7 +88,7 @@ function runClientTxTestsForComponent(
           'tb-account-created'
         ) as HTMLSpanElement
 
-        console.log('TB ACCOUNT OUTPUT', tbAccountOutput)
+        // console.log('TB ACCOUNT OUTPUT', tbAccountOutput)
 
         expect(tbAccountOutput).toBeInTheDocument()
         expect(tbAccountOutput.textContent).toMatch(ADDRESS_REGEX)
@@ -111,6 +109,26 @@ function runClientTxTestsForComponent(
         ) as HTMLSpanElement
         expect(tbExecutedCallOutput).toBeInTheDocument()
         expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
+      })
+    })
+
+    it('can transfer an NFT', async () => {
+      act(() => {
+        const executeMintButton = screen.getByTestId(
+          'tb-mint-1155-button'
+        ) as HTMLButtonElement
+
+        // console.log('EXECUTE MINT BUTTON', executeMintButton)
+
+        user.click(executeMintButton)
+      })
+
+      await waitFor(() => {
+        const tbExecutedMintOutput = screen.getByTestId(
+          'tb-executed-mint'
+        ) as HTMLSpanElement
+        expect(tbExecutedMintOutput).toBeInTheDocument()
+        // expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
       })
     })
   })

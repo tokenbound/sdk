@@ -56,7 +56,26 @@ export function App() {
     })
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
+  const transferNFT = useCallback(async () => {
+    if (!tokenboundClient || !address) return
 
+    const bjGoerliSapienz = tokenboundClient.getAccount({
+      // BJ's Goerli Sapienz
+      tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
+      tokenId: '5',
+    })
+
+    // console.log('goerli sapienz tbaccount', bjGoerliSapienz)
+
+    const transferredNFTHash = await tokenboundClient.transferNFT({
+      account: bjGoerliSapienz,
+      tokenType: 'ERC721',
+      tokenContract: '0xbbabef539cad957f1ecc9ee56f38588e24b3dcf3',
+      tokenId: '0',
+      recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
+    })
+    alert(`transferred: ${transferredNFTHash}`)
+  }, [tokenboundClient])
   const executeCall = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const executedCall = await tokenboundClient.executeCall({
@@ -84,6 +103,7 @@ export function App() {
         >
           <button onClick={() => executeCall()}>EXECUTE CALL</button>
           <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
+          <button onClick={() => transferNFT()}>TRANSFER NFT</button>
         </div>
       )}
     </>

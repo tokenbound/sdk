@@ -7,7 +7,7 @@ import { createWalletClient, http, custom, WalletClient } from 'viem'
 import { goerli } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 declare global {
   interface Window {
@@ -69,6 +69,31 @@ export function App() {
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
+  const transferNFT = useCallback(async () => {
+    if (!tokenboundClient || !address) return
+
+    const bjGoerliSapienz = tokenboundClient.getAccount({
+      // BJ's Goerli Sapienz
+      tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
+      tokenId: '5',
+    })
+
+    console.log('goerli sapienz tbaccount', bjGoerliSapienz)
+
+    const transferredNFTHash = await tokenboundClient.transferNFT({
+      account: bjGoerliSapienz,
+      tokenType: 'ERC721',
+      tokenContract: '0xbbabef539cad957f1ecc9ee56f38588e24b3dcf3',
+      tokenId: '0',
+      recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
+    })
+    // const createdAccount = await tokenboundClient.createAccount({
+    //   tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+    //   tokenId: '1',
+    // })
+    alert(`transferred: ${transferredNFTHash}`)
+  }, [tokenboundClient])
+
   const executeCall = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const executedCall = await tokenboundClient.executeCall({
@@ -96,6 +121,7 @@ export function App() {
         >
           <button onClick={() => executeCall()}>EXECUTE CALL</button>
           <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
+          <button onClick={() => transferNFT()}>Transfer NFT</button>
         </div>
       )}
     </>

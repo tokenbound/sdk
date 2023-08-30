@@ -10,5 +10,5 @@ export function WalletClientTester() {
     ? new TokenboundClient({ walletClient, chainId: foundry.id })
     : undefined
 
-  return <TxTests tokenboundClient={tokenboundClient} />
+  return <TxTests tokenboundClient={tokenboundClient} tester="VIEM_WALLETCLIENT" />
 }
