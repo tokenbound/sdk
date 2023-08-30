@@ -110,9 +110,8 @@ function runClientTxTestsForComponent(
         expect(tbExecutedCallOutput).toBeInTheDocument()
         expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
       })
-    })
 
-    it('can transfer an NFT', async () => {
+      // Oddly, if the mint tests come after the executeCall tests, the mint tests work
       act(() => {
         const executeMintButton = screen.getByTestId(
           'tb-mint-1155-button'
@@ -128,8 +127,24 @@ function runClientTxTestsForComponent(
           'tb-executed-mint'
         ) as HTMLSpanElement
         expect(tbExecutedMintOutput).toBeInTheDocument()
-        // expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
       })
     })
+
+    // it('can transfer an NFT', async () => {
+    //   act(() => {
+    //     const executeMintButton = screen.getByTestId(
+    //       'tb-mint-1155-button'
+    //     ) as HTMLButtonElement
+    //     // console.log('EXECUTE MINT BUTTON', executeMintButton)
+    //     user.click(executeMintButton)
+    //   })
+    //   await waitFor(() => {
+    //     const tbExecutedMintOutput = screen.getByTestId(
+    //       'tb-executed-mint'
+    //     ) as HTMLSpanElement
+    //     expect(tbExecutedMintOutput).toBeInTheDocument()
+    //     // expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
+    //   })
+    // })
   })
 }

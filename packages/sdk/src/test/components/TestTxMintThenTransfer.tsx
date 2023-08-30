@@ -1,27 +1,47 @@
 import React, { useCallback, useState } from 'react'
-import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from 'wagmi'
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useWalletClient,
+} from 'wagmi'
 import { useHasMounted } from '../hooks'
 
 import {
   zora1155ABI, // Individual implementations of the 1155 contract are proxied, so we
 } from '../wagmi-cli-hooks/generated'
 import { encodeAbiParameters, getAddress, parseAbiParameters, parseUnits } from 'viem'
-import { TesterType } from '../types'
+import { TesterType, Tester } from '../types'
 
 const ethToWei = function (eth: number) {
   return parseUnits(eth.toString(), 18)
 }
 
-interface TxTestsMintThenTransferProps {
+interface TestTxMintThenTransferProps {
   address: `0x${string}`
   tester: TesterType
 }
 
-export function TxTestsMintThenTransfer({
-  address,
-  tester,
-}: TxTestsMintThenTransferProps) {
+function ZoraMinter({ mintFunction }: { mintFunction: () => void }) {
+  const execute1155Mint = useCallback(async () => {
+    // if (!address || !mintZora1155) return
+    await mintFunction()
+  }, [])
+
+  return (
+    <button
+      id="tb-mint-1155-button"
+      data-testid="tb-mint-1155-button"
+      onClick={() => execute1155Mint()}
+    >
+      Execute 1155 Mint
+    </button>
+  )
+}
+
+export function TestTxMintThenTransfer({ address, tester }: TestTxMintThenTransferProps) {
   const hasMounted = useHasMounted()
+  const { data: walletClient } = useWalletClient({ chainId: 1 })
   // const [setPrepareConfig, PrepareConfig] = useState<PrepareWriteContractResult>()
 
   // Contract calls for 1155 mints
@@ -42,13 +62,13 @@ export function TxTestsMintThenTransfer({
   )
 
   // Individual implementations of the Zora 1155 contract are proxied, so we need to call against the proxied address:
-  // const prepare = usePrepareContractWrite({
   const { config, error } = usePrepareContractWrite({
     chainId: 1,
     account: address,
     abi: zora1155ABI,
     address: proxyAddress,
     functionName: 'mint',
+    walletClient,
     value: stapleverseSapienzDrop.mintFee,
     args: [
       stapleverseSapienzDrop.zora1155MinterAddress,
@@ -58,56 +78,28 @@ export function TxTestsMintThenTransfer({
     ],
   })
 
-  console.log(`PREPARE ${tester} >>>>>>>>>>`, config, `ERROR?: ${error}`)
-
   const { data: mintZora1155Data, write: mintZora1155 } = useContractWrite(config)
 
   const { data: transactionData, error: waitError } = useWaitForTransaction({
     hash: mintZora1155Data?.hash,
   })
 
-  // console.log(
-  //   `WRITE ${tester} >>>>>>>`,
-  //   'mintZora1155:',
-  //   mintZora1155,
-  //   'typeof mintZora1155:',
-  //   typeof mintZora1155,
-  //   'mintZora1155Data:',
-  //   mintZora1155Data
-  // )
-  console.log({
-    // `WRITE ${tester} >>>>>>>`,
-    mintZora1155,
-    // 'typeof mintZora1155',typeof mintZora1155,
-    mintZora1155Data,
-  })
+  if (tester !== Tester.VIEM_WALLETCLIENT) {
+    console.log({ prepare: `PREPARE ${tester} >>>>>>>>>>`, config, error })
+    console.log({
+      write: `WRITE ${tester} >>>>>>>`,
+      // `WRITE ${tester} >>>>>>>`,
+      mintZora1155,
+      // 'typeof mintZora1155',typeof mintZora1155,
+      mintZora1155Data,
+    })
+    console.log({ transactionData, waitError })
+  }
 
-  console.log({ transactionData, waitError })
-  // console.log('transactionData: ', transactionData, `waitError:`, waitError)
-
-  const execute1155Mint = useCallback(async () => {
-    // console.log(
-    //   'executing MINT >>>>>>>',
-    //   // address,
-    //   mintZora1155,
-    //   mintZora1155Data,
-    //   config
-    // )
-
-    console.log('typeof mintZora1155:', typeof mintZora1155)
-    console.log('typeof mintZora1155Data:', typeof mintZora1155Data)
-
-    if (!address || !mintZora1155) return
-    console.log('PRE-EXECUTION >>>>>>>>>>')
-    // const executedMint =
-    await mintZora1155()
-    console.log('POST-EXECUTION >>>>>>>>>>')
-
-    // console.log('executedMint >>>>>>>>>>', executedMint)
-    // executedMint.isSuccess
-    // executedMint &&
-    // setMinted1155(executedMint)
-  }, [address, mintZora1155])
+  // const execute1155Mint = useCallback(async () => {
+  //   if (!address || !mintZora1155) return
+  //   await mintZora1155()
+  // }, [address, mintZora1155])
 
   if (!hasMounted) return null
 
@@ -116,13 +108,14 @@ export function TxTestsMintThenTransfer({
       {address && (
         <>
           {!!mintZora1155 && (
-            <button
-              id="tb-mint-1155-button"
-              data-testid="tb-mint-1155-button"
-              onClick={() => execute1155Mint()}
-            >
-              Execute 1155 Mint
-            </button>
+            <ZoraMinter mintFunction={mintZora1155} />
+            // <button
+            //   id="tb-mint-1155-button"
+            //   data-testid="tb-mint-1155-button"
+            //   onClick={() => execute1155Mint()}
+            // >
+            //   Execute 1155 Mint
+            // </button>
           )}
           {/* OUTPUT WHEN MINT HAS BEEN SUCCESSFULLY EXECUTED */}
           {transactionData && (

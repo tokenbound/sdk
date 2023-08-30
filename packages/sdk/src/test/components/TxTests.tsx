@@ -16,8 +16,10 @@ import { useHasMounted } from '../hooks'
 //   zora1155ABI, // Individual implementations of the 1155 contract are proxied, so we
 // } from '../wagmi-cli-hooks/generated'
 // import { encodeAbiParameters, getAddress, parseAbiParameters, parseUnits } from 'viem'
-import { TxTestsMintThenTransfer } from './TxTestsMintThenTransfer'
+import { TestTxMintThenTransfer } from './TestTxMintThenTransfer'
 import { TesterType } from '../types'
+import { TestTxExecuteCall } from './TestTxExecuteCall'
+import { TestTxCreateAccount } from './TestTxCreateAccount'
 
 export function TxTests({
   tokenboundClient,
@@ -29,31 +31,8 @@ export function TxTests({
   const { address, connector, isConnected } = useAccount()
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect()
   const { disconnect } = useDisconnect()
+  const isReady = !!address && !!tokenboundClient
   const hasMounted = useHasMounted()
-  const [tokenboundAccountAddress, setTokenboundAccountAddress] = useState<
-    `0x${string}` | null
-  >()
-  const [executedCallAddress, setExecutedCallAddress] = useState<`0x${string}` | null>()
-
-  const createAccount = useCallback(async () => {
-    if (!tokenboundClient || !address) return
-    const accountAddress = await tokenboundClient.createAccount({
-      tokenContract: '0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b', // BJ's Lil' Noun
-      tokenId: '606',
-    })
-    accountAddress && setTokenboundAccountAddress(accountAddress)
-  }, [tokenboundClient])
-
-  const executeCall = useCallback(async () => {
-    if (!tokenboundClient || !address) return
-    const executedCall = await tokenboundClient.executeCall({
-      account: address,
-      to: address,
-      value: 0n,
-      data: '0x',
-    })
-    executedCall && setExecutedCallAddress(executedCall)
-  }, [tokenboundClient])
 
   if (!hasMounted) return null
 
@@ -71,40 +50,21 @@ export function TxTests({
               Disconnect from {connector?.name}
             </button>
 
-            {tokenboundClient && (
+            {isReady && (
               <>
-                <button
-                  id="tb-create-account-button"
-                  data-testid="tb-create-account-button"
-                  onClick={() => createAccount()}
-                >
-                  Create Account
-                </button>
-                <button
-                  id="tb-execute-call-button"
-                  data-testid="tb-execute-call-button"
-                  onClick={() => executeCall()}
-                >
-                  Execute Call
-                </button>
+                <TestTxCreateAccount
+                  tokenboundClient={tokenboundClient}
+                  address={address}
+                  tester={tester}
+                />
+                <TestTxExecuteCall
+                  tokenboundClient={tokenboundClient}
+                  address={address}
+                  tester={tester}
+                />
+                <TestTxMintThenTransfer address={address} tester={tester} />
               </>
             )}
-
-            {/* OUTPUT WHEN TOKENBOUND ADDRESS HAS BEEN CREATED */}
-            {tokenboundAccountAddress && (
-              <span id="tb-account-created" data-testid="tb-account-created">
-                {tokenboundAccountAddress}
-              </span>
-            )}
-
-            {/* OUTPUT WHEN CALL HAS BEEN SUCCESSFULLY EXECUTED BY TOKENBOUND ACCOUNT */}
-            {executedCallAddress && (
-              <span id="tb-executed-call" data-testid="tb-executed-call">
-                {executedCallAddress}
-              </span>
-            )}
-
-            {!!address && <TxTestsMintThenTransfer address={address} tester={tester} />}
           </>
         )}
 
