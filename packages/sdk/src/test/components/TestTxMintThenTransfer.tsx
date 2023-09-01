@@ -65,9 +65,9 @@ function ZoraMinter({ config, tester }: { config: any; tester: TesterType }) {
     // console.log({ transactionData, waitError })
   }
 
-  useEffect(() => {
-    console.log('MINTER SET', mintZora1155)
-  }, [mintZora1155])
+  // useEffect(() => {
+  //   console.log('MINTER SET', mintZora1155)
+  // }, [mintZora1155])
 
   const execute1155Mint = useCallback(async () => {
     // console.log('EXECUTING 1155 MINT')
