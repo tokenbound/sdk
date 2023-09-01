@@ -222,7 +222,6 @@ class TokenboundClient {
           registryAddress: registry
         })
 
-        // Extract the txHash from the TransactionResponse
         txHash = await this.signer.sendTransaction(prepareCreateAccount).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
 
       }
@@ -281,7 +280,6 @@ class TokenboundClient {
 
     try {
       if(this.signer) { // Ethers
-        // Extract the txHash from the TransactionResponse
         return await this.signer.sendTransaction(preparedExecuteCall).then((tx: AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       }
       else if(this.walletClient) {
@@ -448,7 +446,6 @@ class TokenboundClient {
           data: encodeFunctionData(unencodedExecuteCall),
         }
 
-        // Extract the txHash from the TransactionResponse
         return await this.signer.sendTransaction(preparedNFTTransfer).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       
       }
@@ -490,15 +487,9 @@ class TokenboundClient {
     // convert ETH amount to wei
     const weiValue = parseUnits(`${amount}`, 18)
 
-    let recipient
-
-    if (recipientAddress.endsWith(".eth")) {
-      recipient = await this.publicClient.getEnsResolver({
-        name: normalize(recipientAddress),
-      })
-    } else {
-      recipient = recipientAddress
-    }
+    const recipient = recipientAddress.endsWith(".eth")
+      ? await this.publicClient.getEnsResolver({name: normalize(recipientAddress)})
+      : recipientAddress
 
     const unencodedTransferETHExecuteCall = {
       abi: erc6551AccountAbi as Abi,
@@ -516,7 +507,6 @@ class TokenboundClient {
           data: encodeFunctionData(unencodedTransferETHExecuteCall),
         }
 
-        // Extract the txHash from the TransactionResponse
         return await this.signer.sendTransaction(preparedETHTransfer).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       
       }
@@ -586,7 +576,6 @@ class TokenboundClient {
           data: encodeFunctionData(unencodedTransferERC20ExecuteCall),
         }
 
-        // Extract the txHash from the TransactionResponse
         return await this.signer.sendTransaction(preparedERC20Transfer).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
       
       }
