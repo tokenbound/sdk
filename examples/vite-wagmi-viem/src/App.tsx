@@ -3,7 +3,7 @@ import { useAccount, WindowProvider } from 'wagmi'
 
 import { Account } from './components'
 
-import { createWalletClient, http, custom, WalletClient } from 'viem'
+import { createWalletClient, http, custom, WalletClient, getAddress } from 'viem'
 import { goerli } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
 
@@ -69,29 +69,73 @@ export function App() {
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
-  const transferNFT = useCallback(async () => {
+  // const transferNFT = useCallback(async () => {
+  //   if (!tokenboundClient || !address) return
+
+  //   const bjGoerliSapienz = tokenboundClient.getAccount({
+  //     // BJ's Goerli Sapienz
+  //     tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
+  //     tokenId: '5',
+  //   })
+
+  //   console.log('goerli sapienz tbaccount', bjGoerliSapienz)
+
+  //   const transferredNFTHash = await tokenboundClient.transferNFT({
+  //     account: bjGoerliSapienz,
+  //     tokenType: 'ERC721',
+  //     tokenContract: '0xbbabef539cad957f1ecc9ee56f38588e24b3dcf3',
+  //     tokenId: '0',
+  //     recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
+  //   })
+  //   // const createdAccount = await tokenboundClient.createAccount({
+  //   //   tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+  //   //   tokenId: '1',
+  //   // })
+  //   alert(`transferred: ${transferredNFTHash}`)
+  // }, [tokenboundClient])
+
+  // const transferETH = useCallback(async () => {
+  //   if (!tokenboundClient || !address) return
+
+  //   const bjGoerliSapienz = tokenboundClient.getAccount({
+  //     tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
+  //     tokenId: '5',
+  //   })
+
+  //   console.log('goerli sapienz tbaccount', bjGoerliSapienz)
+
+  //   const transferredETHHash = await tokenboundClient.transferETH({
+  //     account: bjGoerliSapienz,
+  //     amount: 0.01,
+  //     recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
+  //   })
+
+  //   alert(`transferred: ${transferredETHHash}`)
+  // }, [tokenboundClient])
+  const transferERC20 = useCallback(async () => {
     if (!tokenboundClient || !address) return
 
     const bjGoerliSapienz = tokenboundClient.getAccount({
-      // BJ's Goerli Sapienz
       tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
       tokenId: '5',
     })
 
     console.log('goerli sapienz tbaccount', bjGoerliSapienz)
 
-    const transferredNFTHash = await tokenboundClient.transferNFT({
+    const DRUBLES_ERC20 = {
+      tokenAddress: getAddress('0x1faae4d3181284fdec56d48e20298682152d139f'),
+      decimals: 18,
+    }
+
+    const transferredERC20Hash = await tokenboundClient.transferERC20({
       account: bjGoerliSapienz,
-      tokenType: 'ERC721',
-      tokenContract: '0xbbabef539cad957f1ecc9ee56f38588e24b3dcf3',
-      tokenId: '0',
-      recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
+      amount: 10,
+      recipientAddress: '0x33D622b211C399912eC0feaaf1caFD01AFA53980', // BJ's account under assets/goerli/0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2/0
+      erc20tokenAddress: DRUBLES_ERC20.tokenAddress,
+      erc20tokenDecimals: DRUBLES_ERC20.decimals,
     })
-    // const createdAccount = await tokenboundClient.createAccount({
-    //   tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-    //   tokenId: '1',
-    // })
-    alert(`transferred: ${transferredNFTHash}`)
+
+    alert(`transferred: ${transferredERC20Hash}`)
   }, [tokenboundClient])
 
   const executeCall = useCallback(async () => {
@@ -121,7 +165,9 @@ export function App() {
         >
           <button onClick={() => executeCall()}>EXECUTE CALL</button>
           <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
-          <button onClick={() => transferNFT()}>Transfer NFT</button>
+          {/* <button onClick={() => transferNFT()}>Transfer NFT</button> */}
+          <button onClick={() => transferERC20()}>TRANSFER ERC20</button>
+          {/* <button onClick={() => transferETH()}>TRANSFER ETH</button> */}
         </div>
       )}
     </>

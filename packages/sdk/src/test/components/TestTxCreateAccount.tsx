@@ -3,7 +3,7 @@ import { TokenboundClient } from '@tokenbound/sdk'
 
 import { useHasMounted } from '../hooks'
 
-import { TesterType, Tester } from '../types'
+import { TesterType } from '../types'
 
 interface TestTxExecuteCallProps {
   address: `0x${string}`

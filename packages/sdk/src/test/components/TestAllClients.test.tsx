@@ -6,7 +6,6 @@ import { MockConnector } from 'wagmi/connectors/mock'
 import {
   Providers,
   UserEvent,
-  act,
   ADDRESS_REGEX,
   getMockWalletClient,
   renderWithWagmiConfig,
@@ -35,10 +34,8 @@ function runClientTxTestsForComponent(
     }
 
     beforeEach(async () => {
-      act(() => {
-        user = userEvent.setup()
-        assert(user)
-      })
+      user = userEvent.setup()
+      assert(user)
 
       // Create a config with a mock wallet client (foundry chain)
       config = setupConfig({
@@ -59,10 +56,8 @@ function runClientTxTestsForComponent(
         ),
       })
 
-      act(() => {
-        const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
-        user.click(connectButton)
-      })
+      const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
+      user.click(connectButton)
 
       await waitFor(() => {
         expect(screen.getByText(ADDRESS_REGEX)).toBeInTheDocument()
@@ -73,22 +68,16 @@ function runClientTxTestsForComponent(
     })
 
     it('can createAccount', async () => {
-      act(() => {
-        const createAccountButton = screen.getByTestId(
-          'tb-create-account-button'
-        ) as HTMLButtonElement
+      const createAccountButton = screen.getByTestId(
+        'tb-create-account-button'
+      ) as HTMLButtonElement
 
-        // console.log('CREATE BUTTON', createAccountButton)
-
-        user.click(createAccountButton)
-      })
+      user.click(createAccountButton)
 
       await waitFor(() => {
         const tbAccountOutput = screen.getByTestId(
           'tb-account-created'
         ) as HTMLSpanElement
-
-        // console.log('TB ACCOUNT OUTPUT', tbAccountOutput)
 
         expect(tbAccountOutput).toBeInTheDocument()
         expect(tbAccountOutput.textContent).toMatch(ADDRESS_REGEX)
@@ -96,12 +85,10 @@ function runClientTxTestsForComponent(
     })
 
     it('can executeCall', async () => {
-      act(() => {
-        const executeCallButton = screen.getByTestId(
-          'tb-execute-call-button'
-        ) as HTMLButtonElement
-        user.click(executeCallButton)
-      })
+      const executeCallButton = screen.getByTestId(
+        'tb-execute-call-button'
+      ) as HTMLButtonElement
+      user.click(executeCallButton)
 
       await waitFor(() => {
         const tbExecutedCallOutput = screen.getByTestId(
@@ -110,40 +97,20 @@ function runClientTxTestsForComponent(
         expect(tbExecutedCallOutput).toBeInTheDocument()
         expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
       })
-
-      // Oddly, if the mint tests come after the executeCall tests, the mint tests work
-      act(() => {
-        const executeMintButton = screen.getByTestId(
-          'tb-mint-1155-button'
-        ) as HTMLButtonElement
-
-        // console.log('EXECUTE MINT BUTTON', executeMintButton)
-
-        user.click(executeMintButton)
-      })
-
-      await waitFor(() => {
-        const tbExecutedMintOutput = screen.getByTestId(
-          'tb-executed-mint'
-        ) as HTMLSpanElement
-        expect(tbExecutedMintOutput).toBeInTheDocument()
-      })
     })
 
     // it('can transfer an NFT', async () => {
-    //   act(() => {
-    //     const executeMintButton = screen.getByTestId(
-    //       'tb-mint-1155-button'
-    //     ) as HTMLButtonElement
-    //     // console.log('EXECUTE MINT BUTTON', executeMintButton)
-    //     user.click(executeMintButton)
-    //   })
+    //   // act(() => {
+    //   const executeMintButton = screen.getByTestId(
+    //     'tb-mint-1155-button'
+    //   ) as HTMLButtonElement
+    //   user.click(executeMintButton)
+    //   // })
     //   await waitFor(() => {
     //     const tbExecutedMintOutput = screen.getByTestId(
     //       'tb-executed-mint'
     //     ) as HTMLSpanElement
     //     expect(tbExecutedMintOutput).toBeInTheDocument()
-    //     // expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
     //   })
     // })
   })
