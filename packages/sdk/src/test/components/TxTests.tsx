@@ -16,7 +16,7 @@ import { useHasMounted } from '../hooks'
 //   zora1155ABI, // Individual implementations of the 1155 contract are proxied, so we
 // } from '../wagmi-cli-hooks/generated'
 // import { encodeAbiParameters, getAddress, parseAbiParameters, parseUnits } from 'viem'
-import { TestTxMintThenTransfer } from './TestTxMintThenTransfer'
+// import { TestTxMintThenTransfer } from './TestTxMintThenTransfer'
 import { TesterType } from '../types'
 import { TestTxExecuteCall } from './TestTxExecuteCall'
 import { TestTxCreateAccount } from './TestTxCreateAccount'
@@ -62,7 +62,7 @@ export function TxTests({
                   address={address}
                   tester={tester}
                 />
-                <TestTxMintThenTransfer address={address} tester={tester} />
+                {/* <TestTxMintThenTransfer address={address} tester={tester} /> */}
               </>
             )}
           </>
