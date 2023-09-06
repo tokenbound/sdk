@@ -548,6 +548,8 @@ class TokenboundClient {
       erc20tokenDecimals,
     } = params
 
+    if(erc20tokenDecimals < 0 || erc20tokenDecimals > 18) throw new Error("Decimal value out of range. Should be between 0 and 18")
+
     const amountBaseUnit = parseUnits(`${amount}`, erc20tokenDecimals)
 
     const recipient = recipientAddress.endsWith(".eth")
