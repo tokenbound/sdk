@@ -1,25 +1,9 @@
 import React from 'react'
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  // usePrepareContractWrite,
-  // useContractWrite,
-  // useWaitForTransaction,
-} from 'wagmi'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { TokenboundClient } from '@tokenbound/sdk'
 import { useHasMounted } from '../hooks'
-
-// import {
-//   // usePrepareZora1155Mint,
-//   // useZora1155Mint,
-//   zora1155ABI, // Individual implementations of the 1155 contract are proxied, so we
-// } from '../wagmi-cli-hooks/generated'
-// import { encodeAbiParameters, getAddress, parseAbiParameters, parseUnits } from 'viem'
-// import { TestTxMintThenTransfer } from './TestTxMintThenTransfer'
 import { TesterType } from '../types'
-import { TestTxExecuteCall } from './TestTxExecuteCall'
-import { TestTxCreateAccount } from './TestTxCreateAccount'
+import { TestTxExecuteCall, TestTxCreateAccount } from './'
 
 export function TxTests({
   tokenboundClient,
@@ -62,7 +46,6 @@ export function TxTests({
                   address={address}
                   tester={tester}
                 />
-                {/* <TestTxMintThenTransfer address={address} tester={tester} /> */}
               </>
             )}
           </>

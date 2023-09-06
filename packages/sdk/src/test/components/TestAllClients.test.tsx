@@ -98,20 +98,5 @@ function runClientTxTestsForComponent(
         expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
       })
     })
-
-    // it('can transfer an NFT', async () => {
-    //   // act(() => {
-    //   const executeMintButton = screen.getByTestId(
-    //     'tb-mint-1155-button'
-    //   ) as HTMLButtonElement
-    //   user.click(executeMintButton)
-    //   // })
-    //   await waitFor(() => {
-    //     const tbExecutedMintOutput = screen.getByTestId(
-    //       'tb-executed-mint'
-    //     ) as HTMLSpanElement
-    //     expect(tbExecutedMintOutput).toBeInTheDocument()
-    //   })
-    // })
   })
 }
