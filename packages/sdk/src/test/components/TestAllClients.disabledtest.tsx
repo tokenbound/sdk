@@ -14,7 +14,7 @@ import {
   userEvent,
   waitFor,
 } from '../mockWallet'
-import { EthersSignerTester, Ethers6SignerTester, WalletClientTester } from './'
+import { EthersSignerTester, Ethers6SignerTester, WalletClientTester } from '.'
 import { PublicClient, WebSocketPublicClient, Config, WalletClient } from 'wagmi'
 
 describe('ComboTester', () => {
