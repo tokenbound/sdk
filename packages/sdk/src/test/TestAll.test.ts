@@ -84,7 +84,8 @@ function runTxTestsWithSigner(
 
     //@BJ TODO: change vitest environment: 'jsdom' to 'node' ?
 
-    beforeEach(async () => {
+    // beforeAll(async () => { // Runs before the first test
+    beforeEach(async () => { // Runs before each test
       
       try {
         publicClient = getPublicClient({ chainId: ACTIVE_CHAIN.id })
