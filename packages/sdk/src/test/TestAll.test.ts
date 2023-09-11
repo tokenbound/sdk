@@ -72,21 +72,14 @@ function runTxTestsWithSigner(
     let walletClient: WalletClient
     // let shutdown: any
 
-
-    // @BJ TODO: figure out how to access ENV vars with vitest (these are coming out as undefined)
     const ANVIL_CONFIG: CreateAnvilOptions = {
-      forkUrl: process.env.ANVIL_MAINNET_FORK_ENDPOINT,
-      forkBlockNumber: process.env.ANVIL_MAINNET_FORK_BLOCK_NUMBER? parseInt(process.env.ANVIL_MAINNET_FORK_BLOCK_NUMBER):undefined, 
+      forkUrl: import.meta.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT,
+      forkBlockNumber: import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER? parseInt(import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER): undefined, 
     }
     console.log('ANVIL_CONFIG',ANVIL_CONFIG)
     const anvil = createAnvil(
-      {
-        forkUrl: 'https://eth-mainnet.alchemyapi.io/v2/SMkQiSpoj4za3-0hO0eP78i3b0OrBT4k',
-        forkBlockNumber: 17680029,
-      }
-      // {...ANVIL_CONFIG}
+      {...ANVIL_CONFIG}
     )
-
 
     //@BJ TODO: change vitest environment: 'jsdom' to 'node' ?
 
