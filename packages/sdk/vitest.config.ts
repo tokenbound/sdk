@@ -6,11 +6,13 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
     },
     environment: 'jsdom',
+    // environment: 'node',
     exclude: [
       '**/.{idea,git,cache,output,temp}/**',
       '**/cypress/**',
       '**/dist/**',
       '**/node_modules/**',
+      '**/6551contracts/**',
       './test/pages/**',
     ],
     globals: true,

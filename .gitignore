@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Testing configuration
+/packages/sdk/6551contracts
+/broadcast
+/cache
+/out

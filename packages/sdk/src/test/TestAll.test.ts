@@ -1,27 +1,58 @@
-// import * as React from 'react'
-import { QueryClient } from '@tanstack/react-query'
-import { assert, beforeEach, describe, expect, it } from 'vitest'
-// import { MockConnector } from 'wagmi/connectors/mock'
+import { 
+  //assert,
+  beforeEach, describe, expect, it } from 'vitest'
+import { 
+  foundry, 
+  mainnet
+ } from 'viem/chains'
 
-import { foundry } from 'viem/chains'
+import { waitFor} from './mockWallet'
+import { createAnvil, CreateAnvilOptions, 
+  // getVersion as getAnvilVersion, startProxy, createProxy, createPool
+} from '@viem/anvil'
+import { WalletClient, PublicClient,
+   createWalletClient, http, getAddress, Chain,
+  formatEther
+ } from 'viem'
+import { TokenboundClient } from '@tokenbound/sdk'
+import { ADDRESS_REGEX, ANVIL_ACCOUNTS, ANVIL_RPC_URL } from './constants'
+import { 
+  getPublicClient, 
+  shellCommand } from './utils'
 
-import {
-  // Providers,
-  // UserEvent,
-  // ADDRESS_REGEX,
-  getMockWalletClient,
-  // renderWithWagmiConfig,
-  // screen,
-  // setupConfig,
-  // userEvent,
-  waitFor,
-} from './mockWallet'
-// import { EthersSignerTester, Ethers6SignerTester, WalletClientTester } from './'
-// import { PublicClient, WebSocketPublicClient, Config, WalletClient } from 'wagmi'
-import { createAnvil,CreateAnvilOptions, getVersion as getAnvilVersion, startProxy, createProxy, createPool } from '@viem/anvil'
-import { WalletClient, PublicClient } from 'viem'
-import { getPublicClient } from './utils'
-import { exec } from 'child_process' // Node.js child_process module
+const ENABLED_CHAINS: Record<string, Chain> = {
+  foundry: foundry,
+  mainnet: mainnet
+};
+
+const ACTIVE_CHAIN = ENABLED_CHAINS.foundry
+
+const ANVIL_CONFIG: CreateAnvilOptions = {
+  forkChainId: ACTIVE_CHAIN.id,
+  forkUrl: import.meta.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT,
+  forkBlockNumber: import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER? parseInt(import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER): undefined, 
+}
+
+const ANVIL_COMMAND = {
+  // SET_ADDRESS_BYTECODE: 'cast rpc anvil_setCode 0x4e59b44847b379578588920ca78fbf26c0b4956c 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3',
+  SET_ADDRESS_BYTECODE: `cast rpc anvil_setCode ${ANVIL_ACCOUNTS[0].address} 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3`,
+  DEPLOY_REGISTRY: 'forge script --fork-url http://127.0.0.1:8545 6551contracts/script/DeployRegistry.s.sol --broadcast',
+  DEPLOY_ACCOUNT_IMPLEMENTATION: `forge create 6551contracts/src/examples/simple/SimpleERC6551Account.sol:SimpleERC6551Account --rpc-url=$RPC_URL --private-key=$PRIVATE_KEY`
+}
+
+
+
+const LIL_NOUN_606 = {
+  tokenContract: getAddress('0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b'),
+  tokenId: '606',
+  
+   
+}
+
+const LIL_NOUN_606_COMPUTED_TBA: `0x${string}` = ACTIVE_CHAIN === mainnet
+? getAddress('0xe0EC35bEfd398ad34C13033416C4c424a89718cf')
+: getAddress('0xBDC93d631F6207887B48337ea412ceC938D0a972')
+
 
 // @BJ TODO: figure out how to deal with viem + ethers + generate mnemonic wallets
 describe('ComboTester', () => {
@@ -31,36 +62,11 @@ describe('ComboTester', () => {
   // runTxTestsWithSigner('<WalletClientTester />', WalletClientTester)
 })
 
-/**
- * Executes a shell command and returns the output as a promise.
- * 
- * @param cmd - The shell command to be executed.
- * @returns A promise that resolves with the command output (stdout or stderr).
- * @throws Will reject the promise with an error if the command execution fails.
- * 
- * @example
- * ```typescript
- * shellCommand('ls -l').then(console.log);
- * ```
- */
-function shellCommand(cmd: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-      exec(cmd, (error, stdout, stderr) => {
-          if (error) {
-              console.warn(`Error executing command: ${cmd}`);
-              reject(error);
-              return;
-          }
-          // console.log('STDOUT', stdout) 
-          // console.log('STDERR', stderr) 
-          resolve(stdout || stderr);
-      });
-  });
-}
-
 // const TEST_TIMEOUT = 30000 // default 10000
 const TEST_TIMEOUT = 120000 // default 10000
 // const TEST_TIMEOUT = 240000 // default 10000
+
+
 
 function runTxTestsWithSigner(
   signerName: string,
@@ -70,13 +76,8 @@ function runTxTestsWithSigner(
 
     let publicClient: PublicClient
     let walletClient: WalletClient
-    // let shutdown: any
+    let tokenboundClient: TokenboundClient
 
-    const ANVIL_CONFIG: CreateAnvilOptions = {
-      forkUrl: import.meta.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT,
-      forkBlockNumber: import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER? parseInt(import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER): undefined, 
-    }
-    console.log('ANVIL_CONFIG',ANVIL_CONFIG)
     const anvil = createAnvil(
       {...ANVIL_CONFIG}
     )
@@ -84,80 +85,46 @@ function runTxTestsWithSigner(
     //@BJ TODO: change vitest environment: 'jsdom' to 'node' ?
 
     beforeEach(async () => {
-      console.log('BEFORE_EACH --->')
-
+      
       try {
-        publicClient = getPublicClient({ chainId: foundry.id })
-        walletClient = getMockWalletClient()
+        publicClient = getPublicClient({ chainId: ACTIVE_CHAIN.id })
 
-        // walletClient
-        // user = userEvent.setup()
-        // assert(user)
+        walletClient = createWalletClient({
+          transport: http(ANVIL_RPC_URL),
+          chain: ACTIVE_CHAIN,
+          account: getAddress(ANVIL_ACCOUNTS[0].address),
+          key: ANVIL_ACCOUNTS[0].privateKey,
+          pollingInterval: 100,
+      }) //or getMockWalletClient()
 
-
-        console.log('ANVIL:', anvil)
-        console.log('ANVIL VERSION:', await getAnvilVersion())
-        console.log('ANVIL_STATUS:', anvil.status)
-        console.log('ANVIL_LOGS:', anvil.logs)
-        console.log('ANVIL_OPTIONS:', anvil.options)
-        
         await anvil.start()
-        // const start = await anvil.start()
-        // console.log('ANVIL START:', start)
-
-
-        // Returns a function to shut down the proxy and all spawned anvil instances.
-        // const 
-        // shutdown = await startProxy({
-        //   port: 8555,
-        //   options: {
-        //     forkUrl: process.env.ANVIL_MAINNET_FORK_ENDPOINT!,
-        //     forkBlockNumber: parseInt(process.env.ANVIL_MAINNET_FORK_BLOCK_NUMBER!),
-        //   },
-        // })
-
-        // console.log('PROXY', shutdown)
-
-        // const PROXY_PORT = 8545
-        // shutdown.listen(PROXY_PORT, "::", () => {
-        //   console.log(`Proxy server listening on http://0.0.0.0:${PROXY_PORT}`)
-        // })
-
-        // const server = await createProxy({
-        //   pool: createPool(),
-        //   options: {
-        //     forkUrl: process.env.ANVIL_MAINNET_FORK_ENDPOINT!,
-        //     forkBlockNumber: parseInt(process.env.ANVIL_MAINNET_FORK_BLOCK_NUMBER!),
-        //     // forkUrl: 'https://eth-mainnet.alchemyapi.io/v2/SMkQiSpoj4za3-0hO0eP78i3b0OrBT4k',
-        //     // forkBlockNumber: 17680029,
-        //   },
-        // })
-
-        // // console.log('ENV', process.env.ANVIL_MAINNET_FORK_ENDPOINT, process.env.ANVIL_MAINNET_FORK_BLOCK_NUMBER), 
-
-        // server.listen(8545, "::", () => {
-        //   console.log("Proxy server listening on http://0.0.0.0:8545")
-        // })
+        console.log('\x1b[94m -----> anvil.start() \x1b[0m');
         
-        // assert(anvil)
-        // await shellCommand('anvil').then(console.log)
-        
-        // await shellCommand('ls -l').then(console.log)
-        // shellCommand('ls -l').then(console.log)
+        // Deploy the ERC-6551 registry
+        await shellCommand(ANVIL_COMMAND.SET_ADDRESS_BYTECODE).then(console.log)
+        await shellCommand(ANVIL_COMMAND.DEPLOY_REGISTRY).then(console.log)
+
+        // Deploy the ERC-6551 account implementation
+        await shellCommand(ANVIL_COMMAND.DEPLOY_ACCOUNT_IMPLEMENTATION).then(console.log)
 
 
         // How to:
         
-        // Connect the wallet?
-
-        // deploy the foundry create2 contract
-        // deploy the ERC-6551 registry (v0.2.0 tag)
-        // deploy the Tokenbound account implementation (v0.2.0)
+        // deploy the ERC-6551 registry (v0.2.0 tag) --> OK
+        // deploy the foundry create2 contract // pre-installed in anvil if not forking, otherwise no
+        // deploy the Tokenbound account implementation (v0.2.0) --> no output, no error?
+        
         // Above 3 have a deployment guide in the docs
 
+
+        // Then: 
         // deploy the Mock ERC-721 token contract
         // deploy the Mock ERC-20 token contract
         // deploy the Mock ERC-1155 token contract
+
+        tokenboundClient = new TokenboundClient({ walletClient, chainId: ACTIVE_CHAIN.id })
+
+        // console.log('TOKENBOUND CLIENT:', tokenboundClient)
 
       } catch (err) {
           console.error('Error during setup:', err);
@@ -167,38 +134,68 @@ function runTxTestsWithSigner(
 
     afterEach(async () => {
       await anvil.stop()
-      // await shutdown()
-      console.log('---> AFTER EACH')
+      console.log('\x1b[94m -----> anvil.stop() \x1b[0m');
     })
 
-    //   const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
-    //   user.click(connectButton)
-
-    //   await waitFor(() => {
-    //     expect(screen.getByText(ADDRESS_REGEX)).toBeInTheDocument()
-    //     expect(
-    //       screen.getByTestId('tb-create-account-button') as HTMLButtonElement
-    //     ).toBeInTheDocument()
-    //   })
-    // })
-
-    // it('can createAccount', async () => {
-    //   await waitFor(() => {
-    //     // account should match the address regex
-    //     // expect(tbAccountOutput.textContent).toMatch(ADDRESS_REGEX)
-    //   })
-    // })
-
-    // it('can executeCall', async () => {
-    //   await waitFor(() => {
-    //     // txHash should match the address regex
-    //     // expect(tbExecutedCallOutput.textContent).toMatch(ADDRESS_REGEX)
-    //   })
-    // })
-    // test.todo('remove when tests are added')
-    it('should always pass', () => {
-      expect(true).toBe(true)
+    it('can createAccount', async () => {
+      const createdAccount = await tokenboundClient.createAccount(LIL_NOUN_606)
+      await waitFor(() => {
+        expect(createdAccount).toMatch(ADDRESS_REGEX)
+        expect(createdAccount).toEqual(LIL_NOUN_606_COMPUTED_TBA)
+      })
     })
-    
+
+    it('can getAccount', async () => {
+      const getAccount = tokenboundClient.getAccount(LIL_NOUN_606)
+      await waitFor(() => {
+        expect(getAccount).toMatch(ADDRESS_REGEX)
+        expect(getAccount).toEqual(LIL_NOUN_606_COMPUTED_TBA)
+      })
+    })
+
+    it('can executeCall', async () => {
+      const executedCallTxHash = await tokenboundClient.executeCall({
+        account: ANVIL_ACCOUNTS[0].address, // @BJ TODO: This needs to be the TOKENBOUND account address
+        to: ANVIL_ACCOUNTS[0].address,
+        value: 0n,
+        data: '0x',
+      })
+
+      await waitFor(() => {
+        expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
+      })
+    })
+
+    // it('can transferETH', async () => {
+
+    //   const balanceBeforeTransfer = await publicClient.getBalance({ 
+    //     address: ANVIL_ACCOUNTS[0].address,
+    //   })
+
+    //   // console.log('BALANCE BEFORE TRANSFER: ', balanceBeforeTransfer)
+    //   console.log('BALANCE BEFORE TRANSFER IN ETH: ', formatEther(balanceBeforeTransfer))
+    //   const ethTransferHash = await tokenboundClient.transferETH({
+    //     account: ANVIL_ACCOUNTS[0].address,
+    //     amount: 1,
+    //     recipientAddress: ANVIL_ACCOUNTS[1].address
+    //   })
+
+    //   console.log('ETH TRANSFER HASH: ', ethTransferHash)
+    //   const balanceAfterTransfer = await publicClient.getBalance({ 
+    //     address: ANVIL_ACCOUNTS[0].address,
+    //   })
+
+    //   // console.log('BALANCE AFTER TRANSFER: ', balanceAfterTransfer)
+    //   console.log('BALANCE AFTER TRANSFER IN ETH: ', formatEther(balanceAfterTransfer))
+
+    //   await waitFor(() => {
+    //       expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+    //       // expect(true).toBe(true)
+    //   })
+    // })
+
+    test.todo('can transferNFT', async () => {})
+    test.todo('can transferERC20', async () => {})
+
   })
 }

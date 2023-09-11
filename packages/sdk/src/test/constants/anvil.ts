@@ -1,5 +1,6 @@
 import { foundry } from 'viem/chains'
 import { AnvilAccount } from '../../types'
+import { getAddress } from 'viem'
 
 export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]
 
@@ -7,17 +8,17 @@ export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]
 export const ANVIL_ACCOUNTS: AnvilAccount[] = [
     {   
         name: 'BJ',
-        address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        address: getAddress('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'),
         privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
     },
     {
         name: 'Jayden',
-        address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        address: getAddress('0x70997970c51812dc3a010c7d01b50e0d17dc79c8'),
         privateKey: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
     },
     {
         name: 'Alanah',
-        address: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc',
+        address: getAddress('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc'),
         privateKey: '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
     }
 

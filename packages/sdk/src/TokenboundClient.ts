@@ -472,7 +472,7 @@ class TokenboundClient {
 
   /**
    * Executes an ETH transfer call on a tokenbound account
-   * @param {0x${string}} params.account The tokenbound account address
+   * @param {string} params.account The tokenbound account address
    * @param {number} params.amount The amount of ETH to transfer, in decimal format (eg. 0.1 ETH = 0.1)
    * @param {string} params.recipientAddress The address to which the ETH should be transferred
    * @returns a Promise that resolves to the transaction hash of the executed call
