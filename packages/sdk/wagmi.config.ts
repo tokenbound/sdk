@@ -18,6 +18,12 @@ export default defineConfig({ out: 'src/test/wagmi-cli-hooks/generated.ts',
                         // Sapienz drop: 0xafd7b9edc5827f7e39dcd425d8de8d4e1cb292c1 //  https://zora.co/collect/eth:0xafd7b9edc5827f7e39dcd425d8de8d4e1cb292c1/3
                     },
                 },
+                {
+                    name: 'Zora721Drop_',
+                    address: {
+                      [1]: '0x7c74dfe39976dc395529c14e54a597809980e01c',
+                    },
+                  },
             ],
         }),
         react({
