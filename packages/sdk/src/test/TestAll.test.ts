@@ -1,37 +1,28 @@
-import { 
-  //assert,
-  // beforeEach,
-  describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { 
   // foundry, 
   mainnet
 } from 'viem/chains'
-
 import { providers } from 'ethers'
 import { zora721DropABI } from './wagmi-cli-hooks/generated'
-
 import { waitFor} from './mockWallet'
-import { createAnvil, CreateAnvilOptions, 
-  // getVersion as getAnvilVersion, startProxy, createProxy, createPool
-} from '@viem/anvil'
-import { WalletClient, PublicClient,
-   createWalletClient, http, getAddress,
-  formatEther,
-  // createTestClient,
-  // Account,
+import { createAnvil, CreateAnvilOptions } from '@viem/anvil'
+import {
+  WalletClient,
+  PublicClient,
+  createWalletClient,
+  http,
+  getAddress,
   encodeFunctionData,
-  // getContract,
   Log,
-  // Abi,
   parseUnits
- } from 'viem'
-import { CreateAccountParams, 
-  // erc6551AccountAbi,
-   TokenboundClient } from '@tokenbound/sdk'
-import { ADDRESS_REGEX, ANVIL_ACCOUNTS, ANVIL_RPC_URL } from './constants'
+} from 'viem'
 import { 
-  getPublicClient, 
-  shellCommand } from './utils'
+  CreateAccountParams, 
+  TokenboundClient
+} from '@tokenbound/sdk'
+import { ADDRESS_REGEX, ANVIL_ACCOUNTS, ANVIL_RPC_URL } from './constants'
+import { getPublicClient, shellCommand } from './utils'
 import { erc721Abi } from '../../abis'
 import { BrowserProvider, JsonRpcSigner } from 'ethers6'
 // import { mnemonicToAccount } from 'viem/accounts'
@@ -53,7 +44,7 @@ const ANVIL_COMMAND = {
 }
 
 // Zora Webb's First Deep Field: https://zora.co/collect/eth:0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d
-const zoraWebbERC721ProxyAddress = getAddress('0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d')
+const ZORA_WEBB_TOKEN_PROXY_ADDRESS = getAddress('0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d')
 
 const ZORA_WEBB_TOKEN_TBA: `0x${string}` = getAddress('0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c')
 
@@ -105,13 +96,13 @@ describe('ComboTester', () => {
   const ethers5Signer = walletClientToEthers5Signer(walletClient)
   const ethers6Signer = walletClientToEthers6Signer(walletClient)
 
-  runTxTestsWithSigner({ testName: 'Viem Tests', walletClient})
-  runTxTestsWithSigner({ testName: 'Ethers 5 Tests', signer: ethers5Signer})
-  runTxTestsWithSigner({ testName: 'Ethers 6 Tests', signer: ethers6Signer})
+  runTxTests({ testName: 'Viem Tests', walletClient})
+  runTxTests({ testName: 'Ethers 5 Tests', signer: ethers5Signer})
+  runTxTests({ testName: 'Ethers 6 Tests', signer: ethers6Signer})
 })
 
 
-function runTxTestsWithSigner({
+function runTxTests({
   testName,
   walletClient,
   signer
@@ -175,7 +166,7 @@ function runTxTestsWithSigner({
 
       // Set up observer for mint event so we can get the tokenId
       const unwatch = publicClient.watchContractEvent({
-        address: zoraWebbERC721ProxyAddress,
+        address: ZORA_WEBB_TOKEN_PROXY_ADDRESS,
         abi: zora721DropABI,
         eventName: 'Transfer',
         args: {  
@@ -187,7 +178,7 @@ function runTxTestsWithSigner({
           const { tokenId } = mintArgs
 
           ZORA_WEBB_TOKEN = {
-            tokenContract: zoraWebbERC721ProxyAddress,
+            tokenContract: ZORA_WEBB_TOKEN_PROXY_ADDRESS,
             tokenId: tokenId!.toString()
           }
 
@@ -204,7 +195,7 @@ function runTxTestsWithSigner({
       })
       
       const prepared721Mint = {
-        to: zoraWebbERC721ProxyAddress,
+        to: ZORA_WEBB_TOKEN_PROXY_ADDRESS,
         value: mintPrice * BigInt(mintQuantity),
         data: encodedMintFunctionData,
       }
@@ -236,13 +227,13 @@ function runTxTestsWithSigner({
 
     it('can transfer one of the minted NFTs to the TBA', async () => {
 
-      const USER_1_ADDRESS = getAddress(ANVIL_ACCOUNTS[0].address)
+      const ANVIL_USER_1 = getAddress(ANVIL_ACCOUNTS[0].address)
 
       const transferCallData = encodeFunctionData({
         abi: erc721Abi,
         functionName: 'safeTransferFrom',
         args: [
-          USER_1_ADDRESS, // from
+          ANVIL_USER_1, // from
           ZORA_WEBB_TOKEN_TBA, // to
           parseInt(TOKENID_IN_TBA), // tokenId
         ],
@@ -259,7 +250,7 @@ function runTxTestsWithSigner({
       if (walletClient) {
         transferHash = await walletClient.sendTransaction({
           chain: ACTIVE_CHAIN,
-          account: USER_1_ADDRESS,
+          account: ANVIL_USER_1,
           ...preparedNFTTransfer
         })
       }
@@ -324,12 +315,16 @@ function runTxTestsWithSigner({
       })
     })
 
-    it.skip('can executeCall with the TBA', async () => {
+    // Skip if walletClient is giving the error: 'No Signer available'
+    const optionalTest = walletClient ? it.skip : it
+
+    optionalTest('can executeCall with the TBA', async () => {
+    // it('can executeCall with the TBA', async () => {
 
       const executedCallTxHash = await tokenboundClient.executeCall({
-        // account: ANVIL_ACCOUNTS[0].address, // <-- works in Viem :(
-        account: ZORA_WEBB_TOKEN_TBA,
-        to: ANVIL_ACCOUNTS[1].address,
+        // account: ANVIL_ACCOUNTS[0].address, // <-- works in viem :(
+        account: ZORA_WEBB_TOKEN_TBA, // In viem, we get 'No Signer available'
+        to: ZORA_WEBB_TOKEN_PROXY_ADDRESS, // <-- needs to be a contract address
         value: 0n,
         data: '0x',
       })
@@ -339,7 +334,10 @@ function runTxTestsWithSigner({
       })
     }, TIMEOUT)
 
-    it.skip('can transferETH with the TBA', async () => {
+
+    optionalTest('can transferETH with the TBA', async () => {
+    // it('can transferETH with the TBA', async () => {
+    // it.skip('can transferETH with the TBA', async () => {
 
       const EXPECTED_BALANCE_BEFORE = parseUnits('1', 18)
       const EXPECTED_BALANCE_AFTER = parseUnits('0.5', 18)
@@ -356,23 +354,46 @@ function runTxTestsWithSigner({
         address: ZORA_WEBB_TOKEN_TBA,
       })
 
-      console.log('BALANCE BEFORE TRANSFER IN ETH: ', formatEther(balanceBeforeTransfer))
-      console.log('ETH TRANSFER HASH: ', ethTransferHash)
-      console.log('BALANCE AFTER TRANSFER IN ETH: ', formatEther(balanceAfterTransfer))
+      // console.log('BEFORE: ', formatEther(balanceBeforeTransfer), 'AFTER: ', formatEther(balanceAfterTransfer))
 
       await waitFor(() => {
-        // parseUnits(`${ETH_AMOUNT}`, 18)
         expect(ethTransferHash).toMatch(ADDRESS_REGEX)
         expect(balanceBeforeTransfer).toBe(EXPECTED_BALANCE_BEFORE)
         expect(balanceAfterTransfer).toBe(EXPECTED_BALANCE_AFTER)
       })
     })
 
-    // it('can transferNFT with the TBA', async () => {
+    // optionalTest('can transferETH to an ENS with the TBA', async () => {
+    //   // it('can transferETH with the TBA', async () => {
+    //   // it.skip('can transferETH with the TBA', async () => {
+  
+    //   const EXPECTED_BALANCE_BEFORE = parseUnits('0.5', 18)
+    //   const EXPECTED_BALANCE_AFTER = parseUnits('0.4', 18)
+
+    //   const balanceBeforeTransfer = await publicClient.getBalance({ 
+    //     address: ZORA_WEBB_TOKEN_TBA,
+    //   })
+    //   const ethTransferHash = await tokenboundClient.transferETH({
+    //     account: ZORA_WEBB_TOKEN_TBA,
+    //     amount: 0.1,
+    //     recipientAddress: 'bennygiang.eth'
+    //   })
+    //   const balanceAfterTransfer = await publicClient.getBalance({ 
+    //     address: ZORA_WEBB_TOKEN_TBA,
+    //   })
+
+    //   await waitFor(() => {
+    //     expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+    //     expect(balanceBeforeTransfer).toBe(EXPECTED_BALANCE_BEFORE)
+    //     expect(balanceAfterTransfer).toBe(EXPECTED_BALANCE_AFTER)
+    //   })
+    // })
+
+    // optionalTest('can transferNFT with the TBA', async () => {
     //   const transferNFTHash = await tokenboundClient.transferNFT({
     //     account: ZORA_WEBB_TOKEN_TBA,
     //     tokenType: 'ERC721',
-    //     tokenContract: zoraWebbERC721ProxyAddress,
+    //     tokenContract: ZORA_WEBB_TOKEN_PROXY_ADDRESS,
     //     tokenId: TOKENID_IN_TBA,
     //     recipientAddress: ANVIL_ACCOUNTS[1].address,
     //   })
@@ -382,7 +403,7 @@ function runTxTestsWithSigner({
     //   })
     // })
     
-    test.todo('can transferETH to an ENS address', async () => {})
+    test.todo('can transferNFT with an 1155', async () => {})
     test.todo('can transferERC20', async () => {})
 
   })

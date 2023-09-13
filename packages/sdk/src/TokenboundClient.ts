@@ -50,12 +50,11 @@ interface TokenTypeParams {
 export type NFTTransferParams = TokenTypeParams & NFTParams & {
   recipientAddress: `0x${string}`
   account: `0x${string}`
-  // data: string
 }
 
 export type ETHTransferParams = {
   account: `0x${string}`
-  recipientAddress: `0x${string}`
+  recipientAddress: `0x${string}` // | `${string}.eth`
   amount: number
 }
 
@@ -271,7 +270,7 @@ class TokenboundClient {
     const { account, to, value, data } = params
 
     // Prepare the transaction
-    const preparedExecuteCall =  await this.prepareExecuteCall({
+    const preparedExecuteCall = await this.prepareExecuteCall({
       account,
       to,
       value,
@@ -484,17 +483,24 @@ class TokenboundClient {
       recipientAddress
     } = params
 
-    // convert ETH amount to wei
-    const weiValue = parseUnits(`${amount}`, 18)
+    // const isENS = recipientAddress.endsWith(".eth")
+    const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
 
-    const recipient = recipientAddress.endsWith(".eth")
-      ? await this.publicClient.getEnsResolver({name: normalize(recipientAddress)})
-      : recipientAddress
+    let recipient = recipientAddress
+
+    // @BJ todo: debug
+    // if (isENS) {
+    //   recipient = await this.publicClient.getEnsResolver({name: normalize(recipientAddress)})
+    //   if (!recipient) {
+    //       throw new Error('Failed to resolve ENS address');
+    //   }
+    // }
+    // console.log('RECIPIENT_ADDRESS', recipient)
 
     const unencodedTransferETHExecuteCall = {
       abi: erc6551AccountAbi as Abi,
       functionName: 'executeCall',
-      args: [recipient, weiValue, '0x'],
+      args: [getAddress(recipient), weiValue, '0x'],
     }
 
     try {
