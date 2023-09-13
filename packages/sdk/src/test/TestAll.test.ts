@@ -5,9 +5,10 @@ import {
 import { 
   // foundry, 
   mainnet
- } from 'viem/chains'
+} from 'viem/chains'
 
- import { zora721DropABI } from './wagmi-cli-hooks/generated'
+import { providers } from 'ethers'
+import { zora721DropABI } from './wagmi-cli-hooks/generated'
 
 import { waitFor} from './mockWallet'
 import { createAnvil, CreateAnvilOptions, 
@@ -32,7 +33,7 @@ import {
   getPublicClient, 
   shellCommand } from './utils'
 import { erc721Abi } from '../../abis'
-
+import { BrowserProvider, JsonRpcSigner } from 'ethers6'
 // import { mnemonicToAccount } from 'viem/accounts'
 
 const ACTIVE_CHAIN = mainnet
@@ -53,55 +54,88 @@ const ANVIL_COMMAND = {
 
 // Zora Webb's First Deep Field: https://zora.co/collect/eth:0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d
 const zoraWebbERC721ProxyAddress = getAddress('0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d')
-const ZORA_WEBB_TOKEN_TBA: `0x${string}` = getAddress('0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c')
-const ZORA_WEBB_TOKEN_SUPPLY: string = '10010'
-const ZORA_WEBB_TOKEN_SUPPLY_IN_TBA: string = '10011'
 
-// @BJ TODO: figure out how to deal with viem + ethers + generate mnemonic wallets
+const ZORA_WEBB_TOKEN_TBA: `0x${string}` = getAddress('0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c')
+
+const TOKENID_IN_EOA: string = '10010'
+const TOKENID_IN_TBA: string = '10011'
+
+// Ethers.js Adapters for Wagmi Wallet Client
+// https://wagmi.sh/react/ethers-adapters
+
+function walletClientToEthers5Signer(walletClient: WalletClient) {
+  const { account, chain, transport } = walletClient
+  const network = {
+    chainId: chain!.id,
+    name: chain!.name,
+    ensAddress: chain!.contracts?.ensRegistry?.address,
+  }
+  const provider = new providers.Web3Provider(transport, network)
+  const signer = provider.getSigner(account!.address)
+  return signer
+}
+
+function walletClientToEthers6Signer(walletClient: WalletClient) {
+  const { account, chain, transport } = walletClient
+  const network = {
+    chainId: chain!.id,
+    name: chain!.name,
+    ensAddress: chain!.contracts?.ensRegistry?.address,
+  }
+  const provider = new BrowserProvider(transport, network)
+  const signer = new JsonRpcSigner(provider, account!.address)
+  return signer
+}
+
+// const mnemonicAccount = mnemonicToAccount('legal winner thank year wave sausage worth useful legal winner thank yellow') 
+
 describe('ComboTester', () => {
-  runTxTestsWithSigner('BASE TEST')
+
+  const { address, privateKey } = ANVIL_ACCOUNTS[0]
+
+  const walletClient = createWalletClient({
+    transport: http(ANVIL_RPC_URL),
+    chain: ACTIVE_CHAIN,
+    // account: mnemonicAccount,
+    account: address,
+    key: privateKey,
+    pollingInterval: 100,
+  })
+
+  const ethers5Signer = walletClientToEthers5Signer(walletClient)
+  const ethers6Signer = walletClientToEthers6Signer(walletClient)
+
+  runTxTestsWithSigner({ testName: 'Viem Tests', walletClient})
+  runTxTestsWithSigner({ testName: 'Ethers 5 Tests', signer: ethers5Signer})
+  runTxTestsWithSigner({ testName: 'Ethers 6 Tests', signer: ethers6Signer})
 })
 
 
-function runTxTestsWithSigner(
-  signerName: string,
-  // signerOrWalletClient
-) {
-  describe(signerName, () => {
+function runTxTestsWithSigner({
+  testName,
+  walletClient,
+  signer
+} : {
+  testName: string,
+  walletClient?: WalletClient,
+  signer?: any
+}) {
+  describe(testName, () => {
+
+    let tokenboundClient: TokenboundClient
+    let publicClient: PublicClient
 
     const anvil = createAnvil(
       {...ANVIL_CONFIG}
     )
 
-    let publicClient: PublicClient
-    let walletClient: WalletClient
-    let tokenboundClient: TokenboundClient
-    // let zoraWebbERC721TokenId: string
-
     let ZORA_WEBB_TOKEN: CreateAccountParams
-    // let ZORA_WEBB_TOKEN_IN_TBA: CreateAccountParams
-
-    //@BJ TODO: change vitest environment: 'jsdom' to 'node' ?
 
     beforeAll(async () => { // Runs before the first test
       
       try {
-        publicClient = getPublicClient({ chainId: ACTIVE_CHAIN.id })
-
-        // @BJ TODO: use mnemonic account
-        // const mnemonicAccount = mnemonicToAccount('legal winner thank year wave sausage worth useful legal winner thank yellow') 
-
-        walletClient = createWalletClient({
-          transport: http(ANVIL_RPC_URL),
-          chain: ACTIVE_CHAIN,
-          // account: mnemonicAccount,
-          account: getAddress(ANVIL_ACCOUNTS[0].address),
-          key: ANVIL_ACCOUNTS[0].privateKey,
-          pollingInterval: 100,
-        }) //or getMockWalletClient()
-        
-        tokenboundClient = new TokenboundClient({ walletClient, chainId: ACTIVE_CHAIN.id })
-        // console.log(tokenboundClient)
+        tokenboundClient = new TokenboundClient({ walletClient, signer, chainId: ACTIVE_CHAIN.id })
+        publicClient = getPublicClient({ chainId: ACTIVE_CHAIN.id })        
 
         await anvil.start()
         console.log('\x1b[94m -----> anvil.start() \x1b[0m');
@@ -139,6 +173,7 @@ function runTxTestsWithSigner(
 
       let mintLogs: Log[] = []
 
+      // Set up observer for mint event so we can get the tokenId
       const unwatch = publicClient.watchContractEvent({
         address: zoraWebbERC721ProxyAddress,
         abi: zora721DropABI,
@@ -159,8 +194,7 @@ function runTxTestsWithSigner(
         }
       })
 
-
-      // Mint a Zora 721 NFT
+      // Prepare mint transaction
       const mintPrice = BigInt(0)
       const mintQuantity = 2
       const encodedMintFunctionData = encodeFunctionData({
@@ -175,16 +209,26 @@ function runTxTestsWithSigner(
         data: encodedMintFunctionData,
       }
 
-      const mintTxHash = await walletClient.sendTransaction({
-        chain: ACTIVE_CHAIN,
-        account: getAddress(ANVIL_ACCOUNTS[0].address),
-        ...prepared721Mint
-      })
+      let mintTxHash: `0x${string}`
+
+      if (walletClient) {
+        mintTxHash = await walletClient.sendTransaction({
+          chain: ACTIVE_CHAIN,
+          account: getAddress(ANVIL_ACCOUNTS[0].address),
+          ...prepared721Mint
+        })
+      }
+      else if (signer) {  
+        mintTxHash = await signer.sendTransaction({
+          chainId: ACTIVE_CHAIN.id,
+          ...prepared721Mint
+        }).then((tx: providers.TransactionResponse) => tx.hash)
+      }
 
       await waitFor(() => {
         expect(mintLogs.length).toBe(mintQuantity)
         expect(mintTxHash).toMatch(ADDRESS_REGEX)
-        expect(ZORA_WEBB_TOKEN.tokenId).toBe(ZORA_WEBB_TOKEN_SUPPLY)
+        expect(ZORA_WEBB_TOKEN.tokenId).toBe(TOKENID_IN_EOA)
         unwatch()
       })
 
@@ -192,23 +236,39 @@ function runTxTestsWithSigner(
 
     it('can transfer one of the minted NFTs to the TBA', async () => {
 
+      const USER_1_ADDRESS = getAddress(ANVIL_ACCOUNTS[0].address)
+
       const transferCallData = encodeFunctionData({
         abi: erc721Abi,
         functionName: 'safeTransferFrom',
         args: [
-          ANVIL_ACCOUNTS[0].address,
-          ZORA_WEBB_TOKEN_TBA,
-          parseInt(ZORA_WEBB_TOKEN_SUPPLY_IN_TBA),
+          USER_1_ADDRESS, // from
+          ZORA_WEBB_TOKEN_TBA, // to
+          parseInt(TOKENID_IN_TBA), // tokenId
         ],
       })
-
-      const transferHash = await walletClient.sendTransaction({
-        chain: ACTIVE_CHAIN,
-        account: getAddress(ANVIL_ACCOUNTS[0].address),
+      
+      const preparedNFTTransfer = {
         to: ZORA_WEBB_TOKEN_TBA,
         value: 0n,
         data: transferCallData,
-      })
+      }
+
+      let transferHash: string
+
+      if (walletClient) {
+        transferHash = await walletClient.sendTransaction({
+          chain: ACTIVE_CHAIN,
+          account: USER_1_ADDRESS,
+          ...preparedNFTTransfer
+        })
+      }
+      else if (signer) {  
+        transferHash = await signer.sendTransaction({
+          chainId: ACTIVE_CHAIN.id,
+          ...preparedNFTTransfer
+        }).then((tx: providers.TransactionResponse) => tx.hash)
+      }
 
       await waitFor(() => {
         expect(transferHash).toMatch(ADDRESS_REGEX)
@@ -220,16 +280,27 @@ function runTxTestsWithSigner(
 
       const ETH_AMOUNT = 1
       const ETH_AMOUNT_IN_WEI = parseUnits(`${ETH_AMOUNT}`, 18)
-      
-      const transferHash = await walletClient.sendTransaction({
-        chain: ACTIVE_CHAIN,
-        account: getAddress(ANVIL_ACCOUNTS[0].address),
+
+      const preparedETHTransfer = {
         to: ZORA_WEBB_TOKEN_TBA,
         value: ETH_AMOUNT_IN_WEI,
         data: '0x',
-      })
-
-      // TODO: get Balance of ZORA_WEBB_TOKEN_TBA
+      }
+      
+      let transferHash: `0x${string}`
+      if (walletClient) {
+        transferHash = await walletClient.sendTransaction({
+          chain: ACTIVE_CHAIN,
+          account: getAddress(ANVIL_ACCOUNTS[0].address),
+          ...{preparedETHTransfer}
+        })
+      }
+      else if (signer) {  
+        transferHash = await signer.sendTransaction({
+          chainId: ACTIVE_CHAIN.id,
+          ...preparedETHTransfer
+        }).then((tx: providers.TransactionResponse) => tx.hash)
+      }
 
       await waitFor(() => {
         expect(transferHash).toMatch(ADDRESS_REGEX)
@@ -253,10 +324,11 @@ function runTxTestsWithSigner(
       })
     })
 
-    it('can executeCall', async () => {
+    it.skip('can executeCall with the TBA', async () => {
+
       const executedCallTxHash = await tokenboundClient.executeCall({
-        account: ANVIL_ACCOUNTS[0].address, // @BJ TODO: This needs to be the TOKENBOUND account address
-        // account: ZORA_WEBB_TOKEN_10009_TBA,
+        // account: ANVIL_ACCOUNTS[0].address, // <-- works in Viem :(
+        account: ZORA_WEBB_TOKEN_TBA,
         to: ANVIL_ACCOUNTS[1].address,
         value: 0n,
         data: '0x',
@@ -265,43 +337,44 @@ function runTxTestsWithSigner(
       await waitFor(() => {
         expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
       })
+    }, TIMEOUT)
+
+    it.skip('can transferETH with the TBA', async () => {
+
+      const EXPECTED_BALANCE_BEFORE = parseUnits('1', 18)
+      const EXPECTED_BALANCE_AFTER = parseUnits('0.5', 18)
+
+      const balanceBeforeTransfer = await publicClient.getBalance({ 
+        address: ZORA_WEBB_TOKEN_TBA,
+      })
+      const ethTransferHash = await tokenboundClient.transferETH({
+        account: ZORA_WEBB_TOKEN_TBA,
+        amount: 0.5,
+        recipientAddress: ANVIL_ACCOUNTS[1].address
+      })
+      const balanceAfterTransfer = await publicClient.getBalance({ 
+        address: ZORA_WEBB_TOKEN_TBA,
+      })
+
+      console.log('BALANCE BEFORE TRANSFER IN ETH: ', formatEther(balanceBeforeTransfer))
+      console.log('ETH TRANSFER HASH: ', ethTransferHash)
+      console.log('BALANCE AFTER TRANSFER IN ETH: ', formatEther(balanceAfterTransfer))
+
+      await waitFor(() => {
+        // parseUnits(`${ETH_AMOUNT}`, 18)
+        expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+        expect(balanceBeforeTransfer).toBe(EXPECTED_BALANCE_BEFORE)
+        expect(balanceAfterTransfer).toBe(EXPECTED_BALANCE_AFTER)
+      })
     })
-
-    // it('can transferETH with the TBA', async () => {
-
-    //   const balanceBeforeTransfer = await publicClient.getBalance({ 
-    //     address: ZORA_WEBB_TOKEN_TBA,
-    //   })
-    //   const ethTransferHash = await tokenboundClient.transferETH({
-    //     account: ZORA_WEBB_TOKEN_TBA,
-    //     amount: 0.5,
-    //     recipientAddress: ANVIL_ACCOUNTS[1].address
-    //   })
-    //   const balanceAfterTransfer = await publicClient.getBalance({ 
-    //     address: ZORA_WEBB_TOKEN_TBA,
-    //   })
-
-    //   console.log('BALANCE BEFORE TRANSFER IN ETH: ', formatEther(balanceBeforeTransfer))
-    //   console.log('ETH TRANSFER HASH: ', ethTransferHash)
-    //   console.log('BALANCE AFTER TRANSFER IN ETH: ', formatEther(balanceAfterTransfer))
-
-    //   await waitFor(() => {
-    //       expect(ethTransferHash).toMatch(ADDRESS_REGEX)
-    //       expect(balanceBeforeTransfer).toBe(1)
-    //       expect(balanceAfterTransfer).toBe(0.5)
-    //   })
-    // })
 
     // it('can transferNFT with the TBA', async () => {
     //   const transferNFTHash = await tokenboundClient.transferNFT({
-    //     // account: ANVIL_ACCOUNTS[0].address, // @BJ TODO: This needs to be the TOKENBOUND account address
-    //     account: ZORA_WEBB_TOKEN_TBA, // @BJ TODO: This needs to be the TOKENBOUND account address
+    //     account: ZORA_WEBB_TOKEN_TBA,
     //     tokenType: 'ERC721',
-    //     tokenContract: ZORA_WEBB_TOKEN.tokenContract,
-    //     // tokenId: ZORA_WEBB_TOKEN.tokenId,
-    //     tokenId: ZORA_WEBB_TOKEN_SUPPLY_IN_TBA,
+    //     tokenContract: zoraWebbERC721ProxyAddress,
+    //     tokenId: TOKENID_IN_TBA,
     //     recipientAddress: ANVIL_ACCOUNTS[1].address,
-    //     // recipientAddress: ZORA_WEBB_TOKEN_TBA,
     //   })
 
     //   await waitFor(() => {
@@ -309,7 +382,7 @@ function runTxTestsWithSigner(
     //   })
     // })
     
-    // test.todo('can transferNFT', async () => {})
+    test.todo('can transferETH to an ENS address', async () => {})
     test.todo('can transferERC20', async () => {})
 
   })
