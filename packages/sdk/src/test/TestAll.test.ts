@@ -15,7 +15,8 @@ import {
   getAddress,
   encodeFunctionData,
   Log,
-  parseUnits
+  parseUnits,
+  // createTestClient,
 } from 'viem'
 import { 
   CreateAccountParams, 
@@ -324,7 +325,7 @@ function runTxTests({
       const executedCallTxHash = await tokenboundClient.executeCall({
         // account: ANVIL_ACCOUNTS[0].address, // <-- works in viem :(
         account: ZORA_WEBB_TOKEN_TBA, // In viem, we get 'No Signer available'
-        to: ZORA_WEBB_TOKEN_PROXY_ADDRESS, // <-- needs to be a contract address
+        to: ZORA_WEBB_TOKEN_PROXY_ADDRESS,
         value: 0n,
         data: '0x',
       })
