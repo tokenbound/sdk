@@ -114,6 +114,9 @@ function runTxTests({
 }) {
   describe(testName, () => {
 
+    // WalletClient is giving the error: 'No Signer available'. We can skip the tests for now.
+    const optionalTest = walletClient ? it.skip : it
+
     let tokenboundClient: TokenboundClient
     let publicClient: PublicClient
 
@@ -130,7 +133,7 @@ function runTxTests({
         publicClient = getPublicClient({ chainId: ACTIVE_CHAIN.id })        
 
         await anvil.start()
-        console.log('\x1b[94m -----> anvil.start() \x1b[0m');
+        console.log(`\x1b[94m ${testName}-----> anvil.start() \x1b[0m`);
         
         // Deploy the ERC-6551 registry (WORKS!)
         await shellCommand(ANVIL_COMMAND.SET_ADDRESS_BYTECODE).then(console.log)
@@ -158,7 +161,7 @@ function runTxTests({
 
     afterAll(async () => {
       await anvil.stop()
-      console.log('\x1b[94m -----> anvil.stop() \x1b[0m');
+      console.log(`\x1b[94m ${testName} -----> anvil.stop() \x1b[0m`);
     })
 
     it('can mint a Zora 721 NFT', async () => {
@@ -317,7 +320,6 @@ function runTxTests({
     })
 
     // Skip if walletClient is giving the error: 'No Signer available'
-    const optionalTest = walletClient ? it.skip : it
 
     optionalTest('can executeCall with the TBA', async () => {
     // it('can executeCall with the TBA', async () => {
@@ -363,32 +365,6 @@ function runTxTests({
         expect(balanceAfterTransfer).toBe(EXPECTED_BALANCE_AFTER)
       })
     })
-
-    // optionalTest('can transferETH to an ENS with the TBA', async () => {
-    //   // it('can transferETH with the TBA', async () => {
-    //   // it.skip('can transferETH with the TBA', async () => {
-  
-    //   const EXPECTED_BALANCE_BEFORE = parseUnits('0.5', 18)
-    //   const EXPECTED_BALANCE_AFTER = parseUnits('0.4', 18)
-
-    //   const balanceBeforeTransfer = await publicClient.getBalance({ 
-    //     address: ZORA_WEBB_TOKEN_TBA,
-    //   })
-    //   const ethTransferHash = await tokenboundClient.transferETH({
-    //     account: ZORA_WEBB_TOKEN_TBA,
-    //     amount: 0.1,
-    //     recipientAddress: 'bennygiang.eth'
-    //   })
-    //   const balanceAfterTransfer = await publicClient.getBalance({ 
-    //     address: ZORA_WEBB_TOKEN_TBA,
-    //   })
-
-    //   await waitFor(() => {
-    //     expect(ethTransferHash).toMatch(ADDRESS_REGEX)
-    //     expect(balanceBeforeTransfer).toBe(EXPECTED_BALANCE_BEFORE)
-    //     expect(balanceAfterTransfer).toBe(EXPECTED_BALANCE_AFTER)
-    //   })
-    // })
 
     // optionalTest('can transferNFT with the TBA', async () => {
     //   const transferNFTHash = await tokenboundClient.transferNFT({
