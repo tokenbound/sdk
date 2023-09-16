@@ -162,7 +162,7 @@ export async function prepareExecuteCall(
 }> {
   return {
     to: account as `0x${string}`,
-    value,
+    value: 0n,
     data: encodeFunctionData({
       abi: erc6551AccountAbi,
       functionName: "executeCall",
