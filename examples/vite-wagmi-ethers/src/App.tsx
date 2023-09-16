@@ -3,9 +3,19 @@ import { useAccount } from 'wagmi'
 import { TokenboundClient } from '@tokenbound/sdk'
 
 import { Account } from './components'
-
+import { parseUnits, getAddress } from 'viem'
 import { useCallback, useEffect } from 'react'
 import { useEthersSigner } from './hooks'
+
+// const sendingTBA = '0x33D622b211C399912eC0feaaf1caFD01AFA53980'
+// const recipientAddress = getAddress('0x5ed25DCC8490809215cd0632492467BEbc60B8d5')
+// const ethAmount = 0.1
+// const ethAmountWei = parseUnits(`${ethAmount}`, 18)
+
+const sendingTBA = '0x047A2F5c8C97948675786e9a1A12EB172CF802a1'
+const recipientAddress = getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4')
+const ethAmount = 0.05
+const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 
 export function App() {
   const { isConnected, address } = useAccount()
@@ -33,9 +43,9 @@ export function App() {
         tokenId: '1',
       })
 
-      // console.log('getAccount', account)
-      // console.log('prepareExecuteCall', preparedExecuteCall)
-      // console.log('preparedAccount', preparedAccount)
+      console.log('getAccount', account)
+      console.log('prepareExecuteCall', preparedExecuteCall)
+      console.log('preparedAccount', preparedAccount)
 
       // if (signer) {
       // signer?.sendTransaction(preparedAccount)
@@ -55,80 +65,15 @@ export function App() {
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
-  // const transferNFT = useCallback(async () => {
-  //   if (!tokenboundClient || !address) return
-
-  //   const bjGoerliSapienz = tokenboundClient.getAccount({
-  //     // BJ's Goerli Sapienz
-  //     tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
-  //     tokenId: '5',
-  //   })
-
-  //   // console.log('goerli sapienz tbaccount', bjGoerliSapienz)
-
-  //   const transferredNFTHash = await tokenboundClient.transferNFT({
-  //     account: bjGoerliSapienz,
-  //     tokenType: 'ERC721',
-  //     tokenContract: '0xbbabef539cad957f1ecc9ee56f38588e24b3dcf3',
-  //     tokenId: '0',
-  //     recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
-  //   })
-  //   alert(`transferred: ${transferredNFTHash}`)
-  // }, [tokenboundClient])
-
-  // const transferETH = useCallback(async () => {
-  //   if (!tokenboundClient || !address) return
-
-  //   const bjGoerliSapienz = tokenboundClient.getAccount({
-  //     tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
-  //     tokenId: '5',
-  //   })
-
-  //   console.log('goerli sapienz tbaccount', bjGoerliSapienz)
-
-  //   const transferredNFTHash = await tokenboundClient.transferETH({
-  //     account: bjGoerliSapienz,
-  //     amount: 0.01,
-  //     recipientAddress: '0x9FefE8a875E7a9b0574751E191a2AF205828dEA4', // BJ's main wallet
-  //   })
-
-  //   alert(`transferred: ${transferredNFTHash}`)
-  // }, [tokenboundClient])
-
-  const transferERC20 = useCallback(async () => {
-    if (!tokenboundClient || !address) return
-
-    const bjGoerliSapienz = tokenboundClient.getAccount({
-      tokenContract: '0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2',
-      tokenId: '5',
-    })
-
-    console.log('goerli sapienz tbaccount', bjGoerliSapienz)
-
-    const DRUBLES_ERC20 = {
-      tokenAddress: '0x1faae4d3181284fdec56d48e20298682152d139f',
-      decimals: 18,
-    }
-
-    const transferredERC20Hash = await tokenboundClient.transferERC20({
-      account: bjGoerliSapienz,
-      amount: 10,
-      recipientAddress: '0x33D622b211C399912eC0feaaf1caFD01AFA53980', // BJ's account under assets/goerli/0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2/0
-      erc20tokenAddress: DRUBLES_ERC20.tokenAddress as `0x${string}`,
-      erc20tokenDecimals: DRUBLES_ERC20.decimals,
-    })
-
-    alert(`transferred: ${transferredERC20Hash}`)
-  }, [tokenboundClient])
-
   const executeCall = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const executedCall = await tokenboundClient.executeCall({
-      account: address,
-      to: address,
-      value: 0n,
+      account: sendingTBA,
+      to: recipientAddress,
+      value: ethAmountWei,
       data: '0x',
     })
+    executedCall && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
   }, [tokenboundClient])
 
   return (
@@ -148,9 +93,6 @@ export function App() {
         >
           <button onClick={() => executeCall()}>EXECUTE CALL</button>
           <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
-          {/* <button onClick={() => transferNFT()}>TRANSFER NFT</button> */}
-          {/* <button onClick={() => transferETH()}>TRANSFER ETH</button> */}
-          <button onClick={() => transferERC20()}>TRANSFER ERC20</button>
         </div>
       )}
     </>

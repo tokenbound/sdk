@@ -8,11 +8,11 @@ import {
   getAddress,
   encodeFunctionData,
   Abi,
-  parseUnits,
+  // parseUnits,
   // BaseError,
   // ContractFunctionRevertedError
 } from "viem"
-import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi, erc20Abi } from '../abis'
+import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi } from '../abis'
 import { 
   getAccount,
   computeAccount,
@@ -28,7 +28,7 @@ import {
   SegmentedERC1155Bytecode
 } from "./types"
 import { chainIdToChain, segmentBytecode } from "./utils"
-import { normalize } from "viem/ens"
+// import { normalize } from "viem/ens"
 
 export const NFTTokenType = {
   ERC721: "ERC721",
@@ -260,6 +260,7 @@ class TokenboundClient {
     value: bigint
     data: `0x${string}`
   }> {
+
     const { account, to, value, data } = params
     return prepareExecuteCall(account, to, value, data)
   }
@@ -467,170 +468,6 @@ class TokenboundClient {
       throw error
     }
   
-  }
-
-  /**
-   * Executes an ETH transfer call on a tokenbound account
-   * @param {string} params.account The tokenbound account address
-   * @param {number} params.amount The amount of ETH to transfer, in decimal format (eg. 0.1 ETH = 0.1)
-   * @param {string} params.recipientAddress The address to which the ETH should be transferred
-   * @returns a Promise that resolves to the transaction hash of the executed call
-   */
-  public async transferETH(params: ETHTransferParams): Promise<`0x${string}`> {
-    const { 
-      account: tbAccountAddress, 
-      amount,
-      recipientAddress
-    } = params
-
-    const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
-
-    let recipient = getAddress(recipientAddress)
-    
-    // const isENS = recipientAddress.endsWith(".eth")
-    // @BJ todo: debug
-    // if (isENS) {
-    //   recipient = await this.publicClient.getEnsResolver({name: normalize(recipientAddress)})
-    //   if (!recipient) {
-    //       throw new Error('Failed to resolve ENS address');
-    //   }
-    // }
-    // console.log('RECIPIENT_ADDRESS', recipient)
-
-    try {
-
-      if(this.signer) { // Ethers
-
-        const unencodedTransferETHExecuteCall = {
-          abi: erc6551AccountAbi,
-          functionName: 'executeCall',
-          args: [recipient, weiValue, '0x'],
-        }
-
-        const preparedETHTransfer = {
-          to: tbAccountAddress,
-          value: BigInt(0),
-          data: encodeFunctionData(unencodedTransferETHExecuteCall),
-        }
-
-        return await this.signer.sendTransaction(preparedETHTransfer).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
-      
-      }
-      else if(this.walletClient) {
-        
-        // console.log('PUBLIC_CLIENT', this.publicClient)
-        // const { request } = await this.publicClient.simulateContract({
-
-        const txHash = await this.executeCall({
-          account: tbAccountAddress,
-          to: recipient,
-          value: weiValue,
-          data: '0x'
-        })
-
-          // const { request, result } = await this.publicClient.simulateContract({
-          //   address: getAddress(tbAccountAddress),
-          //   account: this.walletClient.account,
-  
-          //   ...unencodedTransferETHExecuteCall
-          // })
-          // console.log('SIMULATE ETH TRANSFER REQUEST', request)
-          // console.log('SIMULATE ETH TRANSFER RESULT', result)
-        // } catch(err) {
-          // if (err instanceof BaseError) {
-          //   const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
-          //   if (revertError instanceof ContractFunctionRevertedError) {
-          //     const errorName = revertError.data?.errorName ?? ''
-          //     console.log('ERROR NAME', errorName)
-          //     console.log('REVERT ERROR DATA', revertError)
-          //     // do something with `errorName`
-          //   }
-          // }
-        // }
-
-        return txHash
-
-        // return await this.walletClient.writeContract(request)
-        // return '0x'
-      }
-      else {
-        throw new Error("No wallet client or signer available.")
-      }
-
-    } catch (error) {
-      console.log(error)
-      throw error
-    }
-  }
-
-  /**
-   * Executes an ERC-20 transfer call on a tokenbound account
-   * @param {string} params.account The tokenbound account address
-   * @param {number} params.amount The amount of ERC-20 to transfer, in decimal format (eg. 0.1 USDC = 0.1)
-   * @param {string} params.recipientAddress The address to which the ETH should be transferred
-   * @param {string} params.erc20tokenAddress The address of the ERC-20 token contract
-   * @param {string} params.erc20tokenDecimals The decimal specification of the ERC-20 token
-   * @returns a Promise that resolves to the transaction hash of the executed call
-   */
-  public async transferERC20(params: ERC20TransferParams): Promise<`0x${string}`> {
-    const { 
-      account: tbAccountAddress,
-      amount,
-      recipientAddress,
-      erc20tokenAddress,
-      erc20tokenDecimals,
-    } = params
-
-    if(erc20tokenDecimals < 0 || erc20tokenDecimals > 18) throw new Error("Decimal value out of range. Should be between 0 and 18.")
-
-    const amountBaseUnit = parseUnits(`${amount}`, erc20tokenDecimals)
-
-    const recipient = recipientAddress.endsWith(".eth")
-      ? await this.publicClient.getEnsResolver({name: normalize(recipientAddress)})
-      : recipientAddress
-
-    const callData = encodeFunctionData({
-      abi: erc20Abi,
-      functionName: 'transfer',
-      args: [recipient, amountBaseUnit],
-    })
-
-    const unencodedTransferERC20ExecuteCall = {
-      abi: erc6551AccountAbi,
-      functionName: 'executeCall',
-      args: [erc20tokenAddress, 0, callData],
-    }
-
-    try {
-
-      if(this.signer) { // Ethers
-
-        const preparedERC20Transfer = {
-          to: tbAccountAddress,
-          value: BigInt(0),
-          data: encodeFunctionData(unencodedTransferERC20ExecuteCall),
-        }
-
-        return await this.signer.sendTransaction(preparedERC20Transfer).then((tx:AbstractEthersTransactionResponse) => tx.hash) as `0x${string}`
-      
-      }
-      else if(this.walletClient) {
-        const { request } = await this.publicClient.simulateContract({
-          address: getAddress(tbAccountAddress),
-          account: this.walletClient.account,
-          ...unencodedTransferERC20ExecuteCall
-        })
-
-        return await this.walletClient.writeContract(request)
-      }
-      else {
-        throw new Error("No wallet client or signer available.")
-      }  
-
-    } catch (error) {
-      console.log(error)
-      throw error
-    }
   }
 
 }

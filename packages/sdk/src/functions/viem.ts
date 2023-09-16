@@ -160,6 +160,14 @@ export async function prepareExecuteCall(
   value: bigint
   data: `0x${string}`
 }> {
+
+  // * @param {string} params.account The tokenbound account address
+  // * @param {string} params.to The recipient address
+  // * @param {bigint} params.value The value to send, in wei
+  // * @param {string} params.data The data to send
+
+  console.log({account, to, value, data})
+
   return {
     to: account as `0x${string}`,
     value,
