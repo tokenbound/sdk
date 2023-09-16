@@ -8,9 +8,6 @@ import {
   getAddress,
   encodeFunctionData,
   Abi,
-  // parseUnits,
-  // BaseError,
-  // ContractFunctionRevertedError
 } from "viem"
 import { erc6551AccountAbi, erc6551RegistryAbi, erc1155Abi, erc721Abi } from '../abis'
 import { 
@@ -28,7 +25,6 @@ import {
   SegmentedERC1155Bytecode
 } from "./types"
 import { chainIdToChain, segmentBytecode } from "./utils"
-// import { normalize } from "viem/ens"
 
 export const NFTTokenType = {
   ERC721: "ERC721",
