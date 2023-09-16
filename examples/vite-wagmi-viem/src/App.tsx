@@ -3,7 +3,14 @@ import { useAccount, WindowProvider } from 'wagmi'
 
 import { Account } from './components'
 
-import { createWalletClient, http, custom, WalletClient } from 'viem'
+import {
+  createWalletClient,
+  http,
+  custom,
+  WalletClient,
+  parseUnits,
+  getAddress,
+} from 'viem'
 import { goerli } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
 
@@ -14,6 +21,16 @@ declare global {
     ethereum?: WindowProvider
   }
 }
+
+// const sendingTBA = '0x33D622b211C399912eC0feaaf1caFD01AFA53980'
+// const recipientAddress = getAddress('0x5ed25DCC8490809215cd0632492467BEbc60B8d5')
+// const ethAmount = 0.1
+// const ethAmountWei = parseUnits(`${ethAmount}`, 18)
+
+const sendingTBA = '0x047A2F5c8C97948675786e9a1A12EB172CF802a1'
+const recipientAddress = getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4')
+const ethAmount = 0.05
+const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 
 export function App() {
   const { isConnected, address } = useAccount()
@@ -37,7 +54,7 @@ export function App() {
 
       const preparedExecuteCall = await tokenboundClient.prepareExecuteCall({
         account: tokenboundAccount,
-        to: tokenboundAccount,
+        to: recipientAddress,
         value: 0n,
         data: '',
       })
@@ -72,11 +89,12 @@ export function App() {
   const executeCall = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const executedCall = await tokenboundClient.executeCall({
-      account: address,
-      to: address,
-      value: 0n,
+      account: sendingTBA,
+      to: recipientAddress,
+      value: ethAmountWei,
       data: '0x',
     })
+    executedCall && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
   }, [tokenboundClient])
 
   return (

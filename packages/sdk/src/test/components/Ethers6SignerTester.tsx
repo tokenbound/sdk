@@ -10,6 +10,6 @@ export function Ethers6SignerTester() {
   const tokenboundClient = signer
     ? new TokenboundClient({ signer, chainId: foundry.id })
     : undefined
-    
-  return <TxTests tokenboundClient={tokenboundClient} />
+
+  return <TxTests tokenboundClient={tokenboundClient} tester="ETHERS_6" />
 }

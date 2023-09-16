@@ -1,43 +1,22 @@
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { TokenboundClient } from '@tokenbound/sdk'
 import { useHasMounted } from '../hooks'
+import { TesterType } from '../types'
+import { TestTxExecuteCall, TestTxCreateAccount } from './'
 
-export function TxTests({ tokenboundClient }: { tokenboundClient?: TokenboundClient }) {
+export function TxTests({
+  tokenboundClient,
+  tester,
+}: {
+  tokenboundClient?: TokenboundClient
+  tester: TesterType
+}) {
   const { address, connector, isConnected } = useAccount()
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect()
   const { disconnect } = useDisconnect()
+  const isReady = !!address && !!tokenboundClient
   const hasMounted = useHasMounted()
-
-  const [tokenboundAccountAddress, setTokenboundAccountAddress] = useState<
-    `0x${string}` | null
-  >()
-  const [executedCallAddress, setExecutedCallAddress] = useState<`0x${string}` | null>()
-
-  const createAccount = useCallback(async () => {
-    console.log('in createaccount, PRE-RUN --->')
-    if (!tokenboundClient || !address) return
-    console.log('in createaccount, has client and address --->')
-    const accountAddress = await tokenboundClient.createAccount({
-      tokenContract: '0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b', // BJ's Lil' Noun
-      tokenId: '606',
-    })
-
-    accountAddress && console.log('ADDRESS OUT', accountAddress)
-
-    accountAddress && setTokenboundAccountAddress(accountAddress)
-  }, [tokenboundClient])
-
-  const executeCall = useCallback(async () => {
-    if (!tokenboundClient || !address) return
-    const executedCall = await tokenboundClient.executeCall({
-      account: address,
-      to: address,
-      value: 0n,
-      data: '0x',
-    })
-    executedCall && setExecutedCallAddress(executedCall)
-  }, [tokenboundClient])
 
   if (!hasMounted) return null
 
@@ -55,37 +34,19 @@ export function TxTests({ tokenboundClient }: { tokenboundClient?: TokenboundCli
               Disconnect from {connector?.name}
             </button>
 
-            {tokenboundClient && (
+            {isReady && (
               <>
-                <button
-                  id="tb-create-account-button"
-                  data-testid="tb-create-account-button"
-                  onClick={() => createAccount()}
-                >
-                  Create Account
-                </button>
-                <button
-                  id="tb-execute-call-button"
-                  data-testid="tb-execute-call-button"
-                  onClick={() => executeCall()}
-                >
-                  Execute Call
-                </button>
+                <TestTxCreateAccount
+                  tokenboundClient={tokenboundClient}
+                  address={address}
+                  tester={tester}
+                />
+                <TestTxExecuteCall
+                  tokenboundClient={tokenboundClient}
+                  address={address}
+                  tester={tester}
+                />
               </>
-            )}
-
-            {/* OUTPUT WHEN TOKENBOUND ADDRESS HAS BEEN CREATED */}
-            {tokenboundAccountAddress && (
-              <span id="tb-account-created" data-testid="tb-account-created">
-                {tokenboundAccountAddress}
-              </span>
-            )}
-
-            {/* OUTPUT WHEN CALL HAS BEEN SUCCESSFULLY EXECUTED BY TOKENBOUND ACCOUNT */}
-            {executedCallAddress && (
-              <span id="tb-executed-call" data-testid="tb-executed-call">
-                {executedCallAddress}
-              </span>
             )}
           </>
         )}

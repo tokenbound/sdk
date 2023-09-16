@@ -6,7 +6,6 @@ import { MockConnector } from 'wagmi/connectors/mock'
 import {
   Providers,
   UserEvent,
-  act,
   ADDRESS_REGEX,
   getMockWalletClient,
   renderWithWagmiConfig,
@@ -15,9 +14,7 @@ import {
   userEvent,
   waitFor,
 } from '../mockWallet'
-import { WalletClientTester } from './WalletClientTester'
-import { Ethers6SignerTester } from './Ethers6SignerTester'
-import { EthersSignerTester } from './EthersSignerTester'
+import { EthersSignerTester, Ethers6SignerTester, WalletClientTester } from '.'
 import { PublicClient, WebSocketPublicClient, Config, WalletClient } from 'wagmi'
 
 describe('ComboTester', () => {
@@ -37,10 +34,8 @@ function runClientTxTestsForComponent(
     }
 
     beforeEach(async () => {
-      act(() => {
-        user = userEvent.setup()
-        assert(user)
-      })
+      user = userEvent.setup()
+      assert(user)
 
       // Create a config with a mock wallet client (foundry chain)
       config = setupConfig({
@@ -61,10 +56,8 @@ function runClientTxTestsForComponent(
         ),
       })
 
-      act(() => {
-        const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
-        user.click(connectButton)
-      })
+      const connectButton = screen.getByTestId('connect-button') as HTMLButtonElement
+      user.click(connectButton)
 
       await waitFor(() => {
         expect(screen.getByText(ADDRESS_REGEX)).toBeInTheDocument()
@@ -75,22 +68,16 @@ function runClientTxTestsForComponent(
     })
 
     it('can createAccount', async () => {
-      act(() => {
-        const createAccountButton = screen.getByTestId(
-          'tb-create-account-button'
-        ) as HTMLButtonElement
+      const createAccountButton = screen.getByTestId(
+        'tb-create-account-button'
+      ) as HTMLButtonElement
 
-        // console.log('CREATE BUTTON', createAccountButton)
-
-        user.click(createAccountButton)
-      })
+      user.click(createAccountButton)
 
       await waitFor(() => {
         const tbAccountOutput = screen.getByTestId(
           'tb-account-created'
         ) as HTMLSpanElement
-
-        console.log('TB ACCOUNT OUTPUT', tbAccountOutput)
 
         expect(tbAccountOutput).toBeInTheDocument()
         expect(tbAccountOutput.textContent).toMatch(ADDRESS_REGEX)
@@ -98,12 +85,10 @@ function runClientTxTestsForComponent(
     })
 
     it('can executeCall', async () => {
-      act(() => {
-        const executeCallButton = screen.getByTestId(
-          'tb-execute-call-button'
-        ) as HTMLButtonElement
-        user.click(executeCallButton)
-      })
+      const executeCallButton = screen.getByTestId(
+        'tb-execute-call-button'
+      ) as HTMLButtonElement
+      user.click(executeCallButton)
 
       await waitFor(() => {
         const tbExecutedCallOutput = screen.getByTestId(
