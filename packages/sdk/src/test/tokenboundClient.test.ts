@@ -27,7 +27,7 @@ test("tokenboundClient.prepareExecuteCall", async () => {
     const preparedCall = await tokenboundClient.prepareExecuteCall({
         account: TEST_CONFIG.TB_ACCOUNT,
         to: TEST_CONFIG.RECIPIENT_ADDRESS,
-        value: TEST_CONFIG.EXAMPLE_AMOUNT,
+        value: 0n,
         data: TEST_CONFIG.EXAMPLE_DATA
     })
 
