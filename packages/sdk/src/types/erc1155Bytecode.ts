@@ -1,6 +1,6 @@
-// Segmented ERC1155 bytecode
+// Segmented ERC6551 bytecode
 
-export type SegmentedERC1155Bytecode = {
+export type SegmentedERC6551Bytecode = {
     erc1167Header: string,                          // 10 bytes         
     implementationAddress: `0x${string}`,           // 20 bytes
     erc1167Footer: string,                          // 15 bytes
