@@ -1,6 +1,6 @@
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
 
-import { 
+import {
   getAccount,
   computeAccount,
   createAccount,
@@ -11,7 +11,6 @@ import {
 } from './functions'
 
 import {
-  TokenboundClient,
   TokenboundAccountNFT,
   TokenboundClientOptions,
   GetAccountParams,
@@ -22,11 +21,13 @@ import {
   ExecuteCallParams,
   ComputeAccountParams,
   GetCreationCodeParams,
-} from './TokenboundClient'
+} from './types'
 
-export { 
+import { TokenboundClient } from './TokenboundClient'
+
+export {
   TokenboundClient,
-  erc6551AccountAbi, 
+  erc6551AccountAbi,
   erc6551RegistryAbi,
   getAccount,
   computeAccount,
@@ -47,5 +48,5 @@ export type {
   PrepareExecuteCallParams,
   ExecuteCallParams,
   ComputeAccountParams,
-  GetCreationCodeParams
+  GetCreationCodeParams,
 }

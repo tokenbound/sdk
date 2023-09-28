@@ -7,12 +7,15 @@ import {
   encodeFunctionData,
   encodeAbiParameters,
   pad,
-  getAddress
-} from "viem"
+  getAddress,
+} from 'viem'
 
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../../abis'
-import { erc6551AccountImplementationAddressV1, erc6551RegistryAddressV1 } from "../constants"
-import { addressToUint8Array } from "../utils"
+import {
+  erc6551AccountImplementationAddressV1,
+  erc6551RegistryAddressV1,
+} from '../constants'
+import { addressToUint8Array } from '../utils'
 
 export { erc6551AccountAbi, erc6551RegistryAbi }
 
@@ -25,10 +28,11 @@ export async function getAccount(
   tokenId: string,
   client: PublicClient,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`
 ): Promise<`0x${string}`> {
-
-  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddressV1
+  const erc6551registry = registryAddress
+    ? getAddress(registryAddress)
+    : erc6551RegistryAddressV1
 
   const registry = getContract({
     address: erc6551registry,
@@ -39,7 +43,9 @@ export async function getAccount(
   const chainId = await client.getChainId()
 
   const account = await registry.read.account([
-    implementationAddress ? getAddress(implementationAddress) : erc6551AccountImplementationAddressV1,
+    implementationAddress
+      ? getAddress(implementationAddress)
+      : erc6551AccountImplementationAddressV1,
     chainId,
     tokenContract,
     tokenId,
@@ -58,27 +64,30 @@ export async function prepareCreateAccount(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`
 ): Promise<{
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
 }> {
-
-  const implementation = implementationAddress ? getAddress(implementationAddress): erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddressV1
+  const implementation = implementationAddress
+    ? getAddress(implementationAddress)
+    : erc6551AccountImplementationAddressV1
+  const erc6551registry = registryAddress
+    ? getAddress(registryAddress)
+    : erc6551RegistryAddressV1
 
   const initData = encodeFunctionData({
     abi: [
       {
         inputs: [],
-        name: "initialize",
+        name: 'initialize',
         outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        stateMutability: 'nonpayable',
+        type: 'function',
       },
     ],
-    functionName: "initialize",
+    functionName: 'initialize',
   })
 
   return {
@@ -86,7 +95,7 @@ export async function prepareCreateAccount(
     value: BigInt(0),
     data: encodeFunctionData({
       abi: erc6551RegistryAbi,
-      functionName: "createAccount",
+      functionName: 'createAccount',
       args: [
         implementation,
         chainId,
@@ -97,7 +106,6 @@ export async function prepareCreateAccount(
       ],
     }),
   }
-
 }
 
 /**
@@ -109,11 +117,14 @@ export async function createAccount(
   tokenId: string,
   client: WalletClient,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`
 ): Promise<`0x${string}`> {
-
-  const implementation = implementationAddress ? getAddress(implementationAddress): erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddressV1
+  const implementation = implementationAddress
+    ? getAddress(implementationAddress)
+    : erc6551AccountImplementationAddressV1
+  const erc6551registry = registryAddress
+    ? getAddress(registryAddress)
+    : erc6551RegistryAddressV1
 
   const registry = getContract({
     address: erc6551registry,
@@ -127,13 +138,13 @@ export async function createAccount(
     abi: [
       {
         inputs: [],
-        name: "initialize",
+        name: 'initialize',
         outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        stateMutability: 'nonpayable',
+        type: 'function',
       },
     ],
-    functionName: "initialize",
+    functionName: 'initialize',
   })
 
   return registry.write.createAccount([
@@ -165,12 +176,8 @@ export async function prepareExecuteCall(
     value: 0n,
     data: encodeFunctionData({
       abi: erc6551AccountAbi,
-      functionName: "executeCall",
-      args: [
-        to as `0x${string}`,
-        value,
-        data as `0x${string}`
-      ],
+      functionName: 'executeCall',
+      args: [to as `0x${string}`, value, data as `0x${string}`],
     }),
   }
 }
@@ -192,11 +199,7 @@ export async function executeCall(
     walletClient: client,
   })
 
-  return registry.write.executeCall([
-    to as `0x${string}`,
-    value,
-    data as `0x${string}`,
-  ])
+  return registry.write.executeCall([to as `0x${string}`, value, data as `0x${string}`])
 }
 
 /**
@@ -208,30 +211,26 @@ export function computeAccount(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`,
+  registryAddress?: `0x${string}`
 ): `0x${string}` {
+  const implementation = implementationAddress
+    ? getAddress(implementationAddress)
+    : erc6551AccountImplementationAddressV1
+  const erc6551registry = registryAddress
+    ? getAddress(registryAddress)
+    : erc6551RegistryAddressV1
 
-  const implementation = implementationAddress ? getAddress(implementationAddress): erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress ? getAddress(registryAddress) : erc6551RegistryAddressV1
+  const code = getCreationCode(implementation, chainId, tokenContract, tokenId, '0')
 
-  const code = getCreationCode(
-    implementation,
-    chainId,
-    tokenContract,
-    tokenId,
-    "0"
-  )
-  
-  const bigIntZero = BigInt("0").toString(16) as `0x${string}`
+  const bigIntZero = BigInt('0').toString(16) as `0x${string}`
   const saltHex = pad(bigIntZero, { size: 32 })
-  
+
   return getContractAddress({
     bytecode: code,
     from: erc6551registry,
     opcode: 'CREATE2',
     salt: saltHex,
   })
-
 }
 
 /**
@@ -243,24 +242,24 @@ export function getCreationCode(
   chainId_: number,
   tokenContract_: string,
   tokenId_: string,
-  salt_: string,
+  salt_: string
 ): Uint8Array {
   const types = [
-    { type: 'uint256'},
-    { type: 'uint256'},
-    { type: 'address'},
-    { type: 'uint256'}
+    { type: 'uint256' },
+    { type: 'uint256' },
+    { type: 'address' },
+    { type: 'uint256' },
   ]
   const values: (string | bigint)[] = [salt_, BigInt(chainId_), tokenContract_, tokenId_]
   const encodedABI = encodeAbiParameters(types, values)
   const hexImplementation = implementation_ as `0x${string}`
-  
+
   const hexCreationCode = concat([
-    "0x3d60ad80600a3d3981f3363d3d373d3d3d363d73", 
+    '0x3d60ad80600a3d3981f3363d3d373d3d3d363d73',
     hexImplementation,
-    "0x5af43d82803e903d91602b57fd5bf3",
-    encodedABI
-  ]);
+    '0x5af43d82803e903d91602b57fd5bf3',
+    encodedABI,
+  ])
 
   const creationCode = addressToUint8Array(hexCreationCode)
 

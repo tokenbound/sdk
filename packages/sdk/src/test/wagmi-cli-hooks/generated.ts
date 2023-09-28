@@ -20,7 +20,7 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export const zora1155ABI = [
   {
@@ -29,6 +29,7 @@ export const zora1155ABI = [
     inputs: [
       { name: '_mintFeeAmount', internalType: 'uint256', type: 'uint256' },
       { name: '_mintFeeRecipient', internalType: 'address', type: 'address' },
+      { name: '_factory', internalType: 'address', type: 'address' },
     ],
   },
   {
@@ -38,6 +39,11 @@ export const zora1155ABI = [
       { name: 'user', internalType: 'address', type: 'address' },
     ],
     name: 'Burn_NotOwnerOrApproved',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'reason', internalType: 'bytes', type: 'bytes' }],
+    name: 'CallFailed',
   },
   {
     type: 'error',
@@ -95,19 +101,12 @@ export const zora1155ABI = [
     inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
     name: 'NoRendererForToken',
   },
-  { type: 'error', inputs: [], name: 'NotAllowedContractBaseIDUpdate' },
   {
     type: 'error',
     inputs: [{ name: 'renderer', internalType: 'address', type: 'address' }],
     name: 'RendererNotValid',
   },
-  {
-    type: 'error',
-    inputs: [{ name: 'reason', internalType: 'bytes', type: 'bytes' }],
-    name: 'Renderer_CallFailed',
-  },
   { type: 'error', inputs: [], name: 'Renderer_NotValidRendererContract' },
-  { type: 'error', inputs: [], name: 'Sale_CallFailed' },
   {
     type: 'error',
     inputs: [{ name: 'targetContract', internalType: 'address', type: 'address' }],
@@ -565,6 +564,7 @@ export const zora1155ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
+      { name: 'contractName', internalType: 'string', type: 'string' },
       { name: 'newContractURI', internalType: 'string', type: 'string' },
       {
         name: 'defaultRoyaltyConfiguration',
@@ -774,7 +774,6 @@ export const zora1155ABI = [
     inputs: [
       { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
       { name: 'renderer', internalType: 'contract IRenderer1155', type: 'address' },
-      { name: 'setupData', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'setTokenMetadataRenderer',
     outputs: [],
@@ -903,14 +902,14 @@ export const zora1155ABI = [
 ] as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export const zora1155Address = {
-  1: '0xD0561AEF1D5cd30a1779f01B41B3436027177d9A',
+  1: '0x4482c5929618b848a46E3DA830A3D71085A5DE07',
 } as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export const zora1155Config = { address: zora1155Address, abi: zora1155ABI } as const
 
@@ -1728,7 +1727,7 @@ export const zora721DropConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Read<
   TFunctionName extends string,
@@ -1749,7 +1748,7 @@ export function useZora1155Read<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"CONTRACT_BASE_ID"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ContractBaseId<
   TFunctionName extends 'CONTRACT_BASE_ID',
@@ -1771,7 +1770,7 @@ export function useZora1155ContractBaseId<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_ADMIN"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155PermissionBitAdmin<
   TFunctionName extends 'PERMISSION_BIT_ADMIN',
@@ -1793,7 +1792,7 @@ export function useZora1155PermissionBitAdmin<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_FUNDS_MANAGER"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155PermissionBitFundsManager<
   TFunctionName extends 'PERMISSION_BIT_FUNDS_MANAGER',
@@ -1815,7 +1814,7 @@ export function useZora1155PermissionBitFundsManager<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_METADATA"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155PermissionBitMetadata<
   TFunctionName extends 'PERMISSION_BIT_METADATA',
@@ -1837,7 +1836,7 @@ export function useZora1155PermissionBitMetadata<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_MINTER"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155PermissionBitMinter<
   TFunctionName extends 'PERMISSION_BIT_MINTER',
@@ -1859,7 +1858,7 @@ export function useZora1155PermissionBitMinter<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_SALES"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155PermissionBitSales<
   TFunctionName extends 'PERMISSION_BIT_SALES',
@@ -1881,7 +1880,7 @@ export function useZora1155PermissionBitSales<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"assumeLastTokenIdMatches"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155AssumeLastTokenIdMatches<
   TFunctionName extends 'assumeLastTokenIdMatches',
@@ -1903,7 +1902,7 @@ export function useZora1155AssumeLastTokenIdMatches<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"balanceOf"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155BalanceOf<
   TFunctionName extends 'balanceOf',
@@ -1925,7 +1924,7 @@ export function useZora1155BalanceOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"balanceOfBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155BalanceOfBatch<
   TFunctionName extends 'balanceOfBatch',
@@ -1947,7 +1946,7 @@ export function useZora1155BalanceOfBatch<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"contractURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ContractUri<
   TFunctionName extends 'contractURI',
@@ -1969,7 +1968,7 @@ export function useZora1155ContractUri<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"contractVersion"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ContractVersion<
   TFunctionName extends 'contractVersion',
@@ -1991,7 +1990,7 @@ export function useZora1155ContractVersion<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"customRenderers"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155CustomRenderers<
   TFunctionName extends 'customRenderers',
@@ -2013,7 +2012,7 @@ export function useZora1155CustomRenderers<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getCustomRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155GetCustomRenderer<
   TFunctionName extends 'getCustomRenderer',
@@ -2035,7 +2034,7 @@ export function useZora1155GetCustomRenderer<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getPermissions"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155GetPermissions<
   TFunctionName extends 'getPermissions',
@@ -2057,7 +2056,7 @@ export function useZora1155GetPermissions<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getRoyalties"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155GetRoyalties<
   TFunctionName extends 'getRoyalties',
@@ -2079,7 +2078,7 @@ export function useZora1155GetRoyalties<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getTokenInfo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155GetTokenInfo<
   TFunctionName extends 'getTokenInfo',
@@ -2101,7 +2100,7 @@ export function useZora1155GetTokenInfo<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"isAdminOrRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155IsAdminOrRole<
   TFunctionName extends 'isAdminOrRole',
@@ -2123,7 +2122,7 @@ export function useZora1155IsAdminOrRole<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"isApprovedForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155IsApprovedForAll<
   TFunctionName extends 'isApprovedForAll',
@@ -2145,7 +2144,7 @@ export function useZora1155IsApprovedForAll<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"metadataRendererContract"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155MetadataRendererContract<
   TFunctionName extends 'metadataRendererContract',
@@ -2167,7 +2166,7 @@ export function useZora1155MetadataRendererContract<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mintFee"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155MintFee<
   TFunctionName extends 'mintFee',
@@ -2189,7 +2188,7 @@ export function useZora1155MintFee<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mintFeeRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155MintFeeRecipient<
   TFunctionName extends 'mintFeeRecipient',
@@ -2211,7 +2210,7 @@ export function useZora1155MintFeeRecipient<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"name"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Name<
   TFunctionName extends 'name',
@@ -2233,7 +2232,7 @@ export function useZora1155Name<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"nextTokenId"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155NextTokenId<
   TFunctionName extends 'nextTokenId',
@@ -2255,7 +2254,7 @@ export function useZora1155NextTokenId<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"owner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Owner<
   TFunctionName extends 'owner',
@@ -2277,7 +2276,7 @@ export function useZora1155Owner<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"permissions"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Permissions<
   TFunctionName extends 'permissions',
@@ -2299,7 +2298,7 @@ export function useZora1155Permissions<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"proxiableUUID"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ProxiableUuid<
   TFunctionName extends 'proxiableUUID',
@@ -2321,7 +2320,7 @@ export function useZora1155ProxiableUuid<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"royalties"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Royalties<
   TFunctionName extends 'royalties',
@@ -2343,7 +2342,7 @@ export function useZora1155Royalties<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"royaltyInfo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155RoyaltyInfo<
   TFunctionName extends 'royaltyInfo',
@@ -2365,7 +2364,7 @@ export function useZora1155RoyaltyInfo<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"supplyRoyaltyInfo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SupplyRoyaltyInfo<
   TFunctionName extends 'supplyRoyaltyInfo',
@@ -2387,7 +2386,7 @@ export function useZora1155SupplyRoyaltyInfo<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -2409,7 +2408,7 @@ export function useZora1155SupportsInterface<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"symbol"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Symbol<
   TFunctionName extends 'symbol',
@@ -2431,7 +2430,7 @@ export function useZora1155Symbol<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"uri"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Uri<
   TFunctionName extends 'uri',
@@ -2453,7 +2452,7 @@ export function useZora1155Uri<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Write<
   TFunctionName extends string,
@@ -2482,7 +2481,7 @@ export function useZora1155Write<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"addPermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155AddPermission<
   TMode extends WriteContractMode = undefined,
@@ -2512,7 +2511,7 @@ export function useZora1155AddPermission<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155AdminMint<
   TMode extends WriteContractMode = undefined,
@@ -2542,7 +2541,7 @@ export function useZora1155AdminMint<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMintBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155AdminMintBatch<
   TMode extends WriteContractMode = undefined,
@@ -2575,7 +2574,7 @@ export function useZora1155AdminMintBatch<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"burnBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155BurnBatch<
   TMode extends WriteContractMode = undefined,
@@ -2605,7 +2604,7 @@ export function useZora1155BurnBatch<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155CallRenderer<
   TMode extends WriteContractMode = undefined,
@@ -2635,7 +2634,7 @@ export function useZora1155CallRenderer<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callSale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155CallSale<
   TMode extends WriteContractMode = undefined,
@@ -2665,7 +2664,7 @@ export function useZora1155CallSale<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Initialize<
   TMode extends WriteContractMode = undefined,
@@ -2695,7 +2694,7 @@ export function useZora1155Initialize<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Mint<
   TMode extends WriteContractMode = undefined,
@@ -2725,7 +2724,7 @@ export function useZora1155Mint<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"multicall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Multicall<
   TMode extends WriteContractMode = undefined,
@@ -2755,7 +2754,7 @@ export function useZora1155Multicall<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"removePermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155RemovePermission<
   TMode extends WriteContractMode = undefined,
@@ -2788,7 +2787,7 @@ export function useZora1155RemovePermission<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeBatchTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SafeBatchTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -2825,7 +2824,7 @@ export function useZora1155SafeBatchTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SafeTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -2858,7 +2857,7 @@ export function useZora1155SafeTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetApprovalForAll<
   TMode extends WriteContractMode = undefined,
@@ -2891,7 +2890,7 @@ export function useZora1155SetApprovalForAll<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setFundsRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetFundsRecipient<
   TMode extends WriteContractMode = undefined,
@@ -2924,7 +2923,7 @@ export function useZora1155SetFundsRecipient<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setOwner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetOwner<
   TMode extends WriteContractMode = undefined,
@@ -2954,7 +2953,7 @@ export function useZora1155SetOwner<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTokenMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetTokenMetadataRenderer<
   TMode extends WriteContractMode = undefined,
@@ -2991,7 +2990,7 @@ export function useZora1155SetTokenMetadataRenderer<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTransferHook"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetTransferHook<
   TMode extends WriteContractMode = undefined,
@@ -3024,7 +3023,7 @@ export function useZora1155SetTransferHook<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setupNewToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetupNewToken<
   TMode extends WriteContractMode = undefined,
@@ -3054,7 +3053,7 @@ export function useZora1155SetupNewToken<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateContractMetadata"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpdateContractMetadata<
   TMode extends WriteContractMode = undefined,
@@ -3091,7 +3090,7 @@ export function useZora1155UpdateContractMetadata<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateRoyaltiesForToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpdateRoyaltiesForToken<
   TMode extends WriteContractMode = undefined,
@@ -3128,7 +3127,7 @@ export function useZora1155UpdateRoyaltiesForToken<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateTokenURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpdateTokenUri<
   TMode extends WriteContractMode = undefined,
@@ -3161,7 +3160,7 @@ export function useZora1155UpdateTokenUri<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeTo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpgradeTo<
   TMode extends WriteContractMode = undefined,
@@ -3191,7 +3190,7 @@ export function useZora1155UpgradeTo<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeToAndCall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpgradeToAndCall<
   TMode extends WriteContractMode = undefined,
@@ -3224,7 +3223,7 @@ export function useZora1155UpgradeToAndCall<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Withdraw<
   TMode extends WriteContractMode = undefined,
@@ -3254,7 +3253,7 @@ export function useZora1155Withdraw<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155Write<TFunctionName extends string>(
   config: Omit<
@@ -3272,7 +3271,7 @@ export function usePrepareZora1155Write<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"addPermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155AddPermission(
   config: Omit<
@@ -3291,7 +3290,7 @@ export function usePrepareZora1155AddPermission(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155AdminMint(
   config: Omit<
@@ -3310,7 +3309,7 @@ export function usePrepareZora1155AdminMint(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMintBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155AdminMintBatch(
   config: Omit<
@@ -3329,7 +3328,7 @@ export function usePrepareZora1155AdminMintBatch(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"burnBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155BurnBatch(
   config: Omit<
@@ -3348,7 +3347,7 @@ export function usePrepareZora1155BurnBatch(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155CallRenderer(
   config: Omit<
@@ -3367,7 +3366,7 @@ export function usePrepareZora1155CallRenderer(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callSale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155CallSale(
   config: Omit<
@@ -3386,7 +3385,7 @@ export function usePrepareZora1155CallSale(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155Initialize(
   config: Omit<
@@ -3405,7 +3404,7 @@ export function usePrepareZora1155Initialize(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155Mint(
   config: Omit<
@@ -3424,7 +3423,7 @@ export function usePrepareZora1155Mint(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"multicall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155Multicall(
   config: Omit<
@@ -3443,7 +3442,7 @@ export function usePrepareZora1155Multicall(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"removePermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155RemovePermission(
   config: Omit<
@@ -3462,7 +3461,7 @@ export function usePrepareZora1155RemovePermission(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeBatchTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SafeBatchTransferFrom(
   config: Omit<
@@ -3481,7 +3480,7 @@ export function usePrepareZora1155SafeBatchTransferFrom(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SafeTransferFrom(
   config: Omit<
@@ -3500,7 +3499,7 @@ export function usePrepareZora1155SafeTransferFrom(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SetApprovalForAll(
   config: Omit<
@@ -3519,7 +3518,7 @@ export function usePrepareZora1155SetApprovalForAll(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setFundsRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SetFundsRecipient(
   config: Omit<
@@ -3538,7 +3537,7 @@ export function usePrepareZora1155SetFundsRecipient(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setOwner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SetOwner(
   config: Omit<
@@ -3557,7 +3556,7 @@ export function usePrepareZora1155SetOwner(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTokenMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SetTokenMetadataRenderer(
   config: Omit<
@@ -3576,7 +3575,7 @@ export function usePrepareZora1155SetTokenMetadataRenderer(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTransferHook"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SetTransferHook(
   config: Omit<
@@ -3595,7 +3594,7 @@ export function usePrepareZora1155SetTransferHook(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setupNewToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155SetupNewToken(
   config: Omit<
@@ -3614,7 +3613,7 @@ export function usePrepareZora1155SetupNewToken(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateContractMetadata"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155UpdateContractMetadata(
   config: Omit<
@@ -3633,7 +3632,7 @@ export function usePrepareZora1155UpdateContractMetadata(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateRoyaltiesForToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155UpdateRoyaltiesForToken(
   config: Omit<
@@ -3652,7 +3651,7 @@ export function usePrepareZora1155UpdateRoyaltiesForToken(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateTokenURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155UpdateTokenUri(
   config: Omit<
@@ -3671,7 +3670,7 @@ export function usePrepareZora1155UpdateTokenUri(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeTo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155UpgradeTo(
   config: Omit<
@@ -3690,7 +3689,7 @@ export function usePrepareZora1155UpgradeTo(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeToAndCall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155UpgradeToAndCall(
   config: Omit<
@@ -3709,7 +3708,7 @@ export function usePrepareZora1155UpgradeToAndCall(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function usePrepareZora1155Withdraw(
   config: Omit<
@@ -3728,7 +3727,7 @@ export function usePrepareZora1155Withdraw(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155Event<TEventName extends string>(
   config: Omit<
@@ -3746,7 +3745,7 @@ export function useZora1155Event<TEventName extends string>(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"AdminChanged"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155AdminChangedEvent(
   config: Omit<
@@ -3765,7 +3764,7 @@ export function useZora1155AdminChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ApprovalForAllEvent(
   config: Omit<
@@ -3784,7 +3783,7 @@ export function useZora1155ApprovalForAllEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"BeaconUpgraded"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155BeaconUpgradedEvent(
   config: Omit<
@@ -3803,7 +3802,7 @@ export function useZora1155BeaconUpgradedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ConfigUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ConfigUpdatedEvent(
   config: Omit<
@@ -3822,7 +3821,7 @@ export function useZora1155ConfigUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ContractMetadataUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ContractMetadataUpdatedEvent(
   config: Omit<
@@ -3841,7 +3840,7 @@ export function useZora1155ContractMetadataUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ContractRendererUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155ContractRendererUpdatedEvent(
   config: Omit<
@@ -3860,7 +3859,7 @@ export function useZora1155ContractRendererUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"Initialized"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155InitializedEvent(
   config: Omit<
@@ -3879,7 +3878,7 @@ export function useZora1155InitializedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"OwnershipTransferred"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155OwnershipTransferredEvent(
   config: Omit<
@@ -3898,7 +3897,7 @@ export function useZora1155OwnershipTransferredEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"Purchased"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155PurchasedEvent(
   config: Omit<
@@ -3917,7 +3916,7 @@ export function useZora1155PurchasedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"RendererUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155RendererUpdatedEvent(
   config: Omit<
@@ -3936,7 +3935,7 @@ export function useZora1155RendererUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"SetupNewToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155SetupNewTokenEvent(
   config: Omit<
@@ -3955,7 +3954,7 @@ export function useZora1155SetupNewTokenEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"TransferBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155TransferBatchEvent(
   config: Omit<
@@ -3974,7 +3973,7 @@ export function useZora1155TransferBatchEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"TransferSingle"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155TransferSingleEvent(
   config: Omit<
@@ -3993,7 +3992,7 @@ export function useZora1155TransferSingleEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"URI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UriEvent(
   config: Omit<
@@ -4012,7 +4011,7 @@ export function useZora1155UriEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"UpdatedPermissions"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpdatedPermissionsEvent(
   config: Omit<
@@ -4031,7 +4030,7 @@ export function useZora1155UpdatedPermissionsEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"UpdatedRoyalties"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpdatedRoyaltiesEvent(
   config: Omit<
@@ -4050,7 +4049,7 @@ export function useZora1155UpdatedRoyaltiesEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"UpdatedToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpdatedTokenEvent(
   config: Omit<
@@ -4069,7 +4068,7 @@ export function useZora1155UpdatedTokenEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"Upgraded"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xD0561AEF1D5cd30a1779f01B41B3436027177d9A)
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
  */
 export function useZora1155UpgradedEvent(
   config: Omit<

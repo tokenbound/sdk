@@ -13,6 +13,10 @@ export async function debugTransaction({publicClient, hash}:{publicClient: Publi
     const transactionReceipt = await publicClient.getTransactionReceipt({ 
       hash
     })
-  
     console.log('transactionReceipt', transactionReceipt)
+    
+    const transaction = await publicClient.getTransaction({
+        hash
+    })
+    console.log('transaction', transaction)
   }
