@@ -8,8 +8,6 @@ import {
   getAddress,
   encodeFunctionData,
   parseUnits,
-  BaseError,
-  ContractFunctionRevertedError,
 } from 'viem'
 import {
   erc6551AccountAbi,
@@ -46,12 +44,12 @@ import {
   TokenboundClientOptions,
 } from './types'
 import { chainIdToChain, segmentBytecode } from './utils'
-import { normalize } from 'viem/ens'
+// import { normalize } from 'viem/ens'
 
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
-  private publicClient: PublicClient
+  public publicClient: PublicClient
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
   private implementationAddress?: `0x${string}`
@@ -82,6 +80,10 @@ class TokenboundClient {
       )
     }
 
+    if (signer && publicClient) {
+      throw new Error('`publicClient` cannot be provided when using Ethers `signer`.')
+    }
+
     this.chainId = chainId
 
     if (signer) {
@@ -97,13 +99,12 @@ class TokenboundClient {
       this.registryAddress = registryAddress
     }
 
+    //
     this.publicClient =
       publicClient ??
       createPublicClient({
         chain: chainIdToChain(this.chainId),
         transport: http(publicClientRPCUrl ?? undefined),
-        // transport: publicClientRPCUrl ? http(publicClientRPCUrl) : http(),
-        // transport: http(),
       })
 
     this.isInitialized = true
@@ -442,17 +443,6 @@ class TokenboundClient {
       })
     } catch (err) {
       console.log(err)
-      if (err instanceof BaseError) {
-        const revertError = err.walk(
-          (err) => err instanceof ContractFunctionRevertedError
-        )
-        if (revertError instanceof ContractFunctionRevertedError) {
-          const errorName = revertError.data?.errorName ?? ''
-          console.log('ERROR NAME', errorName)
-          console.log('REVERT ERROR DATA', revertError)
-          // do something with `errorName`
-        }
-      }
       throw err
     }
   }
@@ -480,46 +470,23 @@ class TokenboundClient {
 
     const amountBaseUnit = parseUnits(`${amount}`, erc20tokenDecimals)
 
-    const recipient = recipientAddress.endsWith('.eth')
-      ? await this.publicClient.getEnsResolver({ name: normalize(recipientAddress) })
-      : recipientAddress
+    // const recipient = recipientAddress.endsWith('.eth')
+    //   ? await this.publicClient.getEnsResolver({ name: normalize(recipientAddress) })
+    //   : recipientAddress
 
     const callData = encodeFunctionData({
       abi: erc20Abi,
       functionName: 'transfer',
-      args: [recipient, amountBaseUnit],
+      args: [recipientAddress, amountBaseUnit],
     })
 
-    const unencodedTransferERC20ExecuteCall = {
-      abi: erc6551AccountAbi,
-      functionName: 'executeCall',
-      args: [erc20tokenAddress, 0, callData],
-    }
-
     try {
-      if (this.signer) {
-        // Ethers
-
-        const preparedERC20Transfer = {
-          to: tbAccountAddress,
-          value: BigInt(0),
-          data: encodeFunctionData(unencodedTransferERC20ExecuteCall),
-        }
-
-        return (await this.signer
-          .sendTransaction(preparedERC20Transfer)
-          .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
-      } else if (this.walletClient) {
-        const { request } = await this.publicClient.simulateContract({
-          address: getAddress(tbAccountAddress),
-          account: this.walletClient.account,
-          ...unencodedTransferERC20ExecuteCall,
-        })
-
-        return await this.walletClient.writeContract(request)
-      } else {
-        throw new Error('No wallet client or signer available.')
-      }
+      return await this.executeCall({
+        account: tbAccountAddress,
+        to: erc20tokenAddress,
+        value: 0n,
+        data: callData,
+      })
     } catch (error) {
       console.log(error)
       throw error

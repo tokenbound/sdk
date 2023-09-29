@@ -43,14 +43,14 @@ const ANVIL_USER_1 = getAddress(ANVIL_ACCOUNTS[1].address)
 const TOKENID_IN_EOA: string = '10010'
 const TOKENID_IN_TBA: string = '10011'
 
-describe('ComboTester', () => {
-  const walletClient = createWalletClient({
-    transport: http(ANVIL_RPC_URL),
-    chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-    account: privateKeyToAccount(ANVIL_ACCOUNTS[0].privateKey),
-    pollingInterval: 100,
-  })
+const walletClient = createWalletClient({
+  transport: http(ANVIL_RPC_URL),
+  chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+  account: privateKeyToAccount(ANVIL_ACCOUNTS[0].privateKey),
+  pollingInterval: 100,
+})
 
+describe('Test SDK methods - viem + Ethers', () => {
   const ethers5Signer = walletClientToEthers5Signer(walletClient)
   const ethers6Signer = walletClientToEthers6Signer(walletClient)
 
@@ -90,7 +90,7 @@ function runTxTests({
           chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
           walletClient,
           signer,
-          publicClient,
+          publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
         })
 
         await anvil.start()
@@ -545,6 +545,22 @@ function runTxTests({
     })
 
     test.todo('can transferNFT with an 1155', async () => {})
+    test.todo('can transfer with ENS', async () => {})
     test.todo('can sign a message', async () => {})
   })
 }
+
+describe('Custom publicClient RPC URL', () => {
+  it('can use a custom publicClient RPC URL', async () => {
+    const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
+    const tokenboundClient = new TokenboundClient({
+      chainId: 1,
+      walletClient,
+      publicClientRPCUrl: customPublicClientRPCUrl,
+    })
+
+    await waitFor(() => {
+      expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
+    })
+  })
+})
