@@ -14,10 +14,7 @@ export default defineConfig({
         {
           name: 'Zora1155_',
           address: {
-            // [1]: '0xd2b35974aedd3286629971ba956e9c4873a85e08', // Zora1155
             [1]: '0x4482c5929618b848a46e3da830a3d71085a5de07', // ZoraCreator1155Impl
-            // [1]: '0xD0561AEF1D5cd30a1779f01B41B3436027177d9A',
-            // Sapienz drop: 0xafd7b9edc5827f7e39dcd425d8de8d4e1cb292c1 //  https://zora.co/collect/eth:0xafd7b9edc5827f7e39dcd425d8de8d4e1cb292c1/3
           },
         },
         {
