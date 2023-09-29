@@ -16,6 +16,179 @@ import {
 } from 'wagmi/actions'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// WETH_
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export const wethABI = [
+  {
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', type: 'string' }],
+  },
+  {
+    constant: false,
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'guy', type: 'address' },
+      { name: 'wad', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ name: '', type: 'bool' }],
+  },
+  {
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    constant: false,
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'src', type: 'address' },
+      { name: 'dst', type: 'address' },
+      { name: 'wad', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [{ name: '', type: 'bool' }],
+  },
+  {
+    constant: false,
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'wad', type: 'uint256' }],
+    name: 'withdraw',
+    outputs: [],
+  },
+  {
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+  },
+  {
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', type: 'string' }],
+  },
+  {
+    constant: false,
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'dst', type: 'address' },
+      { name: 'wad', type: 'uint256' },
+    ],
+    name: 'transfer',
+    outputs: [{ name: '', type: 'bool' }],
+  },
+  {
+    constant: false,
+    payable: true,
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [],
+    name: 'deposit',
+    outputs: [],
+  },
+  {
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '', type: 'address' },
+      { name: '', type: 'address' },
+    ],
+    name: 'allowance',
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  { payable: true, stateMutability: 'payable', type: 'fallback' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'src', type: 'address', indexed: true },
+      { name: 'guy', type: 'address', indexed: true },
+      { name: 'wad', type: 'uint256', indexed: false },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'src', type: 'address', indexed: true },
+      { name: 'dst', type: 'address', indexed: true },
+      { name: 'wad', type: 'uint256', indexed: false },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'dst', type: 'address', indexed: true },
+      { name: 'wad', type: 'uint256', indexed: false },
+    ],
+    name: 'Deposit',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'src', type: 'address', indexed: true },
+      { name: 'wad', type: 'uint256', indexed: false },
+    ],
+    name: 'Withdrawal',
+  },
+] as const
+
+/**
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export const wethAddress = {
+  1: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+} as const
+
+/**
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export const wethConfig = { address: wethAddress, abi: wethABI } as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Zora1155_
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1723,6 +1896,544 @@ export const zora721DropConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethRead<
+  TFunctionName extends string,
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"name"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethName<
+  TFunctionName extends 'name',
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'name',
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"totalSupply"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethTotalSupply<
+  TFunctionName extends 'totalSupply',
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'totalSupply',
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"decimals"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethDecimals<
+  TFunctionName extends 'decimals',
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'decimals',
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"balanceOf"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethBalanceOf<
+  TFunctionName extends 'balanceOf',
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'balanceOf',
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"symbol"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethSymbol<
+  TFunctionName extends 'symbol',
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'symbol',
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"allowance"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethAllowance<
+  TFunctionName extends 'allowance',
+  TSelectData = ReadContractResult<typeof wethABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractRead({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'allowance',
+    ...config,
+  } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethWrite<
+  TFunctionName extends string,
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof wethAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof wethABI, string>['request']['abi'],
+        TFunctionName,
+        TMode
+      > & { address?: Address; chainId?: TChainId }
+    : UseContractWriteConfig<typeof wethABI, TFunctionName, TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+      } = {} as any
+) {
+  return useContractWrite<typeof wethABI, TFunctionName, TMode>({
+    abi: wethABI,
+    address: wethAddress[1],
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"approve"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethApprove<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof wethAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof wethABI, 'approve'>['request']['abi'],
+        'approve',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'approve' }
+    : UseContractWriteConfig<typeof wethABI, 'approve', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'approve'
+      } = {} as any
+) {
+  return useContractWrite<typeof wethABI, 'approve', TMode>({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'approve',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transferFrom"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethTransferFrom<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof wethAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof wethABI, 'transferFrom'>['request']['abi'],
+        'transferFrom',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'transferFrom' }
+    : UseContractWriteConfig<typeof wethABI, 'transferFrom', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'transferFrom'
+      } = {} as any
+) {
+  return useContractWrite<typeof wethABI, 'transferFrom', TMode>({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'transferFrom',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"withdraw"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethWithdraw<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof wethAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof wethABI, 'withdraw'>['request']['abi'],
+        'withdraw',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'withdraw' }
+    : UseContractWriteConfig<typeof wethABI, 'withdraw', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'withdraw'
+      } = {} as any
+) {
+  return useContractWrite<typeof wethABI, 'withdraw', TMode>({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'withdraw',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transfer"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethTransfer<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof wethAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof wethABI, 'transfer'>['request']['abi'],
+        'transfer',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'transfer' }
+    : UseContractWriteConfig<typeof wethABI, 'transfer', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'transfer'
+      } = {} as any
+) {
+  return useContractWrite<typeof wethABI, 'transfer', TMode>({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'transfer',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"deposit"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethDeposit<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof wethAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof wethABI, 'deposit'>['request']['abi'],
+        'deposit',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'deposit' }
+    : UseContractWriteConfig<typeof wethABI, 'deposit', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'deposit'
+      } = {} as any
+) {
+  return useContractWrite<typeof wethABI, 'deposit', TMode>({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'deposit',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function usePrepareWethWrite<TFunctionName extends string>(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof wethABI, TFunctionName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: wethABI,
+    address: wethAddress[1],
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof wethABI, TFunctionName>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"approve"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function usePrepareWethApprove(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof wethABI, 'approve'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'approve',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof wethABI, 'approve'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transferFrom"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function usePrepareWethTransferFrom(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof wethABI, 'transferFrom'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'transferFrom',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof wethABI, 'transferFrom'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"withdraw"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function usePrepareWethWithdraw(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof wethABI, 'withdraw'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'withdraw',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof wethABI, 'withdraw'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transfer"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function usePrepareWethTransfer(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof wethABI, 'transfer'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'transfer',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof wethABI, 'transfer'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"deposit"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function usePrepareWethDeposit(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof wethABI, 'deposit'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: wethABI,
+    address: wethAddress[1],
+    functionName: 'deposit',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof wethABI, 'deposit'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethEvent<TEventName extends string>(
+  config: Omit<UseContractEventConfig<typeof wethABI, TEventName>, 'abi' | 'address'> & {
+    chainId?: keyof typeof wethAddress
+  } = {} as any
+) {
+  return useContractEvent({
+    abi: wethABI,
+    address: wethAddress[1],
+    ...config,
+  } as UseContractEventConfig<typeof wethABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Approval"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethApprovalEvent(
+  config: Omit<
+    UseContractEventConfig<typeof wethABI, 'Approval'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractEvent({
+    abi: wethABI,
+    address: wethAddress[1],
+    eventName: 'Approval',
+    ...config,
+  } as UseContractEventConfig<typeof wethABI, 'Approval'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Transfer"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethTransferEvent(
+  config: Omit<
+    UseContractEventConfig<typeof wethABI, 'Transfer'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractEvent({
+    abi: wethABI,
+    address: wethAddress[1],
+    eventName: 'Transfer',
+    ...config,
+  } as UseContractEventConfig<typeof wethABI, 'Transfer'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Deposit"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethDepositEvent(
+  config: Omit<
+    UseContractEventConfig<typeof wethABI, 'Deposit'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractEvent({
+    abi: wethABI,
+    address: wethAddress[1],
+    eventName: 'Deposit',
+    ...config,
+  } as UseContractEventConfig<typeof wethABI, 'Deposit'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Withdrawal"`.
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ */
+export function useWethWithdrawalEvent(
+  config: Omit<
+    UseContractEventConfig<typeof wethABI, 'Withdrawal'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof wethAddress } = {} as any
+) {
+  return useContractEvent({
+    abi: wethABI,
+    address: wethAddress[1],
+    eventName: 'Withdrawal',
+    ...config,
+  } as UseContractEventConfig<typeof wethABI, 'Withdrawal'>)
+}
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__.

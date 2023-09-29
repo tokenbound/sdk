@@ -26,6 +26,12 @@ export default defineConfig({
             [1]: '0x7c74dfe39976dc395529c14e54a597809980e01c',
           },
         },
+        {
+          name: 'WETH_',
+          address: {
+            [1]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+          },
+        },
       ],
     }),
     react({

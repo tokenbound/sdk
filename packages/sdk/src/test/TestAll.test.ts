@@ -12,19 +12,28 @@ import {
   Log,
   parseUnits,
   formatEther,
+  getContract,
   // encodeAbiParameters,
   // parseAbiParameters,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
-import { ADDRESS_REGEX, ANVIL_ACCOUNTS, ANVIL_RPC_URL } from './constants'
+import {
+  ADDRESS_REGEX,
+  ANVIL_ACCOUNTS,
+  ANVIL_RPC_URL,
+  WETH_CONTRACT_ADDRESS,
+} from './constants'
 import { walletClientToEthers5Signer, walletClientToEthers6Signer } from '../utils'
 import {
   // debugTransaction,
+  ethToWei,
   getPublicClient,
+  getWETHBalance,
   getZora721Balance,
 } from './utils'
 import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721 } from './config'
+import { wethABI } from './wagmi-cli-hooks/generated'
 
 const TIMEOUT = 60000 // default 10000
 
@@ -122,8 +131,6 @@ function runTxTests({
         })
 
         // Prepare mint transaction
-        // const mintPrice = BigInt(0)
-        // const mintQuantity = 2
         const encodedMintFunctionData = encodeFunctionData({
           abi: zora721.abi,
           functionName: 'purchase',
@@ -434,8 +441,110 @@ function runTxTests({
     //   })
     // })
 
+    it('can transferERC20 with the TBA', async () => {
+      const depositEthValue = 0.25
+      const depositWeiValue = ethToWei(depositEthValue)
+      let wethDepositHash: `0x${string}`
+      let wethTransferHash: `0x${string}`
+
+      const tbaWETHInitial = await getWETHBalance({
+        publicClient,
+        walletAddress: zora721.tbaAddress,
+      })
+
+      // Prepare encoded WETH transfer to TBA
+      const wethTransferCallData = encodeFunctionData({
+        abi: wethABI,
+        functionName: 'transfer',
+        args: [zora721.tbaAddress, depositWeiValue],
+      })
+
+      if (walletClient) {
+        const wethContract = getContract({
+          address: WETH_CONTRACT_ADDRESS,
+          abi: wethABI,
+          walletClient,
+        })
+
+        // Convert ETH to WETH in ANVIL_USER_0 wallet
+        wethDepositHash = await wethContract.write.deposit({
+          account: ANVIL_USER_0,
+          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+          value: depositWeiValue,
+        })
+
+        // Transfer WETH from ANVIL_USER_0 to TBA
+        wethTransferHash = await walletClient.sendTransaction({
+          account: walletClient.account!,
+          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+          to: WETH_CONTRACT_ADDRESS,
+          value: 0n,
+          data: wethTransferCallData,
+        })
+      } else if (signer) {
+        // Convert ETH to WETH in ANVIL_USER_0 wallet
+        wethDepositHash = await signer
+          .sendTransaction({
+            to: WETH_CONTRACT_ADDRESS,
+            value: depositWeiValue,
+          })
+          .then((tx: providers.TransactionResponse) => tx.hash)
+
+        // Transfer WETH from ANVIL_USER_0 to TBA
+        wethTransferHash = await signer
+          .sendTransaction({
+            to: WETH_CONTRACT_ADDRESS,
+            value: BigInt(0),
+            data: wethTransferCallData,
+          })
+          .then((tx: providers.TransactionResponse) => tx.hash)
+      }
+
+      const tbaWETHReceived = await getWETHBalance({
+        publicClient,
+        walletAddress: zora721.tbaAddress,
+      })
+
+      // Transfer WETH from TBA to ANVIL_USER_1
+      const transferredERC20Hash = await tokenboundClient.transferERC20({
+        account: zora721.tbaAddress,
+        amount: depositEthValue,
+        recipientAddress: ANVIL_USER_1,
+        erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+        erc20tokenDecimals: 18,
+      })
+
+      const tbaWETHFinal = await getWETHBalance({
+        publicClient,
+        walletAddress: zora721.tbaAddress,
+      })
+
+      const anvilUser1WETHBalance = await getWETHBalance({
+        publicClient,
+        walletAddress: ANVIL_USER_1,
+      })
+
+      console.log(
+        'TBA WETH INITIAL: ',
+        formatEther(tbaWETHInitial),
+        'TBA RECEIVED: ',
+        formatEther(tbaWETHReceived),
+        'AFTER: ',
+        formatEther(tbaWETHFinal),
+        'ANVIL USER 1 BALANCE: ',
+        formatEther(anvilUser1WETHBalance)
+      )
+
+      await waitFor(() => {
+        expect(wethDepositHash).toMatch(ADDRESS_REGEX)
+        expect(wethTransferHash).toMatch(ADDRESS_REGEX)
+        expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
+        expect(tbaWETHReceived).toBe(depositWeiValue)
+        expect(anvilUser1WETHBalance).toBe(depositWeiValue)
+      })
+    })
+
     test.todo('can transferNFT with an 1155', async () => {})
-    test.todo('can transferERC20', async () => {})
     test.todo('can sign a message', async () => {})
   })
 }
