@@ -47,7 +47,20 @@ These tests require a local Anvil node so test transactions can be run against a
 Thanks to [@tmm](https://github.com/tmm) for sharing [testing-wagmi](https://github.com/tmm/testing-wagmi) for reference.
 ### Run Tests
 
-1. Spin up an Anvil instance and start Vitest from the SDK root:
+1. Set up environment variables in `.env.test`
+
+```bash
+# VITE_ prefix is required for Vite to pick up the env vars
+
+# PRIVATE KEYS CAN GO HERE
+VITE_PRIVATE_ALCHEMY_API_KEY=REPLACE_WITH_YOUR_ALCHEMY_API_KEY
+
+# PUBLIC ENV VARS, add to `.env`:
+VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.alchemyapi.io/v2/$VITE_PRIVATE_ALCHEMY_API_KEY
+VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=17680029
+```
+
+2. Spin up an Anvil instance and start Vitest from the SDK root:
 
 ```bash
 pnpm test
