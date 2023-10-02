@@ -68,8 +68,8 @@ The TokenboundClient is instantiated with an object containing at most two param
 `walletClient` (optional) OR
 `signer` (optional)
 
-Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) OR an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. Use of Ethers signer is recommended only for legacy projects.
-For easy reference, we've prepared [SDK code examples](https://github.com/tokenbound/sdk/tree/main/examples) for each method.
+Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) OR an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
+For easy reference, we've prepared [SDK code examples](https://github.com/tokenbound/sdk/tree/main/examples) for a few simple SDK interactions.
 
 ```ts copy
 const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 })
@@ -259,8 +259,6 @@ console.log(preparedCall) //...
 
 ### executeCall
 
-Performs an arbitrary contract call against any contract. This means any onchain action you can perform with your EOA wallet can be done with your NFT's Tokenbound account. You can mint or transfer NFTs, approve contracts, make and vote on DAO proposals, and much more.
-
 **Returns** a hash of the transaction that executed a call using a Tokenbound account.
 
 ```ts copy
@@ -268,48 +266,17 @@ const executedCall = await tokenboundClient.executeCall({
   account: "<account_address>",
   to: "<recipient_address>",
   value: "<wei_value>",
-  data: "<encoded_call_data>",
+  data: "<data>",
 })
 
 console.log(executedCall) //...
 ```
 
-| Parameter           | Description                     | Type       |
-| ------------------- | ------------------------------- | ---------- |
-| **account**         | The Tokenbound account address. | string     |
-| **to**              | The recipient address.          | string     |
-| **value**           | The value to send, in wei.      | bigint     |
-| **data** (optional) | The ABI-encoded call data       | 0x{string} |
-
-Here's a more robust example, where we see how to use your TBA to mint an NFT using Zora's [ERC721Drop contract](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c#code) by calling the contract's `purchase` function.
-
-```ts copy
-// Webb's First Deep Field (unlimited mint drop):
-// https://zora.co/collect/eth:0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d
-
-const zora721 = {
-  abi: zora721DropABI,
-  proxyContractAddress: getAddress(
-    "0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d"
-  ),
-  mintPrice: BigInt(0),
-  quantity: 2,
-  tbaAddress: getAddress("0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c"),
-}
-
-const encodedMintFunctionData = encodeFunctionData({
-  abi: zora721.abi,
-  functionName: "purchase",
-  args: [BigInt(zora721.quantity)],
-})
-
-const mintToTBATxHash = await tokenboundClient.executeCall({
-  account: zora721.tbaAddress,
-  to: zora721.proxyContractAddress,
-  value: zora721.mintPrice * BigInt(zora721.quantity),
-  data: encodedMintFunctionData,
-})
-```
+| Parameter   | Description                     | Type   |
+| ----------- | ------------------------------- | ------ |
+| **account** | The Tokenbound account address. | string |
+| **to**      | The recipient address.          | string |
+| **value**   | The value to send, in wei.      | bigint |
 
 ---
 
@@ -341,6 +308,58 @@ console.log(transferNFT) //...
 
 ---
 
+### transferERC20
+
+Transfer ERC-20 tokens to a recipient from a Tokenbound account
+
+**Returns** a Promise that resolves to the transaction hash of the transfer
+
+```typescript
+const transferERC20 = await tokenboundClient.transferERC20({
+  account: "<tokenbound_account_address>",
+  amount: 0.1,
+  recipientAddress: "<recipient_address>",
+  erc20tokenAddress: "<erc20_token_address>",
+  erc20tokenDecimals: "<erc20_token_decimals>",
+})
+
+console.log(transferERC20) //...
+```
+
+| Parameter              | Description                                    | Type   |
+| ---------------------- | ---------------------------------------------- | ------ |
+| **account**            | The Tokenbound account address.                | string |
+| **amount**             | Amount, in decimal form (eg. 0.1 USDC).        | number |
+| **recipientAddress**   | The recipient address.                         | string |
+| **erc20tokenAddress**  | The ERC-20 token address.                      | string |
+| **erc20tokenDecimals** | The ERC-20 token decimal specification (1-18). | number |
+
+---
+
+### transferETH
+
+Transfer ETH to a recipient from a Tokenbound account
+
+**Returns** a Promise that resolves to the transaction hash of the transfer
+
+```typescript
+const transferETH = await tokenboundClient.transferETH({
+  account: "<tokenbound_account_address>",
+  amount: 0.01,
+  recipientAddress: "<recipient_address>",
+})
+
+console.log(transferERC20) //...
+```
+
+| Parameter            | Description                             | Type   |
+| -------------------- | --------------------------------------- | ------ |
+| **account**          | The Tokenbound account address.         | string |
+| **amount**           | Amount, in decimal form (eg. 0.01 ETH). | number |
+| **recipientAddress** | The recipient address.                  | string |
+
+---
+
 ### deconstructBytecode
 
 Deconstructs the bytecode of a Tokenbound account into its constituent parts.
@@ -356,7 +375,7 @@ Deconstructs the bytecode of a Tokenbound account into its constituent parts.
 - **_chainId_**: The chain ID
 
 ```ts
-const segmentedBytecode = await client.deconstructBytecode({
+const segmentedBytecode = await tokenboundClient.deconstructBytecode({
   accountAddress: "<account_address>",
 })
 
@@ -366,3 +385,25 @@ console.log(segmentedBytecode)
 | Parameter          | Description                     | Type   |
 | ------------------ | ------------------------------- | ------ |
 | **accountAddress** | The Tokenbound account address. | string |
+
+---
+
+### signMessage
+
+Gets an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) formatted signature for a message.
+
+Note that this method is just for convenience. Since your EOA wallet is responsible for signing, messages can also be signed explicitly using your EOA wallet address in viem or Ethers.
+
+**Returns** a Promise that resolves to a signed Hex string
+
+```ts
+const signedMessage = await tokenboundClient.signMessage({
+  message: "Ice cream so good",
+})
+
+console.log(signedMessage)
+```
+
+| Parameter   | Description               | Type   |
+| ----------- | ------------------------- | ------ |
+| **message** | The message to be signed. | string |
