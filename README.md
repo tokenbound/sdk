@@ -49,7 +49,7 @@ Thanks to [@tmm](https://github.com/tmm) for sharing [testing-wagmi](https://git
 
 1. Set up environment variables in `.env.test`
 
-```bash
+```ts copy
 # VITE_ prefix is required for Vite to pick up the env vars
 
 # PRIVATE KEYS CAN GO HERE
@@ -62,7 +62,7 @@ VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=17680029
 
 2. Spin up an Anvil instance and start Vitest from the SDK root:
 
-```bash
+```bash copy
 pnpm test
 ```
 
