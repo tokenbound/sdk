@@ -73,6 +73,8 @@ function runTxTests({
   walletClient?: WalletClient
   signer?: any
 }) {
+  const testInViemOnly = walletClient ? it : it.skip
+
   describe(testName, () => {
     const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
 
@@ -428,18 +430,18 @@ function runTxTests({
     //   })
     // })
 
-    // TODO: This test is broken in Ethers
-    // it('can sign a message', async () => {
-    //   const signedMessageHash = await tokenboundClient.signMessage({
-    //     message: 'Sign me',
-    //   })
+    // Test signing in viem only. Ethers 5/6 don't appear to support signing messages via personal_sign with this testing configuration.
+    testInViemOnly('can sign a message', async () => {
+      const signedMessageHash = await tokenboundClient.signMessage({
+        message: 'Sign me',
+      })
 
-    //   console.log('SIGNED MESSAGE: ', signedMessageHash)
+      console.log('SIGNED MESSAGE: ', signedMessageHash)
 
-    //   await waitFor(() => {
-    //     expect(signedMessageHash).toMatch(ADDRESS_REGEX)
-    //   })
-    // })
+      await waitFor(() => {
+        expect(signedMessageHash).toMatch(ADDRESS_REGEX)
+      })
+    })
 
     it('can transferERC20 with the TBA', async () => {
       const depositEthValue = 0.25
