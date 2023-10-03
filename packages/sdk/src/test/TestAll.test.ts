@@ -483,9 +483,22 @@ function runTxTests({
       })
     })
 
+    // Test signing Uint8Array message as raw in viem only.
+    testInViemOnly('can sign a Uint8Array message as raw', async () => {
+      const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
+
+      const rawUint8Hash = await tokenboundClient.signMessage({
+        message: { raw: uint8ArrayMessage },
+      })
+
+      await waitFor(() => {
+        expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
+      })
+    })
+
     // Test signing ArrayLike message in viem only.
     testInViemOnly(
-      'can identify an incorrectly-typed ArrayLike message for signing',
+      'throws when viem incorrectly receives an ArrayLike message for signing',
       async () => {
         vi.spyOn(console, 'error')
         const arrayMessage: ArrayLike<number> = [72, 101, 108, 108, 111] // "Hello" in ASCII
@@ -500,7 +513,7 @@ function runTxTests({
 
     // Test signing Uint8Array message in viem only.
     testInViemOnly(
-      'can identify an incorrectly-typed Uint8Array message for signing',
+      'throws when viem incorrectly receives an Uint8Array message for signing',
       async () => {
         const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
 
@@ -511,19 +524,6 @@ function runTxTests({
         ).rejects.toThrowError()
       }
     )
-
-    // Test signing Uint8Array message as raw in viem only.
-    testInViemOnly('can sign a Uint8Array message as raw', async () => {
-      const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
-
-      const rawUint8Hash = await tokenboundClient.signMessage({
-        message: { raw: uint8ArrayMessage },
-      })
-
-      await waitFor(() => {
-        expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
-      })
-    })
 
     it('can transferERC20 with the TBA', async () => {
       const depositEthValue = 0.25
