@@ -8,6 +8,7 @@ import {
   getAddress,
   encodeFunctionData,
   parseUnits,
+  SignableMessage,
 } from 'viem'
 import {
   erc6551AccountAbi,
@@ -42,8 +43,16 @@ import {
   SegmentedERC6551Bytecode,
   TokenboundAccountNFT,
   TokenboundClientOptions,
+  EthersSignableMessage,
 } from './types'
-import { chainIdToChain, segmentBytecode } from './utils'
+import {
+  chainIdToChain,
+  segmentBytecode,
+  normalizeMessage,
+  isEthers5SignableMessage,
+  isEthers6SignableMessage,
+  isViemSignableMessage,
+} from './utils'
 // import { normalize } from 'viem/ens'
 
 class TokenboundClient {
@@ -503,11 +512,19 @@ class TokenboundClient {
 
     try {
       if (this.signer) {
-        return await this.signer.signMessage(message)
+        // Normalize message so it'll be compatible with Ethers 5 and 6
+        if (!isEthers5SignableMessage && !isEthers6SignableMessage) {
+          throw new Error('Message is not a valid Ethers signable message.')
+        }
+        const normalizedMessage = normalizeMessage(message as EthersSignableMessage)
+        return await this.signer.signMessage(normalizedMessage)
       } else if (this.walletClient) {
+        if (!isViemSignableMessage(message)) {
+          throw new Error('Message is not a valid viem signable message.')
+        }
         return await this.walletClient.signMessage({
           account: this.walletClient.account!,
-          message,
+          message: message as SignableMessage,
         })
       }
       throw new Error('No wallet client or signer available.')

@@ -1,5 +1,6 @@
 import { WalletClient, PublicClient } from 'viem'
 import { Prettify } from './prettify'
+import { UniversalSignableMessage } from './messages'
 
 export const NFTTokenType = {
   ERC721: 'ERC721',
@@ -100,5 +101,5 @@ export type BytecodeParams = Prettify<{
 }>
 
 export type SignMessageParams = Prettify<{
-  message: string
+  message: UniversalSignableMessage
 }>

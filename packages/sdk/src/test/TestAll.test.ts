@@ -1,7 +1,7 @@
 // This test suite is for testing the SDK methods with
 // viem walletClient + publicClient and with Ethers 5/6.
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { providers } from 'ethers'
 import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
@@ -467,6 +467,61 @@ function runTxTests({
 
       await waitFor(() => {
         expect(signedMessageHash).toMatch(ADDRESS_REGEX)
+      })
+    })
+
+    // Test signing hex message in viem only.
+    testInViemOnly('can sign a hexified message', async () => {
+      const hexSignedMessageHash = await tokenboundClient.signMessage({
+        message: { raw: '0x68656c6c6f20776f726c64' },
+      })
+
+      console.log('HEX SIGNED MESSAGE: ', hexSignedMessageHash)
+
+      await waitFor(() => {
+        expect(hexSignedMessageHash).toMatch(ADDRESS_REGEX)
+      })
+    })
+
+    // Test signing ArrayLike message in viem only.
+    testInViemOnly(
+      'can identify an incorrectly-typed ArrayLike message for signing',
+      async () => {
+        vi.spyOn(console, 'error')
+        const arrayMessage: ArrayLike<number> = [72, 101, 108, 108, 111] // "Hello" in ASCII
+
+        await expect(() =>
+          tokenboundClient.signMessage({
+            message: arrayMessage,
+          })
+        ).rejects.toThrowError()
+      }
+    )
+
+    // Test signing Uint8Array message in viem only.
+    testInViemOnly(
+      'can identify an incorrectly-typed Uint8Array message for signing',
+      async () => {
+        const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
+
+        await expect(() =>
+          tokenboundClient.signMessage({
+            message: uint8ArrayMessage,
+          })
+        ).rejects.toThrowError()
+      }
+    )
+
+    // Test signing Uint8Array message as raw in viem only.
+    testInViemOnly('can sign a Uint8Array message as raw', async () => {
+      const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
+
+      const rawUint8Hash = await tokenboundClient.signMessage({
+        message: { raw: uint8ArrayMessage },
+      })
+
+      await waitFor(() => {
+        expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
       })
     })
 

@@ -405,6 +405,16 @@ console.log(segmentedBytecode)
 
 Gets an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) formatted signature for a message.
 
+The message to be signed is typed as `UniversalSignableMessage` so that it can elegantly handle Ethers 5, Ethers 6, and viem's expected types for all signable formats. Check the types associated with signMessage for [viem](https://viem.sh/docs/actions/wallet/signMessage.html), [Ethers 5](https://docs.ethers.org/v5/api/signer/#Signer-signMessage), and [Ethers 6](https://docs.ethers.org/v6/api/providers/#Signer-signMessage) as needed.
+
+```ts
+// Ethers 5
+const arrayMessage: ArrayLike<number> = [72, 101, 108, 108, 111] // "Hello" in ASCII
+
+// Ethers 5 or Ethers 6
+const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
+```
+
 Note that this method is just for convenience. Since your EOA wallet is responsible for signing, messages can also be signed explicitly using your EOA wallet address in viem or Ethers.
 
 **Returns** a Promise that resolves to a signed Hex string
@@ -415,8 +425,22 @@ const signedMessage = await tokenboundClient.signMessage({
 })
 
 console.log(signedMessage)
+
+// Works in Ethers 5 or 6, throws in viem
+const signedUint8Message = await tokenboundClient.signMessage({
+  message: uint8ArrayMessage,
+})
+
+console.log(signedUint8Message)
+
+// Works in viem
+const signedRawUint8Message = await tokenboundClient.signMessage({
+  message: {raw: uint8ArrayMessage},
+})
+
+console.log(signedUint8Message)
 ```
 
-| Parameter   | Description               | Type   |
-| ----------- | ------------------------- | ------ |
-| **message** | The message to be signed. | string |
+| Parameter   | Description               | Type                     |
+| ----------- | ------------------------- | ------------------------ |
+| **message** | The message to be signed. | UniversalSignableMessage |

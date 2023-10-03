@@ -19,8 +19,13 @@ import {
   CreateAccountParams,
   PrepareExecuteCallParams,
   ExecuteCallParams,
+  SignMessageParams,
   ComputeAccountParams,
   GetCreationCodeParams,
+  ERC20TransferParams,
+  ETHTransferParams,
+  NFTTransferParams,
+  BytecodeParams,
 } from './types'
 
 import { TokenboundClient } from './TokenboundClient'
@@ -49,4 +54,9 @@ export type {
   ExecuteCallParams,
   ComputeAccountParams,
   GetCreationCodeParams,
+  BytecodeParams,
+  SignMessageParams,
+  ERC20TransferParams,
+  ETHTransferParams,
+  NFTTransferParams,
 }
