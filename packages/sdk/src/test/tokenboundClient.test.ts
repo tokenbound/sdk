@@ -1,113 +1,98 @@
-import { test, expect } from "vitest"
-import { 
-    isHex,
-    isAddress
-} from "viem"
+import { test, expect } from 'vitest'
+import { isHex, isAddress } from 'viem'
 
 import { TokenboundClient } from '../TokenboundClient'
-import { TEST_CONFIG } from "./config"
-import { erc6551AccountImplementationAddressV1 } from "../constants"
+import { TEST_CONFIG } from './config'
+import { erc6551AccountImplementationAddressV1 } from '../constants'
 
-const tokenboundClient = new TokenboundClient({ 
-    chainId: TEST_CONFIG.CHAIN_ID
- })
-
-test("tokenboundClient.getAccount", () => {
-    const result = tokenboundClient.getAccount({
-        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-        tokenId: TEST_CONFIG.TOKEN_ID
-    })
-    expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
+const tokenboundClient = new TokenboundClient({
+  chainId: TEST_CONFIG.CHAIN_ID,
 })
 
-test.todo("tokenboundClient.getCreationCode")
-
-test("tokenboundClient.prepareExecuteCall", async () => {
-
-    const preparedCall = await tokenboundClient.prepareExecuteCall({
-        account: TEST_CONFIG.TB_ACCOUNT,
-        to: TEST_CONFIG.RECIPIENT_ADDRESS,
-        value: 0n,
-        data: TEST_CONFIG.EXAMPLE_DATA
-    })
-
-    expect(isAddress(preparedCall.to)).toEqual(true)
-    expect(typeof preparedCall.value).toEqual('bigint')
-    expect(isHex(preparedCall.data)).toEqual(true)
+test('tokenboundClient.getAccount', () => {
+  const result = tokenboundClient.getAccount({
+    tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+    tokenId: TEST_CONFIG.TOKEN_ID,
+  })
+  expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
 })
 
-test.todo("tokenboundClient.executeCall")
+test.todo('tokenboundClient.getCreationCode')
 
-test("tokenboundClient.prepareCreateAccount", async () => {
+test('tokenboundClient.prepareExecuteCall', async () => {
+  const preparedCall = await tokenboundClient.prepareExecuteCall({
+    account: TEST_CONFIG.TB_ACCOUNT,
+    to: TEST_CONFIG.RECIPIENT_ADDRESS,
+    value: 0n,
+    data: TEST_CONFIG.EXAMPLE_DATA,
+  })
 
-    const preparedAccount = await tokenboundClient.prepareCreateAccount({
-        tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-        tokenId: TEST_CONFIG.TOKEN_ID,
-        }
-    )
-
-    expect(isAddress(preparedAccount.to)).toEqual(true)
-    expect(typeof preparedAccount.value).toEqual('bigint')
-    expect(isHex(preparedAccount.data)).toEqual(true)
+  expect(isAddress(preparedCall.to)).toEqual(true)
+  expect(typeof preparedCall.value).toEqual('bigint')
+  expect(isHex(preparedCall.data)).toEqual(true)
 })
 
-test("tokenboundClient.checkAccountDeployment", async () => {
+test.todo('tokenboundClient.executeCall')
 
-    const isSapienz0Deployed = await tokenboundClient.checkAccountDeployment({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
-    })
-    const isSapienz1Deployed = await tokenboundClient.checkAccountDeployment({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_1,
-    })
+test('tokenboundClient.prepareCreateAccount', async () => {
+  const preparedAccount = await tokenboundClient.prepareCreateAccount({
+    tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
+    tokenId: TEST_CONFIG.TOKEN_ID,
+  })
 
-    expect(isSapienz0Deployed).toEqual(true)
-    expect(isSapienz1Deployed).toEqual(false)
+  expect(isAddress(preparedAccount.to)).toEqual(true)
+  expect(typeof preparedAccount.value).toEqual('bigint')
+  expect(isHex(preparedAccount.data)).toEqual(true)
 })
 
-test("tokenboundClient.deconstructBytecode", async () => {
+test('tokenboundClient.checkAccountDeployment', async () => {
+  const isSapienz0Deployed = await tokenboundClient.checkAccountDeployment({
+    accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+  })
+  const isSapienz1Deployed = await tokenboundClient.checkAccountDeployment({
+    accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_1,
+  })
 
-    const bytecode = await tokenboundClient.deconstructBytecode({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
-    })
-
-    if(!bytecode) throw new Error("Bytecode is undefined")
-    
-    const {
-        chainId,
-        implementationAddress,
-        tokenContract,
-        tokenId,
-        salt,
-        erc1167Header,
-        erc1167Footer
-    } = bytecode
-
-    expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
-    expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
-    expect(implementationAddress).toEqual(erc6551AccountImplementationAddressV1)
-    expect(erc1167Footer).toEqual(TEST_CONFIG.ERC1167_FOOTER)
-    expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
-    expect(tokenId).toEqual('0')
-    expect(salt).toEqual(0)
-
+  expect(isSapienz0Deployed).toEqual(true)
+  expect(isSapienz1Deployed).toEqual(false)
 })
 
-test("tokenboundClient.getNFT", async () => {
+test('tokenboundClient.deconstructBytecode', async () => {
+  const bytecode = await tokenboundClient.deconstructBytecode({
+    accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+  })
 
-    const nft = await tokenboundClient.getNFT({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
-    })
+  if (!bytecode) throw new Error('Bytecode is undefined')
 
-    if(!nft) throw new Error("Bytecode is undefined")
-    
-    const {
-        chainId,
-        tokenContract,
-        tokenId,
-    } = nft
+  const {
+    chainId,
+    implementationAddress,
+    tokenContract,
+    tokenId,
+    salt,
+    erc1167Header,
+    erc1167Footer,
+  } = bytecode
 
-    expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
-    expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
-    expect(tokenId).toEqual('0')
-    
+  expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
+  expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
+  expect(implementationAddress).toEqual(erc6551AccountImplementationAddressV1)
+  expect(erc1167Footer).toEqual(TEST_CONFIG.ERC1167_FOOTER)
+  expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
+  expect(tokenId).toEqual('0')
+  expect(salt).toEqual(0)
+})
+
+test('tokenboundClient.getNFT', async () => {
+  const nft = await tokenboundClient.getNFT({
+    accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+  })
+
+  if (!nft) throw new Error('Bytecode is undefined')
+
+  const { chainId, tokenContract, tokenId } = nft
+
+  expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
+  expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
+  expect(tokenId).toEqual('0')
 })
