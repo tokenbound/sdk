@@ -1,0 +1,38 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18]
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up PNPM
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+
+      # Navigate to the specific package directory within the monorepo
+      - name: Change to package directory
+        run: cd packages/sdk
+
+      - name: Install dependencies and build 🔧
+        run: pnpm ci && pnpm build
+
+      - name: Publish package on NPM 📦
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
