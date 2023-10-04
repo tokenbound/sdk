@@ -76,7 +76,7 @@ Husky has been configured to run a pre-commit hook to ensure tests pass.
 
 ### TokenboundClient
 
-The TokenboundClient is instantiated with an object containing at most two parameters:
+The TokenboundClient is instantiated with an object containing two parameters:
 `chainId` (mandatory)
 `walletClient` (optional) OR
 `signer` (optional)
@@ -121,14 +121,14 @@ It is possible to implement your own custom implementation of an [account](/cont
 import { TokenboundClient } from "@tokenbound/sdk"
 
 const tokenboundClient = new TokenboundClient({
-  signer: "<signer>",
+  walletClient: "<walletClient>",
   chainId: "<chainId>",
   implementationAddress: "<custom_implementation_address>",
 })
 
 // Custom implementation AND custom registry (uncommon for most implementations)
 const tokenboundClientWithCustomRegistry = new TokenboundClient({
-  signer: "<signer>",
+  walletClient: "<walletClient>",
   chainId: "<chainId>",
   implementationAddress: "<custom_implementation_address>",
   registryAddress: "<custom_registry_address>",
@@ -136,6 +136,31 @@ const tokenboundClientWithCustomRegistry = new TokenboundClient({
 ```
 
 Read more [here](/guides/custom-accounts)
+
+---
+
+### Custom PublicClient or RPC URL
+
+If using viem, you can specify a custom PublicClient RPC URL for use by the TokenboundClient's internal PublicClient.
+
+Alternately, you can simply configure and pass your own publicClient. This option was added to enable internal testing on local chains.
+
+These options won't be useful to most users.
+
+| Parameter              |          |
+| ---------------------- | -------- |
+| **publicClientRPCUrl** | optional |
+| **publicClient**       | optional |
+
+```javascript
+import { TokenboundClient } from "@tokenbound/sdk"
+
+const tokenboundClient = new TokenboundClient({
+  walletClient: "<walletClient>",
+  chainId: "<chainId>",
+  publicClientRPCUrl: "<custom_rpc_url>",
+})
+```
 
 ---
 
@@ -272,6 +297,8 @@ console.log(preparedCall) //...
 
 ### executeCall
 
+Performs an arbitrary contract call against any contract. This means any onchain action you can perform with your EOA wallet can be done with your NFT's Tokenbound account. You can mint or transfer NFTs, approve contracts, make and vote on DAO proposals, and much more.
+
 **Returns** a hash of the transaction that executed a call using a Tokenbound account.
 
 ```ts copy
@@ -279,17 +306,48 @@ const executedCall = await tokenboundClient.executeCall({
   account: "<account_address>",
   to: "<recipient_address>",
   value: "<wei_value>",
-  data: "<data>",
+  data: "<encoded_call_data>",
 })
 
 console.log(executedCall) //...
 ```
 
-| Parameter   | Description                     | Type   |
-| ----------- | ------------------------------- | ------ |
-| **account** | The Tokenbound account address. | string |
-| **to**      | The recipient address.          | string |
-| **value**   | The value to send, in wei.      | bigint |
+| Parameter           | Description                     | Type          |
+| ------------------- | ------------------------------- | ------------- |
+| **account**         | The Tokenbound account address. | string        |
+| **to**              | The recipient address.          | string        |
+| **value**           | The value to send, in wei.      | bigint        |
+| **data** (optional) | The ABI-encoded call data       | `0x{string}`  |
+
+Here's a more robust example, where we see how to use your TBA to mint an NFT using Zora's [ERC721Drop contract](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c#code) by calling the contract's `purchase` function.
+
+```ts copy
+// Webb's First Deep Field (unlimited mint drop):
+// https://zora.co/collect/eth:0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d
+
+const zora721 = {
+  abi: zora721DropABI,
+  proxyContractAddress: getAddress(
+    "0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d"
+  ),
+  mintPrice: BigInt(0),
+  quantity: 2,
+  tbaAddress: getAddress("0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c"),
+}
+
+const encodedMintFunctionData = encodeFunctionData({
+  abi: zora721.abi,
+  functionName: "purchase",
+  args: [BigInt(zora721.quantity)],
+})
+
+const mintToTBATxHash = await tokenboundClient.executeCall({
+  account: zora721.tbaAddress,
+  to: zora721.proxyContractAddress,
+  value: zora721.mintPrice * BigInt(zora721.quantity),
+  data: encodedMintFunctionData,
+})
+```
 
 ---
 
@@ -321,6 +379,30 @@ console.log(transferNFT) //...
 
 ---
 
+### transferETH
+
+Transfer ETH to a recipient from a Tokenbound account
+
+**Returns** a Promise that resolves to the transaction hash of the transfer
+
+```typescript
+const transferETH = await tokenboundClient.transferETH({
+  account: "<tokenbound_account_address>",
+  amount: 0.01,
+  recipientAddress: "<recipient_address>",
+})
+
+console.log(transferERC20) //...
+```
+
+| Parameter            | Description                             | Type   |
+| -------------------- | --------------------------------------- | ------ |
+| **account**          | The Tokenbound account address.         | string |
+| **amount**           | Amount, in decimal form (eg. 0.01 ETH). | number |
+| **recipientAddress** | The recipient address.                  | string |
+
+---
+
 ### transferERC20
 
 Transfer ERC-20 tokens to a recipient from a Tokenbound account
@@ -349,35 +431,11 @@ console.log(transferERC20) //...
 
 ---
 
-### transferETH
-
-Transfer ETH to a recipient from a Tokenbound account
-
-**Returns** a Promise that resolves to the transaction hash of the transfer
-
-```typescript
-const transferETH = await tokenboundClient.transferETH({
-  account: "<tokenbound_account_address>",
-  amount: 0.01,
-  recipientAddress: "<recipient_address>",
-})
-
-console.log(transferERC20) //...
-```
-
-| Parameter            | Description                             | Type   |
-| -------------------- | --------------------------------------- | ------ |
-| **account**          | The Tokenbound account address.         | string |
-| **amount**           | Amount, in decimal form (eg. 0.01 ETH). | number |
-| **recipientAddress** | The recipient address.                  | string |
-
----
-
 ### deconstructBytecode
 
 Deconstructs the bytecode of a Tokenbound account into its constituent parts.
 
-**Returns** a Promise that resolves to a **SegmentedERC1155Bytecode** object, or null if the account is not deployed. The **SegmentedERC1155Bytecode** object contains the following properties:
+**Returns** a Promise that resolves to a **SegmentedERC6551Bytecode** object, or null if the account is not deployed. The **SegmentedERC6551Bytecode** object contains the following properties:
 
 - **_erc1167Header_**: ERC-1167 Header
 - **_implementationAddress_**: The ERC-6551 implementation address
