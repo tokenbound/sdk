@@ -630,7 +630,6 @@ function runTxTests({
 
     test.todo('can transferNFT with an 1155', async () => {})
     test.todo('can transfer with ENS', async () => {})
-    test.todo('can sign a message', async () => {})
   })
 }
 
