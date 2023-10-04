@@ -14,10 +14,10 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Set up PNPM
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      # - name: Set up PNPM
+      #   uses: pnpm/action-setup@v2
+      #   with:
+      #     version: 8
 
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -30,7 +30,8 @@ jobs:
         run: cd packages/sdk
 
       - name: Install dependencies and build 🔧
-        run: pnpm ci && pnpm build
+        run: npm ci && npm build
+        # run: pnpm ci && pnpm build // pnpm ci not yet implemented: https://github.com/pnpm/pnpm/issues/6100
 
       - name: Publish package on NPM 📦
         run: npm publish
