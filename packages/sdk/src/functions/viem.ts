@@ -193,13 +193,17 @@ export async function executeCall(
   data: string,
   client: WalletClient
 ) {
-  const registry = getContract({
+  const accountInstance = getContract({
     address: account as `0x${string}`,
     abi: erc6551AccountAbi,
     walletClient: client,
   })
 
-  return registry.write.executeCall([to as `0x${string}`, value, data as `0x${string}`])
+  return accountInstance.write.executeCall([
+    to as `0x${string}`,
+    value,
+    data as `0x${string}`,
+  ])
 }
 
 /**

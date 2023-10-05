@@ -113,55 +113,6 @@ const tokenBoundAccount = tokenboundClient.getAccount({
 console.log(tokenBoundAccount) //0x1a2...3b4cd
 ```
 
-### Custom Account Implementation
-
-It is possible to implement your own custom implementation of an [account](/contracts/account) and make the SDK point to your custom implementation instead of the default implementation.
-
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk"
-
-const tokenboundClient = new TokenboundClient({
-  walletClient: "<walletClient>",
-  chainId: "<chainId>",
-  implementationAddress: "<custom_implementation_address>",
-})
-
-// Custom implementation AND custom registry (uncommon for most implementations)
-const tokenboundClientWithCustomRegistry = new TokenboundClient({
-  walletClient: "<walletClient>",
-  chainId: "<chainId>",
-  implementationAddress: "<custom_implementation_address>",
-  registryAddress: "<custom_registry_address>",
-})
-```
-
-Read more [here](/guides/custom-accounts)
-
----
-
-### Custom PublicClient or RPC URL
-
-If using viem, you can specify a custom PublicClient RPC URL for use by the TokenboundClient's internal PublicClient.
-
-Alternately, you can simply configure and pass your own publicClient. This option was added to enable internal testing on local chains.
-
-These options won't be useful to most users.
-
-| Parameter              |          |
-| ---------------------- | -------- |
-| **publicClientRPCUrl** | optional |
-| **publicClient**       | optional |
-
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk"
-
-const tokenboundClient = new TokenboundClient({
-  walletClient: "<walletClient>",
-  chainId: "<chainId>",
-  publicClientRPCUrl: "<custom_rpc_url>",
-})
-```
-
 ---
 
 ### getAccount
@@ -301,7 +252,7 @@ Performs an arbitrary contract call against any contract. This means any onchain
 
 **Returns** a hash of the transaction that executed a call using a Tokenbound account.
 
-```ts copy
+```typescript
 const executedCall = await tokenboundClient.executeCall({
   account: "<account_address>",
   to: "<recipient_address>",
@@ -309,7 +260,7 @@ const executedCall = await tokenboundClient.executeCall({
   data: "<encoded_call_data>",
 })
 
-console.log(executedCall) //...
+console.log(executedCall)
 ```
 
 | Parameter           | Description                     | Type          |
@@ -502,3 +453,55 @@ console.log(signedUint8Message)
 | Parameter   | Description               | Type                     |
 | ----------- | ------------------------- | ------------------------ |
 | **message** | The message to be signed. | UniversalSignableMessage |
+
+---
+
+## Advanced Usage
+### Custom Account Implementation
+
+It is possible to implement your own custom implementation of an [account](/contracts/account) and make the SDK point to your custom implementation instead of the default implementation.
+
+```javascript
+import { TokenboundClient } from "@tokenbound/sdk"
+
+const tokenboundClient = new TokenboundClient({
+  walletClient: "<walletClient>",
+  chainId: "<chainId>",
+  implementationAddress: "<custom_implementation_address>",
+})
+
+// Custom implementation AND custom registry (uncommon for most implementations)
+const tokenboundClientWithCustomRegistry = new TokenboundClient({
+  walletClient: "<walletClient>",
+  chainId: "<chainId>",
+  implementationAddress: "<custom_implementation_address>",
+  registryAddress: "<custom_registry_address>",
+})
+```
+
+Read more [here](/guides/custom-accounts)
+
+---
+
+### Custom PublicClient or RPC URL
+
+If using viem, you can specify a custom PublicClient RPC URL for use by the TokenboundClient's internal PublicClient.
+
+Alternately, you can simply configure and pass your own publicClient. This option was added to enable internal testing on local chains.
+
+These options won't be useful to most users.
+
+| Parameter              |          |
+| ---------------------- | -------- |
+| **publicClientRPCUrl** | optional |
+| **publicClient**       | optional |
+
+```javascript
+import { TokenboundClient } from "@tokenbound/sdk"
+
+const tokenboundClient = new TokenboundClient({
+  walletClient: "<walletClient>",
+  chainId: "<chainId>",
+  publicClientRPCUrl: "<custom_rpc_url>",
+})
+```
