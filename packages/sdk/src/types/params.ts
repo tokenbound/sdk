@@ -1,6 +1,6 @@
 import { WalletClient, PublicClient } from 'viem'
 import { Prettify } from './prettify'
-import { UniversalSignableMessage } from './messages'
+import { UniversalSignableMessage, CallOperation } from '.'
 
 export const NFTTokenType = {
   ERC721: 'ERC721',
@@ -79,8 +79,17 @@ export type ExecuteCallParams = Prettify<{
   value: bigint
   data: string
 }>
-
 export type PrepareExecuteCallParams = ExecuteCallParams
+
+// export type ExecuteParams = Prettify<ExecuteCallParams & { operation: CallOperation }>
+export type ExecuteParams = Prettify<ExecuteCallParams & { operation?: CallOperation }>
+export type PrepareExecuteParams = ExecuteParams
+
+export type ValidSignerParams = Prettify<{
+  //   walletAddress: `0x${string}`
+  account: `0x${string}`
+  data?: string
+}>
 
 export type ComputeAccountParams = Prettify<
   TBAccountParams & {
