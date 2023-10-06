@@ -52,8 +52,8 @@ import {
   isEthers5SignableMessage,
   isEthers6SignableMessage,
   isViemSignableMessage,
+  resolvePossibleENS,
 } from './utils'
-// import { normalize } from 'viem/ens'
 
 class TokenboundClient {
   private chainId: number
@@ -384,30 +384,32 @@ class TokenboundClient {
 
     const is1155: boolean = tokenType === NFTTokenType.ERC1155
 
-    // Configure required args based on token type
-    const transferArgs: unknown[] = is1155
-      ? [
-          // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
-          tbAccountAddress,
-          recipientAddress,
-          tokenId,
-          1,
-          '0x',
-        ]
-      : [
-          // ERC721: safeTransferFrom(address,address,uint256)
-          tbAccountAddress,
-          recipientAddress,
-          tokenId,
-        ]
-
-    const transferCallData = encodeFunctionData({
-      abi: is1155 ? erc1155Abi : erc721Abi,
-      functionName: 'safeTransferFrom',
-      args: transferArgs,
-    })
-
     try {
+      const recipient = await resolvePossibleENS(this.publicClient, recipientAddress)
+
+      // Configure required args based on token type
+      const transferArgs: unknown[] = is1155
+        ? [
+            // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
+            tbAccountAddress,
+            recipient,
+            tokenId,
+            1,
+            '0x',
+          ]
+        : [
+            // ERC721: safeTransferFrom(address,address,uint256)
+            tbAccountAddress,
+            recipient,
+            tokenId,
+          ]
+
+      const transferCallData = encodeFunctionData({
+        abi: is1155 ? erc1155Abi : erc721Abi,
+        functionName: 'safeTransferFrom',
+        args: transferArgs,
+      })
+
       return await this.executeCall({
         account: tbAccountAddress,
         to: tokenContract,
@@ -429,21 +431,11 @@ class TokenboundClient {
    */
   public async transferETH(params: ETHTransferParams): Promise<`0x${string}`> {
     const { account: tbAccountAddress, amount, recipientAddress } = params
-
     const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
-    let recipient = getAddress(recipientAddress)
-
-    // @BJ todo: debug
-    // const isENS = recipientAddress.endsWith(".eth")
-    // if (isENS) {
-    //   recipient = await this.publicClient.getEnsResolver({name: normalize(recipientAddress)})
-    //   if (!recipient) {
-    //       throw new Error('Failed to resolve ENS address');
-    //   }
-    // }
-    // console.log('RECIPIENT_ADDRESS', recipient)
 
     try {
+      const recipient = await resolvePossibleENS(this.publicClient, recipientAddress)
+
       return await this.executeCall({
         account: tbAccountAddress,
         to: recipient,
@@ -479,17 +471,14 @@ class TokenboundClient {
 
     const amountBaseUnit = parseUnits(`${amount}`, erc20tokenDecimals)
 
-    // const recipient = recipientAddress.endsWith('.eth')
-    //   ? await this.publicClient.getEnsResolver({ name: normalize(recipientAddress) })
-    //   : recipientAddress
-
-    const callData = encodeFunctionData({
-      abi: erc20Abi,
-      functionName: 'transfer',
-      args: [recipientAddress, amountBaseUnit],
-    })
-
     try {
+      const recipient = await resolvePossibleENS(this.publicClient, recipientAddress)
+
+      const callData = encodeFunctionData({
+        abi: erc20Abi,
+        functionName: 'transfer',
+        args: [recipient, amountBaseUnit],
+      })
       return await this.executeCall({
         account: tbAccountAddress,
         to: erc20tokenAddress,
