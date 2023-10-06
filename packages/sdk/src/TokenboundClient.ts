@@ -9,6 +9,7 @@ import {
   encodeFunctionData,
   parseUnits,
   SignableMessage,
+  getContract,
 } from 'viem'
 import {
   erc6551AccountAbi,
@@ -44,6 +45,11 @@ import {
   TokenboundAccountNFT,
   TokenboundClientOptions,
   EthersSignableMessage,
+  ExecuteParams,
+  CALL_OPERATIONS,
+  CallOperation,
+  PrepareExecuteParams,
+  ValidSignerParams,
 } from './types'
 import {
   chainIdToChain,
@@ -53,7 +59,18 @@ import {
   isEthers6SignableMessage,
   isViemSignableMessage,
 } from './utils'
+import {
+  IERC6551AccountInterface,
+  erc6551AccountImplementationAddressV1,
+  erc6551AccountImplementationAddressV3,
+} from './constants'
 // import { normalize } from 'viem/ens'
+
+declare global {
+  interface Window {
+    tokenboundSDKImplementation?: string
+  }
+}
 
 class TokenboundClient {
   private chainId: number
@@ -63,6 +80,7 @@ class TokenboundClient {
   private walletClient?: WalletClient
   private implementationAddress?: `0x${string}`
   private registryAddress?: `0x${string}`
+  private supportsV3: boolean = true
 
   constructor(options: TokenboundClientOptions) {
     const {
@@ -101,14 +119,8 @@ class TokenboundClient {
       this.walletClient = walletClient
     }
 
-    if (implementationAddress) {
-      this.implementationAddress = implementationAddress
-    }
-    if (registryAddress) {
-      this.registryAddress = registryAddress
-    }
-
-    //
+    // Use a custom publicClient if provided
+    // Otherwise create a new one, specifying a custom RPC URL if provided but defaulting to the default viem http() RPC URL
     this.publicClient =
       publicClient ??
       createPublicClient({
@@ -116,7 +128,51 @@ class TokenboundClient {
         transport: http(publicClientRPCUrl ?? undefined),
       })
 
+    if (implementationAddress) {
+      this.implementationAddress = implementationAddress
+
+      const accountImplementation = implementationAddress
+        ? getAddress(implementationAddress)
+        : erc6551AccountImplementationAddressV3
+
+      if (typeof window !== 'undefined') {
+        window.tokenboundSDKImplementation = `Tokenbound SDK Implementation: ${accountImplementation}`
+      }
+    }
+    if (registryAddress) {
+      this.registryAddress = registryAddress
+    }
+
     this.isInitialized = true
+  }
+
+  /**
+   * Checks if V3's IERC6551AccountInterface is supported, and sets the `supportsV3` property. Returns true if supported, otherwise false.
+   * @returns a Promise that resolves to true if V3 is supported, otherwise false
+   */
+  private async isV3Supported(): Promise<boolean> {
+    // Check if implementation supports V3
+    //   // supportsInterface // https://github.com/erc6551/reference/blob/main/src/interfaces/IERC6551Account.sol
+    //   // @dev the ERC-165 identifier for this interface is `0x6faff5f1`
+    try {
+      const accountImplementation = this.implementationAddress
+        ? getAddress(this.implementationAddress)
+        : erc6551AccountImplementationAddressV3
+
+      const accountContract = getContract({
+        address: accountImplementation,
+        abi: erc6551AccountAbi, // REPLACEME
+        publicClient: this.publicClient,
+      })
+
+      this.supportsV3 = (await accountContract.read.supportsInterface([
+        IERC6551AccountInterface,
+      ])) as boolean
+
+      return this.supportsV3
+    } catch (error) {
+      throw error
+    }
   }
 
   /**
@@ -266,6 +322,129 @@ class TokenboundClient {
       } else {
         throw new Error('No wallet client or signer available.')
       }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  /**
+   * Returns prepared transaction to execute a call on a tokenbound account
+   * @param {string} params.account The tokenbound account address
+   * @param {string} params.to The recipient address
+   * @param {bigint} params.value The value to send, in wei
+   * @param {string} params.data The encoded operation calldata to send
+   * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+   */
+  public async prepareExecute(params: PrepareExecuteParams): Promise<{
+    to: `0x${string}`
+    value: bigint
+    data: `0x${string}`
+    operation?: CallOperation
+  }> {
+    const defaultOperation = CALL_OPERATIONS.CALL
+    const { account, to, value, data, operation = defaultOperation } = params
+
+    return {
+      to: account as `0x${string}`,
+      value: 0n,
+      data: encodeFunctionData({
+        abi: erc6551AccountAbi, // TODO: REPLACEME WITH V3 ABI FOR _EXECUTION INTERFACE_
+        functionName: 'execute',
+        args: [to as `0x${string}`, value, data as `0x${string}`, operation],
+      }),
+    }
+  }
+
+  /**
+   * Executes a transaction call on a tokenbound account
+   * @param {string} params.account The tokenbound account address
+   * @param {string} params.to The recipient contract address
+   * @param {bigint} params.value The value to send, in wei
+   * @param {string} params.data The encoded operation calldata to send
+   * @param {string} params.operation A value indicating the type of operation to perform
+   * @returns a Promise that resolves to the transaction hash of the executed call
+   */
+  public async execute(params: ExecuteParams): Promise<`0x${string}`> {
+    try {
+      if (!this.supportsV3) {
+        const { operation, ...rest } = params
+        return await this.executeCall(rest)
+      }
+
+      const preparedExecution = await this.prepareExecute(params)
+
+      if (this.signer) {
+        // Ethers
+        return (await this.signer
+          .sendTransaction(preparedExecution)
+          .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
+      } else if (this.walletClient) {
+        return await this.walletClient.sendTransaction({
+          // chain and account need to be added explicitly
+          // because they're optional when instantiating a WalletClient
+          chain: chainIdToChain(this.chainId),
+          account: this.walletClient.account!,
+          ...preparedExecution,
+        })
+      } else {
+        throw new Error('No wallet client or signer available.')
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  /**
+   * Check if a tokenbound account has been deployed
+   * @param {string} params.accountAddress The tokenbound account address
+   * @returns a Promise that resolves to true if the account is deployed, otherwise false
+   */
+  public async isValidSigner({
+    // walletAddress,
+    account,
+    data, // @ BJ TODO: determine how this is used / whether it's needed
+  }: ValidSignerParams): Promise<boolean> {
+    const { signer, walletClient } = this
+
+    if (!signer && !walletClient) {
+      throw new Error('No signer or wallet client available.')
+    }
+
+    if (!this.supportsV3) {
+      throw new Error('isValidSigner is not supported on this implementation')
+    }
+
+    const walletAddress = walletClient?.account?.address ?? (await signer?.getAddress())
+    // signer && walletClient
+
+    try {
+      const accountInstance = getContract({
+        address: account,
+        abi: erc6551AccountAbi, // TODO: REPLACE ME
+        // walletClient,
+        publicClient: this.publicClient,
+      })
+
+      return accountInstance.read.isValidSigner([
+        // this.walletClient!.account?.address, data
+        walletAddress,
+        data,
+      ]) as unknown as boolean
+
+      // return (await this.execute({
+      //   // account: walletAddress,
+      //   account,
+      //   to: this.implementationAddress ?? erc6551AccountImplementationAddressV3,
+      //   // to: walletAddress,
+      //   value: 0n,
+      //   data: encodeFunctionData({
+      //     abi: erc6551AccountAbi, // TODO: REPLACE ME
+      //     functionName: 'isValidSigner',
+      //     // args: [walletAddress],
+      //     args: [this.walletClient!.account?.address, data],
+      //   }),
+      //   // operation: CALL_OPERATIONS.CALL,
+      // })) as unknown as boolean
     } catch (error) {
       throw error
     }
