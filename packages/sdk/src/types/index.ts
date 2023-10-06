@@ -1,6 +1,7 @@
 export * from './abstractBigNumber'
 export * from './abstractEthersSigner'
 export * from './abstractEthersTransactionResponse'
+export * from './addresses'
 export * from './anvilAccount'
 export * from './erc1155Bytecode'
 export * from './messages'

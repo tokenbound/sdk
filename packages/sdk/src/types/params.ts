@@ -1,6 +1,7 @@
 import { WalletClient, PublicClient } from 'viem'
 import { Prettify } from './prettify'
 import { UniversalSignableMessage } from './messages'
+import { PossibleENSAddress } from './addresses'
 
 export const NFTTokenType = {
   ERC721: 'ERC721',
@@ -27,20 +28,20 @@ interface TokenTypeParams {
 export type NFTTransferParams = Prettify<
   TokenTypeParams &
     NFTParams & {
-      recipientAddress: `0x${string}`
+      recipientAddress: PossibleENSAddress
       account: `0x${string}`
     }
 >
 
 export type ETHTransferParams = Prettify<{
   account: `0x${string}`
-  recipientAddress: `0x${string}` // | `${string}.eth`
+  recipientAddress: PossibleENSAddress
   amount: number
 }>
 
 export type ERC20TransferParams = Prettify<{
   account: `0x${string}`
-  recipientAddress: `0x${string}`
+  recipientAddress: PossibleENSAddress
   amount: number
   erc20tokenAddress: `0x${string}`
   erc20tokenDecimals: number
