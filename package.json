@@ -10,6 +10,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "workspaces": [
+    "packages/sdk"
+  ],
+  "publishConfig.directory": {
+    "directory": "packages/sdk"
+  },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "eslint": "^8.50.0",
