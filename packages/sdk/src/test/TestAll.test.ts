@@ -27,7 +27,11 @@ import {
   ANVIL_RPC_URL,
   WETH_CONTRACT_ADDRESS,
 } from './constants'
-import { walletClientToEthers5Signer, walletClientToEthers6Signer } from '../utils'
+import {
+  resolvePossibleENS,
+  walletClientToEthers5Signer,
+  walletClientToEthers6Signer,
+} from '../utils'
 import {
   ethToWei,
   getPublicClient,
@@ -46,6 +50,7 @@ import {
   wethABI,
   // zora1155ABI
 } from './wagmi-cli-hooks/generated'
+import { getEnsAddress } from 'viem/ens'
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -92,7 +97,8 @@ function runTxTests({
     let publicClient: PublicClient
     let NFT_IN_EOA: CreateAccountParams
     let TOKENID_IN_EOA: string
-    let TOKENID_IN_TBA: string
+    let TOKENID1_IN_TBA: string
+    let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
 
     // Spin up a fresh anvil instance each time we run the test suite against a different signer
@@ -138,11 +144,13 @@ function runTxTests({
           onLogs: (logs) => {
             mintLogs = logs
             const { tokenId: eoaTokenId } = logs[0].args
-            const { tokenId: tbaTokenId } = logs[1].args
+            const { tokenId: tbaToken1Id } = logs[1].args
+            const { tokenId: tbaToken2Id } = logs[2].args
 
-            if (eoaTokenId && tbaTokenId) {
+            if (eoaTokenId && tbaToken1Id && tbaToken2Id) {
               TOKENID_IN_EOA = eoaTokenId.toString()
-              TOKENID_IN_TBA = tbaTokenId.toString()
+              TOKENID1_IN_TBA = tbaToken1Id.toString()
+              TOKENID2_IN_TBA = tbaToken2Id.toString()
 
               NFT_IN_EOA = {
                 tokenContract: zora721.proxyContractAddress,
@@ -191,7 +199,7 @@ function runTxTests({
           expect(mintLogs.length).toBe(zora721.quantity)
           expect(mintTxHash).toMatch(ADDRESS_REGEX)
           expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
-          expect(zoraBalanceInAnvilWallet).toBe(2n)
+          expect(zoraBalanceInAnvilWallet).toBe(3n)
           unwatch()
         })
       },
@@ -225,7 +233,7 @@ function runTxTests({
           args: [
             ANVIL_USER_0, // from
             ZORA721_TBA_ADDRESS, // to
-            BigInt(TOKENID_IN_TBA), // tokenId
+            BigInt(TOKENID1_IN_TBA), // tokenId
           ],
         })
 
@@ -266,6 +274,61 @@ function runTxTests({
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
           expect(tbaNFTBalance).toBe(1n)
+        })
+      },
+      TIMEOUT
+    )
+
+    it(
+      'can transfer another minted NFT to the TBA',
+      async () => {
+        const transferCallData = encodeFunctionData({
+          abi: zora721.abi,
+          functionName: 'safeTransferFrom',
+          args: [
+            ANVIL_USER_0, // from
+            ZORA721_TBA_ADDRESS, // to
+            BigInt(TOKENID2_IN_TBA), // tokenId
+          ],
+        })
+
+        const preparedNFTTransfer = {
+          to: zora721.proxyContractAddress,
+          value: 0n,
+          data: transferCallData,
+        }
+
+        let transferHash: `0x${string}`
+
+        if (walletClient) {
+          transferHash = await walletClient.sendTransaction({
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+            account: walletClient.account!.address,
+            ...preparedNFTTransfer,
+          })
+        } else {
+          transferHash = await signer
+            .sendTransaction({
+              chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+              ...preparedNFTTransfer,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
+        }
+
+        const transactionReceipt = await publicClient.getTransactionReceipt({
+          hash: transferHash,
+        })
+
+        const tbaNFTBalance = await getZora721Balance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
+        console.log('# of NFTs in TBA: ', tbaNFTBalance.toString())
+
+        await waitFor(() => {
+          expect(transferHash).toMatch(ADDRESS_REGEX)
+          expect(transactionReceipt.status).toBe('success')
+          expect(tbaNFTBalance).toBe(2n)
         })
       },
       TIMEOUT
@@ -339,6 +402,36 @@ function runTxTests({
     // so they provide further reinforcement that executeCall works.
     it('can transferETH with the TBA', async () => {
       const EXPECTED_BALANCE_BEFORE = parseUnits('1', 18)
+      const EXPECTED_BALANCE_AFTER = parseUnits('0.75', 18)
+
+      const balanceBefore = await publicClient.getBalance({
+        address: ZORA721_TBA_ADDRESS,
+      })
+      const ethTransferHash = await tokenboundClient.transferETH({
+        account: ZORA721_TBA_ADDRESS,
+        amount: 0.25,
+        recipientAddress: ANVIL_USER_1,
+      })
+      const balanceAfter = await publicClient.getBalance({
+        address: ZORA721_TBA_ADDRESS,
+      })
+
+      console.log(
+        'BEFORE: ',
+        formatEther(balanceBefore),
+        'AFTER: ',
+        formatEther(balanceAfter)
+      )
+
+      await waitFor(() => {
+        expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+        expect(balanceBefore).toBe(EXPECTED_BALANCE_BEFORE)
+        expect(balanceAfter).toBe(EXPECTED_BALANCE_AFTER)
+      })
+    })
+
+    it('can transferETH to an ENS with the TBA', async () => {
+      const EXPECTED_BALANCE_BEFORE = parseUnits('0.75', 18)
       const EXPECTED_BALANCE_AFTER = parseUnits('0.5', 18)
 
       const balanceBefore = await publicClient.getBalance({
@@ -346,8 +439,8 @@ function runTxTests({
       })
       const ethTransferHash = await tokenboundClient.transferETH({
         account: ZORA721_TBA_ADDRESS,
-        amount: 0.5,
-        recipientAddress: ANVIL_USER_1,
+        amount: 0.25,
+        recipientAddress: 'jeebay.eth',
       })
       const balanceAfter = await publicClient.getBalance({
         address: ZORA721_TBA_ADDRESS,
@@ -372,7 +465,7 @@ function runTxTests({
         account: ZORA721_TBA_ADDRESS,
         tokenType: 'ERC721',
         tokenContract: zora721.proxyContractAddress,
-        tokenId: TOKENID_IN_TBA,
+        tokenId: TOKENID1_IN_TBA,
         recipientAddress: ANVIL_USER_1,
       })
 
@@ -387,7 +480,29 @@ function runTxTests({
       })
     })
 
-    it('can mint 2 Zora 721 NFTs with the TBA', async () => {
+    it('can transferNFT to an ENS with the TBA', async () => {
+      const transferNFTHash = await tokenboundClient.transferNFT({
+        account: ZORA721_TBA_ADDRESS,
+        tokenType: 'ERC721',
+        tokenContract: zora721.proxyContractAddress,
+        tokenId: TOKENID2_IN_TBA,
+        recipientAddress: 'jeebay.eth',
+      })
+
+      const addr = await resolvePossibleENS(publicClient, 'jeebay.eth')
+
+      const anvilAccount1NFTBalance = await getZora721Balance({
+        publicClient,
+        walletAddress: addr,
+      })
+
+      await waitFor(() => {
+        expect(transferNFTHash).toMatch(ADDRESS_REGEX)
+        expect(anvilAccount1NFTBalance).toBe(1n)
+      })
+    })
+
+    it('can mint 3 Zora 721 NFTs with the TBA', async () => {
       const encodedMintFunctionData = encodeFunctionData({
         abi: zora721.abi,
         functionName: 'purchase',
@@ -411,7 +526,7 @@ function runTxTests({
       await waitFor(() => {
         expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
         expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
-        expect(zoraBalanceInTBA).toBe(2n)
+        expect(zoraBalanceInTBA).toBe(3n)
       })
     })
 
@@ -526,8 +641,10 @@ function runTxTests({
     )
 
     it('can transferERC20 with the TBA', async () => {
-      const depositEthValue = 0.25
+      const depositEthValue = 0.2
       const depositWeiValue = ethToWei(depositEthValue)
+      const transferEthValue = 0.1
+      const transferWeiValue = ethToWei(transferEthValue)
       let wethDepositHash: `0x${string}`
       let wethTransferHash: `0x${string}`
 
@@ -592,8 +709,17 @@ function runTxTests({
       // Transfer WETH from TBA to ANVIL_USER_1
       const transferredERC20Hash = await tokenboundClient.transferERC20({
         account: ZORA721_TBA_ADDRESS,
-        amount: depositEthValue,
+        amount: transferEthValue,
         recipientAddress: ANVIL_USER_1,
+        erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+        erc20tokenDecimals: 18,
+      })
+
+      // Transfer WETH from TBA to jeebay.eth
+      const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
+        account: ZORA721_TBA_ADDRESS,
+        amount: transferEthValue,
+        recipientAddress: 'jeebay.eth',
         erc20tokenAddress: WETH_CONTRACT_ADDRESS,
         erc20tokenDecimals: 18,
       })
@@ -608,6 +734,11 @@ function runTxTests({
         walletAddress: ANVIL_USER_1,
       })
 
+      const ensWETHBalance = await getWETHBalance({
+        publicClient,
+        walletAddress: 'jeebay.eth',
+      })
+
       console.log(
         'TBA WETH INITIAL: ',
         formatEther(tbaWETHInitial),
@@ -616,15 +747,19 @@ function runTxTests({
         'AFTER: ',
         formatEther(tbaWETHFinal),
         'ANVIL USER 1 BALANCE: ',
-        formatEther(anvilUser1WETHBalance)
+        formatEther(anvilUser1WETHBalance),
+        'ENS BALANCE: ',
+        formatEther(ensWETHBalance)
       )
 
       await waitFor(() => {
         expect(wethDepositHash).toMatch(ADDRESS_REGEX)
         expect(wethTransferHash).toMatch(ADDRESS_REGEX)
         expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
+        expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
         expect(tbaWETHReceived).toBe(depositWeiValue)
-        expect(anvilUser1WETHBalance).toBe(depositWeiValue)
+        expect(anvilUser1WETHBalance).toBe(transferWeiValue)
+        expect(ensWETHBalance).toBe(transferWeiValue)
       })
     })
 
