@@ -54,7 +54,13 @@ import {
   isViemSignableMessage,
   resolvePossibleENS,
 } from './utils'
+import { version as TB_SDK_VERSION } from '../package.json'
 
+declare global {
+  interface Window {
+    tokenboundSDK?: string
+  }
+}
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
@@ -117,6 +123,12 @@ class TokenboundClient {
       })
 
     this.isInitialized = true
+
+    if (typeof window !== 'undefined') {
+      window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} Implementation: ${
+        this.implementationAddress ?? 'Default'
+      }`
+    }
   }
 
   /**
