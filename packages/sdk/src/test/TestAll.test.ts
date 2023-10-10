@@ -1,6 +1,7 @@
 // This test suite is for testing the SDK methods with
 // viem walletClient + publicClient and with Ethers 5/6.
 
+import { zora } from 'viem/chains'
 import { describe, expect, it, vi } from 'vitest'
 import { providers } from 'ethers'
 import { waitFor } from './mockWallet'
@@ -768,7 +769,7 @@ function runTxTests({
   })
 }
 
-describe('Custom publicClient RPC URL', () => {
+describe('Custom client configurations', () => {
   it('can use a custom publicClient RPC URL', async () => {
     const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
     const tokenboundClient = new TokenboundClient({
@@ -779,6 +780,19 @@ describe('Custom publicClient RPC URL', () => {
 
     await waitFor(() => {
       expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
+    })
+  })
+  it('can use a custom chain as parameter', async () => {
+    const ZORA_CHAIN_ID = 7777777
+
+    const tokenboundClient = new TokenboundClient({
+      chainId: ZORA_CHAIN_ID,
+      walletClient,
+      chain: zora,
+    })
+
+    await waitFor(() => {
+      expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
     })
   })
 })

@@ -48,7 +48,7 @@ export type ERC20TransferParams = Prettify<{
 }>
 
 export type TokenboundClientOptions = Prettify<{
-  chainId: number
+  chainId?: number
   chain?: Chain
   signer?: any
   walletClient?: WalletClient
