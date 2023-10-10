@@ -67,6 +67,7 @@ class TokenboundClient {
   constructor(options: TokenboundClientOptions) {
     const {
       chainId,
+      chain,
       signer,
       walletClient,
       publicClient,
@@ -75,8 +76,8 @@ class TokenboundClient {
       publicClientRPCUrl,
     } = options
 
-    if (!chainId) {
-      throw new Error('chainId is required.')
+    if (!chainId && !chain) {
+      throw new Error('chain or chainId required.')
     }
 
     if (signer && walletClient) {
@@ -93,7 +94,7 @@ class TokenboundClient {
       throw new Error('`publicClient` cannot be provided when using Ethers `signer`.')
     }
 
-    this.chainId = chainId
+    this.chainId = chainId ?? chain!.id
 
     if (signer) {
       this.signer = signer
@@ -108,11 +109,10 @@ class TokenboundClient {
       this.registryAddress = registryAddress
     }
 
-    //
     this.publicClient =
       publicClient ??
       createPublicClient({
-        chain: chainIdToChain(this.chainId),
+        chain: chain ?? chainIdToChain(this.chainId),
         transport: http(publicClientRPCUrl ?? undefined),
       })
 
