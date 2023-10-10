@@ -67,6 +67,7 @@ class TokenboundClient {
   constructor(options: TokenboundClientOptions) {
     const {
       chainId,
+      chain,
       signer,
       walletClient,
       publicClient,
@@ -112,7 +113,7 @@ class TokenboundClient {
     this.publicClient =
       publicClient ??
       createPublicClient({
-        chain: chainIdToChain(this.chainId),
+        chain: chain ?? chainIdToChain(this.chainId),
         transport: http(publicClientRPCUrl ?? undefined),
       })
 

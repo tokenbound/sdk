@@ -10,9 +10,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "workspaces": [
-    "packages/sdk"
-  ],
   "publishConfig.directory": {
     "directory": "packages/sdk"
   },

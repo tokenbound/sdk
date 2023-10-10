@@ -1,4 +1,4 @@
-import { WalletClient, PublicClient } from 'viem'
+import { WalletClient, PublicClient, Chain } from 'viem'
 import { Prettify } from './prettify'
 import { UniversalSignableMessage } from './messages'
 import { PossibleENSAddress } from './addresses'
@@ -49,6 +49,7 @@ export type ERC20TransferParams = Prettify<{
 
 export type TokenboundClientOptions = Prettify<{
   chainId: number
+  chain?: Chain
   signer?: any
   walletClient?: WalletClient
   publicClient?: PublicClient
