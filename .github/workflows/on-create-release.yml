@@ -29,8 +29,11 @@ jobs:
       - name: Change to package directory
         run: cd packages/sdk
 
-      - name: Install dependencies and build 🔧
-        run: npm ci && npm build
+      - name: Install dependencies
+        run: npm install
+
+      - name: Clean install and build 🔧
+        run: npm ci && npm run build
         # run: pnpm ci && pnpm build // pnpm ci not yet implemented: https://github.com/pnpm/pnpm/issues/6100
 
       - name: Publish package on NPM 📦
