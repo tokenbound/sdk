@@ -786,7 +786,6 @@ describe('Custom client configurations', () => {
     const ZORA_CHAIN_ID = 7777777
 
     const tokenboundClient = new TokenboundClient({
-      chainId: ZORA_CHAIN_ID,
       walletClient,
       chain: zora,
     })
