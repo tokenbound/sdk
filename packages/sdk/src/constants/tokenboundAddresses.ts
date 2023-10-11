@@ -9,3 +9,15 @@ export const erc6551AccountImplementationAddressV1 = getAddress(
 
 export const erc6551RegistryAddressV3 = getAddress('TBD')
 export const erc6551AccountImplementationAddressV3 = getAddress('TBD')
+
+type Standard6551Deployment = Record<'IMPLEMENTATION' | 'REGISTRY', `0x${string}`>
+
+export const ERC_6551_LEGACY_V1: Standard6551Deployment = {
+  IMPLEMENTATION: erc6551AccountImplementationAddressV1,
+  REGISTRY: erc6551RegistryAddressV1,
+}
+
+export const ERC_6551_DEFAULT: Standard6551Deployment = {
+  IMPLEMENTATION: erc6551AccountImplementationAddressV3,
+  REGISTRY: erc6551RegistryAddressV3,
+}

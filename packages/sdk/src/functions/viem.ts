@@ -7,15 +7,10 @@ import {
   encodeFunctionData,
   encodeAbiParameters,
   pad,
-  getAddress,
 } from 'viem'
 
 import { erc6551AccountAbi, erc6551RegistryAbi } from '../../abis'
-import {
-  erc6551AccountImplementationAddressV1,
-  erc6551RegistryAddressV1,
-} from '../constants'
-import { addressToUint8Array } from '../utils'
+import { addressToUint8Array, getActiveImplementation, getActiveRegistry } from '../utils'
 
 export { erc6551AccountAbi, erc6551RegistryAbi }
 
@@ -30,9 +25,8 @@ export async function getAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`
 ): Promise<`0x${string}`> {
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
 
   const registry = getContract({
     address: erc6551registry,
@@ -43,9 +37,7 @@ export async function getAccount(
   const chainId = await client.getChainId()
 
   const account = await registry.read.account([
-    implementationAddress
-      ? getAddress(implementationAddress)
-      : erc6551AccountImplementationAddressV1,
+    implementation,
     chainId,
     tokenContract,
     tokenId,
@@ -70,12 +62,8 @@ export async function prepareCreateAccount(
   value: bigint
   data: `0x${string}`
 }> {
-  const implementation = implementationAddress
-    ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
 
   const initData = encodeFunctionData({
     abi: [
@@ -119,12 +107,8 @@ export async function createAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`
 ): Promise<`0x${string}`> {
-  const implementation = implementationAddress
-    ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
 
   const registry = getContract({
     address: erc6551registry,
@@ -217,12 +201,8 @@ export function computeAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`
 ): `0x${string}` {
-  const implementation = implementationAddress
-    ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
 
   const code = getCreationCode(implementation, chainId, tokenContract, tokenId, '0')
 

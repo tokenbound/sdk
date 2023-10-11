@@ -10,6 +10,7 @@ import {
   parseUnits,
   SignableMessage,
   getContract,
+  isAddressEqual,
 } from 'viem'
 import {
   erc6551AccountAbi,
@@ -59,11 +60,13 @@ import {
   isEthers6SignableMessage,
   isViemSignableMessage,
   resolvePossibleENS,
+  getImplementationName,
+  getActiveImplementation,
 } from './utils'
 import {
   IERC6551AccountInterface,
-  erc6551AccountImplementationAddressV1,
   erc6551AccountImplementationAddressV3,
+  ERC_6551_LEGACY_V1,
 } from './constants'
 import { version as TB_SDK_VERSION } from '../package.json'
 
@@ -137,16 +140,18 @@ class TokenboundClient {
       this.registryAddress = registryAddress
     }
 
+    // If the legacy V1 implementation is in use, ensure we're also using the legacy V1 registry (unless a custom registry is provided)
+    if (implementationAddress && !registryAddress) {
+      if (isAddressEqual(implementationAddress, ERC_6551_LEGACY_V1.IMPLEMENTATION)) {
+        this.registryAddress = ERC_6551_LEGACY_V1.REGISTRY
+      }
+    }
+
     this.isInitialized = true
 
-    const accountImplementation = implementationAddress
-      ? getAddress(implementationAddress)
-      : erc6551AccountImplementationAddressV3
-
     if (typeof window !== 'undefined') {
-      window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} Implementation: ${
-        this.implementationAddress ?? 'Default'
-      }`
+      const implementationName = getImplementationName(implementationAddress)
+      window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} - ${implementationName}`
     }
   }
 
@@ -159,9 +164,7 @@ class TokenboundClient {
     //   // supportsInterface // https://github.com/erc6551/reference/blob/main/src/interfaces/IERC6551Account.sol
     //   // @dev the ERC-165 identifier for this interface is `0x6faff5f1`
     try {
-      const accountImplementation = this.implementationAddress
-        ? getAddress(this.implementationAddress)
-        : erc6551AccountImplementationAddressV3
+      const accountImplementation = getActiveImplementation(this.implementationAddress)
 
       const accountContract = getContract({
         address: accountImplementation,
@@ -401,9 +404,10 @@ class TokenboundClient {
   }
 
   /**
-   * Check if a tokenbound account has been deployed
-   * @param {string} params.accountAddress The tokenbound account address
-   * @returns a Promise that resolves to true if the account is deployed, otherwise false
+   * Check if a tokenbound account is a valid signer for a transaction
+   * @param {string} params.account The tokenbound account address
+   * @param {string} params.data The ??ENCODED?? transaction calldata
+   * @returns a Promise that resolves to true if the account is a valid signer, otherwise false
    */
   public async isValidSigner({
     // walletAddress,
