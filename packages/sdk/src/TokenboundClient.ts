@@ -65,10 +65,11 @@ import {
   erc6551AccountImplementationAddressV1,
   erc6551AccountImplementationAddressV3,
 } from './constants'
+import { version as TB_SDK_VERSION } from '../package.json'
 
 declare global {
   interface Window {
-    tokenboundSDKImplementation?: string
+    tokenboundSDK?: string
   }
 }
 
@@ -131,20 +132,22 @@ class TokenboundClient {
 
     if (implementationAddress) {
       this.implementationAddress = implementationAddress
-
-      const accountImplementation = implementationAddress
-        ? getAddress(implementationAddress)
-        : erc6551AccountImplementationAddressV3
-
-      if (typeof window !== 'undefined') {
-        window.tokenboundSDKImplementation = `Tokenbound SDK Implementation: ${accountImplementation}`
-      }
     }
     if (registryAddress) {
       this.registryAddress = registryAddress
     }
 
     this.isInitialized = true
+
+    const accountImplementation = implementationAddress
+      ? getAddress(implementationAddress)
+      : erc6551AccountImplementationAddressV3
+
+    if (typeof window !== 'undefined') {
+      window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} Implementation: ${
+        this.implementationAddress ?? 'Default'
+      }`
+    }
   }
 
   /**

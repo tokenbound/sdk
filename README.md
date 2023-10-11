@@ -76,29 +76,37 @@ Husky has been configured to run a pre-commit hook to ensure tests pass.
 
 ### TokenboundClient
 
-The TokenboundClient is instantiated with an object containing two parameters:
-`chainId` (mandatory)
-`walletClient` (optional) OR
-`signer` (optional)
+The TokenboundClient class provides an interface for interacting with tokenbound accounts, enabling operations like account creation, transaction execution, token transfers (including ERC-721, ERC-1155, and ERC-20 tokens), and message signing.
 
-Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) OR an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
+The TokenboundClient is instantiated with an object containing two parameters:
+
+| Parameter                               |           |
+| --------------------------------------- | --------- |
+| One of **signer** _or_ **walletClient** | mandatory |
+| One of **chainId** _or_ **chain**       | mandatory |
+
+`chainId` sets `Chain` using internal imports from [`viem/chains`](https://viem.sh/docs/clients/chains.html) for each of the [ERC-6551 contract deployments](https://docs.tokenbound.org/contracts/deployments). If using an unlisted deployment, you'll need to pass the full `Chain` as parameter.
+
+Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) *or* an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
+
 For easy reference, we've prepared [SDK code examples](https://github.com/tokenbound/sdk/tree/main/examples) for a few simple SDK interactions.
 
+
+**Standard configuration**
 ```ts copy
 const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 })
 ```
 
-**OR**
+**Custom chain**
+```ts copy
+import { zora } from 'viem/chains'
+const tokenboundClient = new TokenboundClient({ walletClient, chain: zora })
+```
 
+**Using Ethers.js**
 ```ts copy
 const tokenboundClient = new TokenboundClient({ signer, chainId: 1 })
 ```
-
-| Parameter        |           |
-| ---------------- | --------- |
-| **walletClient** | optional  |
-| **signer**       | optional  |
-| **chainId**      | mandatory |
 
 Then use the TokenboundClient to interact with the Tokenbound contracts and Tokenbound accounts:
 
@@ -229,7 +237,7 @@ console.log({ tokenContract, tokenId, chainId })
 ```typescript
 const preparedCall = await tokenboundClient.prepareExecuteCall({
   account: "<account_address>",
-  to: "<recipient_address>",
+  to: "<contract_address>",
   value: "<wei_value>",
   data: "<data>",
 })
@@ -240,7 +248,7 @@ console.log(preparedCall) //...
 | Parameter   | Description                     | Type   |
 | ----------- | ------------------------------- | ------ |
 | **account** | The Tokenbound account address. | string |
-| **to**      | The recipient address.          | string |
+| **to**      | The contract address.           | string |
 | **value**   | The value to send, in wei.      | bigint |
 | **data**    | The data to send.               | string |
 
@@ -255,7 +263,7 @@ Performs an arbitrary contract call against any contract. This means any onchain
 ```typescript
 const executedCall = await tokenboundClient.executeCall({
   account: "<account_address>",
-  to: "<recipient_address>",
+  to: "<contract_address>",
   value: "<wei_value>",
   data: "<encoded_call_data>",
 })
@@ -266,9 +274,9 @@ console.log(executedCall)
 | Parameter           | Description                     | Type          |
 | ------------------- | ------------------------------- | ------------- |
 | **account**         | The Tokenbound account address. | string        |
-| **to**              | The recipient address.          | string        |
+| **to**              | The contract address.           | string        |
 | **value**           | The value to send, in wei.      | bigint        |
-| **data** (optional) | The ABI-encoded call data       | `0x{string}`  |
+| **data** (optional) | The ABI-encoded call data.      | `0x{string}`  |
 
 Here's a more robust example, where we see how to use your TBA to mint an NFT using Zora's [ERC721Drop contract](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c#code) by calling the contract's `purchase` function.
 
@@ -320,13 +328,13 @@ const transferNFT = await tokenboundClient.transferNFT({
 console.log(transferNFT) //...
 ```
 
-| Parameter            | Description                       | Type   |
-| -------------------- | --------------------------------- | ------ |
-| **account**          | The Tokenbound account address.   | string |
-| **tokenType**        | Token type: 'ERC721' or 'ERC1155' | string |
-| **tokenContract**    | The recipient address.            | string |
-| **tokenId**          | The tokenId of the NFT.           | string |
-| **recipientAddress** | The recipient address.            | string |
+| Parameter            | Description                              | Type   |
+| -------------------- | ---------------------------------------- | ------ |
+| **account**          | The Tokenbound account address.          | string |
+| **tokenType**        | Token type: 'ERC721' or 'ERC1155'        | string |
+| **tokenContract**    | The address of the token contract.       | string |
+| **tokenId**          | The tokenId of the NFT.                  | string |
+| **recipientAddress** | The recipient address or ENS.            | string |
 
 ---
 
@@ -350,7 +358,7 @@ console.log(transferERC20) //...
 | -------------------- | --------------------------------------- | ------ |
 | **account**          | The Tokenbound account address.         | string |
 | **amount**           | Amount, in decimal form (eg. 0.01 ETH). | number |
-| **recipientAddress** | The recipient address.                  | string |
+| **recipientAddress** | The recipient address or ENS.           | string |
 
 ---
 
@@ -376,7 +384,7 @@ console.log(transferERC20) //...
 | ---------------------- | ---------------------------------------------- | ------ |
 | **account**            | The Tokenbound account address.                | string |
 | **amount**             | Amount, in decimal form (eg. 0.1 USDC).        | number |
-| **recipientAddress**   | The recipient address.                         | string |
+| **recipientAddress**   | The recipient address or ENS.                  | string |
 | **erc20tokenAddress**  | The ERC-20 token address.                      | string |
 | **erc20tokenDecimals** | The ERC-20 token decimal specification (1-18). | number |
 
@@ -414,6 +422,8 @@ console.log(segmentedBytecode)
 
 Gets an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) formatted signature for a message.
 
+**Returns** a Promise that resolves to a signed Hex string
+
 The message to be signed is typed as `UniversalSignableMessage` so that it can elegantly handle Ethers 5, Ethers 6, and viem's expected types for all signable formats. Check the types associated with signMessage for [viem](https://viem.sh/docs/actions/wallet/signMessage.html), [Ethers 5](https://docs.ethers.org/v5/api/signer/#Signer-signMessage), and [Ethers 6](https://docs.ethers.org/v6/api/providers/#Signer-signMessage) as needed.
 
 ```ts
@@ -425,8 +435,6 @@ const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) /
 ```
 
 Note that this method is just for convenience. Since your EOA wallet is responsible for signing, messages can also be signed explicitly using your EOA wallet address in viem or Ethers.
-
-**Returns** a Promise that resolves to a signed Hex string
 
 ```ts
 const signedMessage = await tokenboundClient.signMessage({
@@ -459,7 +467,7 @@ console.log(signedUint8Message)
 ## Advanced Usage
 ### Custom Account Implementation
 
-It is possible to implement your own custom implementation of an [account](/contracts/account) and make the SDK point to your custom implementation instead of the default implementation.
+If your team has deployed a custom [account implementation](/contracts/account) contract, you'll need to point the SDK to your custom implementation instead of the default implementation.
 
 ```javascript
 import { TokenboundClient } from "@tokenbound/sdk"
@@ -488,8 +496,6 @@ Read more [here](/guides/custom-accounts)
 If using viem, you can specify a custom PublicClient RPC URL for use by the TokenboundClient's internal PublicClient.
 
 Alternately, you can simply configure and pass your own publicClient. This option was added to enable internal testing on local chains.
-
-These options won't be useful to most users.
 
 | Parameter              |          |
 | ---------------------- | -------- |
