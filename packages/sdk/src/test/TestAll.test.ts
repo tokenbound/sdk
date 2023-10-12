@@ -1,8 +1,8 @@
-// This test suite is for testing the SDK methods with
-// viem walletClient + publicClient and with Ethers 5/6.
+// This test suite is for testing SDK methods with
+// viem walletClient + publicClient and Ethers 5/6.
 
 import { zora } from 'viem/chains'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
 import { providers } from 'ethers'
 import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
@@ -17,8 +17,8 @@ import {
   parseUnits,
   formatEther,
   getContract,
-  // encodeAbiParameters,
-  // parseAbiParameters,
+  encodeAbiParameters,
+  parseAbiParameters,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
@@ -38,20 +38,11 @@ import {
   getPublicClient,
   getWETHBalance,
   // debugTransaction,
-  // getZora1155Balance,
+  getZora1155Balance,
   getZora721Balance,
 } from './utils'
-import {
-  ANVIL_CONFIG,
-  CREATE_ANVIL_OPTIONS,
-  zora721,
-  // zora1155
-} from './config'
-import {
-  wethABI,
-  // zora1155ABI
-} from './wagmi-cli-hooks/generated'
-import { getEnsAddress } from 'viem/ens'
+import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
+import { wethABI } from './wagmi-cli-hooks/generated'
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -461,7 +452,22 @@ function runTxTests({
       })
     })
 
-    it('can transferNFT with the TBA', async () => {
+    it('will not allow transferNFT 721 with an amount other than 1', async () => {
+      vi.spyOn(console, 'error')
+
+      await expect(() =>
+        tokenboundClient.transferNFT({
+          account: ZORA721_TBA_ADDRESS,
+          tokenType: 'ERC721',
+          tokenContract: zora721.proxyContractAddress,
+          tokenId: TOKENID1_IN_TBA,
+          recipientAddress: ANVIL_USER_1,
+          amount: 2,
+        })
+      ).rejects.toThrowError()
+    })
+
+    it('can transferNFT a 721 with the TBA', async () => {
       const transferNFTHash = await tokenboundClient.transferNFT({
         account: ZORA721_TBA_ADDRESS,
         tokenType: 'ERC721',
@@ -531,46 +537,69 @@ function runTxTests({
       })
     })
 
-    // it('can mint an 1155 with the TBA', async () => {
-    //   const mintingAccount: `0x${string}` = ZORA721_TBA_ADDRESS
-    //   // const mintAddress: `0x${string}` = ANVIL_USER_0
+    it('can mint an 1155 with the TBA', async () => {
+      const mintingAccount: `0x${string}` = ZORA721_TBA_ADDRESS
 
-    //   const minterArguments: `0x${string}` = encodeAbiParameters(
-    //     parseAbiParameters('address'),
-    //     [mintingAccount]
-    //   )
+      const minterArguments: `0x${string}` = encodeAbiParameters(
+        parseAbiParameters('address'),
+        [mintingAccount]
+      )
 
-    //   const mint1155TxHash = await tokenboundClient.executeCall({
-    //     account: mintingAccount,
-    //     to: zora1155.proxyContractAddress,
-    //     value: zora1155.mintFee * zora1155.quantity,
-    //     data: encodeFunctionData({
-    //       abi: zora1155ABI,
-    //       functionName: 'mint',
-    //       args: [
-    //         zora1155.fixedPriceSalesStrategy,
-    //         zora1155.tokenId,
-    //         zora1155.quantity,
-    //         minterArguments,
-    //       ],
-    //     }),
-    //   })
+      const data = encodeFunctionData({
+        abi: zora1155.abi,
+        functionName: 'mint',
+        args: [
+          zora1155.fixedPriceSalesStrategy, // IMinter1155
+          zora1155.tokenId, // uint256
+          zora1155.quantity, // uint256
+          minterArguments, // bytes
+        ],
+      })
 
-    //   await debugTransaction({ publicClient, hash: mint1155TxHash })
+      const mint1155TxHash = await tokenboundClient.executeCall({
+        account: mintingAccount,
+        to: zora1155.proxyContractAddress,
+        value: zora1155.mintFee * zora1155.quantity,
+        data,
+      })
 
-    //   const zora1155BalanceInTBA = await getZora1155Balance({
-    //     publicClient,
-    //     walletAddress: mintingAccount,
-    //   })
+      const zora1155BalanceInTBA = await getZora1155Balance({
+        publicClient,
+        walletAddress: mintingAccount,
+      })
 
-    //   console.log('1155 Balance', zora1155BalanceInTBA)
+      console.log('1155 Balance', zora1155BalanceInTBA)
 
-    //   await waitFor(() => {
-    //     expect(mint1155TxHash).toMatch(ADDRESS_REGEX)
-    //     expect(zora1155BalanceInTBA).toBe(5n)
-    //     expect(true).toBe(true)
-    //   })
-    // })
+      await waitFor(() => {
+        expect(mint1155TxHash).toMatch(ADDRESS_REGEX)
+        expect(zora1155BalanceInTBA).toBe(5n)
+      })
+    })
+
+    it('can transferNFT an 1155 with the TBA', async () => {
+      const transferAmount = 2
+
+      const transferNFTHash = await tokenboundClient.transferNFT({
+        account: ZORA721_TBA_ADDRESS,
+        tokenType: 'ERC1155',
+        tokenContract: zora1155.proxyContractAddress,
+        tokenId: zora1155.tokenId.toString(),
+        recipientAddress: ANVIL_USER_1,
+        amount: transferAmount,
+      })
+
+      const anvilAccount1_1155Balance = await getZora1155Balance({
+        publicClient,
+        walletAddress: ANVIL_USER_1,
+      })
+
+      console.log('1155 Balance', anvilAccount1_1155Balance)
+
+      await waitFor(() => {
+        expect(transferNFTHash).toMatch(ADDRESS_REGEX)
+        expect(anvilAccount1_1155Balance).toBe(BigInt(transferAmount))
+      })
+    })
 
     // Test signing in viem only.
     // Ethers 5/6 don't appear to support signing messages via personal_sign with this testing configuration.
@@ -763,9 +792,6 @@ function runTxTests({
         expect(ensWETHBalance).toBe(transferWeiValue)
       })
     })
-
-    test.todo('can transferNFT with an 1155', async () => {})
-    test.todo('can transfer with ENS', async () => {})
   })
 }
 
