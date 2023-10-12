@@ -383,7 +383,7 @@ class TokenboundClient {
    * @param {string} params.tokenContract The address of the token contract
    * @param {string} params.tokenId The token ID
    * @param {string} params.recipientAddress The address to which the token should be transferred
-   * @param {string} params.amount The amount of tokens to transfer, (eg. 1 NFT = 1)
+   * @param {string} params.amount The amount of tokens to transfer, (eg. 1 NFT = 1). Defaults to 1. 1155 only.
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
