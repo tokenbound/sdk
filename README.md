@@ -369,13 +369,14 @@ const transferNFT = await tokenboundClient.transferNFT({
 console.log(transferNFT) //...
 ```
 
-| Parameter            | Description                       | Type   |
-| -------------------- | --------------------------------- | ------ |
-| **account**          | The Tokenbound account address.   | string |
-| **tokenType**        | Token type: 'ERC721' or 'ERC1155' | string |
-| **tokenContract**    | The recipient address.            | string |
-| **tokenId**          | The tokenId of the NFT.           | string |
-| **recipientAddress** | The recipient address.            | string |
+| Parameter            | Description                               | Type   |
+| -------------------- | ----------------------------------------- | ------ |
+| **account**          | The Tokenbound account address.           | string |
+| **tokenType**        | Token type: 'ERC721' or 'ERC1155'         | string |
+| **tokenContract**    | The address of the token contract.        | string |
+| **tokenId**          | The tokenId of the NFT.                   | string |
+| **recipientAddress** | The recipient address or ENS.             | string |
+| **amount**           | The number of tokens to send (1155 only). | number |
 
 ---
 
