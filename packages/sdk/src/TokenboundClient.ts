@@ -383,6 +383,7 @@ class TokenboundClient {
    * @param {string} params.tokenContract The address of the token contract
    * @param {string} params.tokenId The token ID
    * @param {string} params.recipientAddress The address to which the token should be transferred
+   * @param {string} params.amount The amount of tokens to transfer, (eg. 1 NFT = 1)
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
@@ -391,30 +392,24 @@ class TokenboundClient {
       tokenType,
       tokenContract,
       tokenId,
+      amount = 1,
       recipientAddress,
     } = params
 
     const is1155: boolean = tokenType === NFTTokenType.ERC1155
 
+    if (!is1155 && amount !== 1) {
+      throw new Error('ERC721 transfers can only transfer one token at a time.')
+    }
+
     try {
       const recipient = await resolvePossibleENS(this.publicClient, recipientAddress)
 
       // Configure required args based on token type
-      const transferArgs: unknown[] = is1155
-        ? [
-            // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
-            tbAccountAddress,
-            recipient,
-            tokenId,
-            1,
-            '0x',
-          ]
-        : [
-            // ERC721: safeTransferFrom(address,address,uint256)
-            tbAccountAddress,
-            recipient,
-            tokenId,
-          ]
+      // ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
+      // ERC721: safeTransferFrom(address,address,uint256)
+      const sharedArgs = [tbAccountAddress, recipient, tokenId]
+      const transferArgs: unknown[] = is1155 ? [...sharedArgs, amount, '0x'] : sharedArgs
 
       const transferCallData = encodeFunctionData({
         abi: is1155 ? erc1155Abi : erc721Abi,
