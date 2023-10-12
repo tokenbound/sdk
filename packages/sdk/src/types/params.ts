@@ -31,6 +31,7 @@ export type NFTTransferParams = Prettify<
     NFTParams & {
       recipientAddress: PossibleENSAddress
       account: `0x${string}`
+      amount?: number
     }
 >
 

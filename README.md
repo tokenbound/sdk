@@ -335,6 +335,7 @@ console.log(transferNFT) //...
 | **tokenContract**    | The address of the token contract.       | string |
 | **tokenId**          | The tokenId of the NFT.                  | string |
 | **recipientAddress** | The recipient address or ENS.            | string |
+| **amount**           | The number of tokens to send (1155 only). | number |
 
 ---
 
