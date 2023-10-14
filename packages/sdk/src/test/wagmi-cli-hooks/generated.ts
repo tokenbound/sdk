@@ -1,6 +1,6 @@
 import {
-  useContractRead,
-  UseContractReadConfig,
+  useNetwork,
+  useChainId,
   useContractWrite,
   Address,
   UseContractWriteConfig,
@@ -8,19 +8,301 @@ import {
   UsePrepareContractWriteConfig,
   useContractEvent,
   UseContractEventConfig,
+  useContractRead,
+  UseContractReadConfig,
 } from 'wagmi'
 import {
-  ReadContractResult,
   WriteContractMode,
   PrepareWriteContractResult,
+  ReadContractResult,
 } from 'wagmi/actions'
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC6551Account_V2_
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export const erc6551AccountV2ABI = [
+  {
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+    inputs: [
+      { name: '_defaultImplementation', internalType: 'address', type: 'address' },
+    ],
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'previousAdmin', internalType: 'address', type: 'address', indexed: false },
+      { name: 'newAdmin', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'AdminChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [{ name: 'beacon', internalType: 'address', type: 'address', indexed: true }],
+    name: 'BeaconUpgraded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address', indexed: true },
+    ],
+    name: 'Upgraded',
+  },
+  { stateMutability: 'payable', type: 'fallback' },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [],
+    name: 'initialize',
+    outputs: [],
+  },
+  { stateMutability: 'payable', type: 'receive' },
+] as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export const erc6551AccountV2Address = {
+  1: '0x2D25602551487C3f3354dD80D76D54383A243358',
+  5: '0x2D25602551487C3f3354dD80D76D54383A243358',
+} as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export const erc6551AccountV2Config = {
+  address: erc6551AccountV2Address,
+  abi: erc6551AccountV2ABI,
+} as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC6551Account_V3_
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export const erc6551AccountV3ABI = [
+  {
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+    inputs: [
+      { name: '_guardian', internalType: 'address', type: 'address' },
+      { name: '_defaultImplementation', internalType: 'address', type: 'address' },
+    ],
+  },
+  { type: 'error', inputs: [], name: 'AlreadyInitialized' },
+  { type: 'error', inputs: [], name: 'InvalidImplementation' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'previousAdmin', internalType: 'address', type: 'address', indexed: false },
+      { name: 'newAdmin', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'AdminChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [{ name: 'beacon', internalType: 'address', type: 'address', indexed: true }],
+    name: 'BeaconUpgraded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address', indexed: true },
+    ],
+    name: 'Upgraded',
+  },
+  { stateMutability: 'payable', type: 'fallback' },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'implementation', internalType: 'address', type: 'address' }],
+    name: 'initialize',
+    outputs: [],
+  },
+  { stateMutability: 'payable', type: 'receive' },
+] as const
+
+/**
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export const erc6551AccountV3Address = {
+  5: '0x9FFDEb36540e1a12b1F27751508715174122C090',
+} as const
+
+/**
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export const erc6551AccountV3Config = {
+  address: erc6551AccountV3Address,
+  abi: erc6551AccountV3ABI,
+} as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC6551Registry_V2_
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export const erc6551RegistryV2ABI = [
+  { type: 'error', inputs: [], name: 'InitializationFailed' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'account', internalType: 'address', type: 'address', indexed: false },
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256', indexed: false },
+      { name: 'tokenContract', internalType: 'address', type: 'address', indexed: false },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256', indexed: false },
+      { name: 'salt', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'AccountCreated',
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokenContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'salt', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'account',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokenContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'salt', internalType: 'uint256', type: 'uint256' },
+      { name: 'initData', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'createAccount',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+] as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export const erc6551RegistryV2Address = {
+  1: '0x02101dfB77FDE026414827Fdc604ddAF224F0921',
+  5: '0x02101dfB77FDE026414827Fdc604ddAF224F0921',
+} as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export const erc6551RegistryV2Config = {
+  address: erc6551RegistryV2Address,
+  abi: erc6551RegistryV2ABI,
+} as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC6551Registry_V3_
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export const erc6551RegistryV3ABI = [
+  { type: 'error', inputs: [], name: 'AccountCreationFailed' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'account', internalType: 'address', type: 'address', indexed: false },
+      { name: 'implementation', internalType: 'address', type: 'address', indexed: true },
+      { name: 'salt', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256', indexed: false },
+      { name: 'tokenContract', internalType: 'address', type: 'address', indexed: true },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256', indexed: true },
+    ],
+    name: 'ERC6551AccountCreated',
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+      { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokenContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'account',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+      { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokenContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'createAccount',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+] as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export const erc6551RegistryV3Address = {
+  1: '0x002c0c13181038780F552f0eC1B72e8C720147E6',
+  5: '0x002c0c13181038780F552f0eC1B72e8C720147E6',
+} as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export const erc6551RegistryV3Config = {
+  address: erc6551RegistryV3Address,
+  abi: erc6551RegistryV3ABI,
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WETH_
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export const wethABI = [
   {
@@ -177,14 +459,17 @@ export const wethABI = [
 ] as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export const wethAddress = {
   1: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  5: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
 } as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export const wethConfig = { address: wethAddress, abi: wethABI } as const
 
@@ -193,18 +478,21 @@ export const wethConfig = { address: wethAddress, abi: wethABI } as const
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export const zora1155ABI = [
   {
     stateMutability: 'nonpayable',
     type: 'constructor',
     inputs: [
-      { name: '_mintFeeAmount', internalType: 'uint256', type: 'uint256' },
       { name: '_mintFeeRecipient', internalType: 'address', type: 'address' },
-      { name: '_factory', internalType: 'address', type: 'address' },
+      { name: '_upgradeGate', internalType: 'address', type: 'address' },
+      { name: '_protocolRewards', internalType: 'address', type: 'address' },
     ],
   },
+  { type: 'error', inputs: [], name: 'ADDRESS_DELEGATECALL_TO_NON_CONTRACT' },
+  { type: 'error', inputs: [], name: 'ADDRESS_LOW_LEVEL_CALL_FAILED' },
   {
     type: 'error',
     inputs: [
@@ -213,11 +501,13 @@ export const zora1155ABI = [
     ],
     name: 'Burn_NotOwnerOrApproved',
   },
+  { type: 'error', inputs: [], name: 'CREATOR_FUNDS_RECIPIENT_NOT_SET' },
   {
     type: 'error',
     inputs: [{ name: 'reason', internalType: 'bytes', type: 'bytes' }],
     name: 'CallFailed',
   },
+  { type: 'error', inputs: [], name: 'Call_TokenIdMismatch' },
   {
     type: 'error',
     inputs: [
@@ -230,18 +520,28 @@ export const zora1155ABI = [
   },
   {
     type: 'error',
-    inputs: [
-      { name: 'mintFeeRecipient', internalType: 'address', type: 'address' },
-      { name: 'mintFee', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'CannotSendMintFee',
-  },
-  { type: 'error', inputs: [], name: 'CannotSetMintFeeToZeroAddress' },
-  {
-    type: 'error',
     inputs: [{ name: 'proposedAddress', internalType: 'address', type: 'address' }],
     name: 'Config_TransferHookNotSupported',
   },
+  { type: 'error', inputs: [], name: 'ERC1155_ACCOUNTS_AND_IDS_LENGTH_MISMATCH' },
+  { type: 'error', inputs: [], name: 'ERC1155_ADDRESS_ZERO_IS_NOT_A_VALID_OWNER' },
+  { type: 'error', inputs: [], name: 'ERC1155_BURN_AMOUNT_EXCEEDS_BALANCE' },
+  { type: 'error', inputs: [], name: 'ERC1155_BURN_FROM_ZERO_ADDRESS' },
+  { type: 'error', inputs: [], name: 'ERC1155_CALLER_IS_NOT_TOKEN_OWNER_OR_APPROVED' },
+  { type: 'error', inputs: [], name: 'ERC1155_ERC1155RECEIVER_REJECTED_TOKENS' },
+  { type: 'error', inputs: [], name: 'ERC1155_IDS_AND_AMOUNTS_LENGTH_MISMATCH' },
+  { type: 'error', inputs: [], name: 'ERC1155_INSUFFICIENT_BALANCE_FOR_TRANSFER' },
+  { type: 'error', inputs: [], name: 'ERC1155_MINT_TO_ZERO_ADDRESS' },
+  { type: 'error', inputs: [], name: 'ERC1155_SETTING_APPROVAL_FOR_SELF' },
+  {
+    type: 'error',
+    inputs: [],
+    name: 'ERC1155_TRANSFER_TO_NON_ERC1155RECEIVER_IMPLEMENTER',
+  },
+  { type: 'error', inputs: [], name: 'ERC1155_TRANSFER_TO_ZERO_ADDRESS' },
+  { type: 'error', inputs: [], name: 'ERC1967_NEW_IMPL_NOT_CONTRACT' },
+  { type: 'error', inputs: [], name: 'ERC1967_NEW_IMPL_NOT_UUPS' },
+  { type: 'error', inputs: [], name: 'ERC1967_UNSUPPORTED_PROXIABLEUUID' },
   {
     type: 'error',
     inputs: [
@@ -250,6 +550,8 @@ export const zora1155ABI = [
     ],
     name: 'ETHWithdrawFailed',
   },
+  { type: 'error', inputs: [], name: 'FUNCTION_MUST_BE_CALLED_THROUGH_ACTIVE_PROXY' },
+  { type: 'error', inputs: [], name: 'FUNCTION_MUST_BE_CALLED_THROUGH_DELEGATECALL' },
   {
     type: 'error',
     inputs: [
@@ -258,12 +560,12 @@ export const zora1155ABI = [
     ],
     name: 'FundsWithdrawInsolvent',
   },
+  { type: 'error', inputs: [], name: 'INITIALIZABLE_CONTRACT_ALREADY_INITIALIZED' },
+  { type: 'error', inputs: [], name: 'INITIALIZABLE_CONTRACT_IS_NOT_INITIALIZING' },
+  { type: 'error', inputs: [], name: 'INVALID_ADDRESS_ZERO' },
+  { type: 'error', inputs: [], name: 'INVALID_ETH_AMOUNT' },
   { type: 'error', inputs: [], name: 'InvalidMintSchedule' },
-  {
-    type: 'error',
-    inputs: [{ name: 'mintFeeBPS', internalType: 'uint256', type: 'uint256' }],
-    name: 'MintFeeCannotBeMoreThanZeroPointOneETH',
-  },
+  { type: 'error', inputs: [], name: 'MintNotYetStarted' },
   { type: 'error', inputs: [], name: 'Mint_InsolventSaleTransfer' },
   { type: 'error', inputs: [], name: 'Mint_TokenIDMintNotAllowed' },
   { type: 'error', inputs: [], name: 'Mint_UnknownCommand' },
@@ -273,6 +575,17 @@ export const zora1155ABI = [
     type: 'error',
     inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
     name: 'NoRendererForToken',
+  },
+  { type: 'error', inputs: [], name: 'ONLY_CREATE_REFERRAL' },
+  { type: 'error', inputs: [], name: 'PremintDeleted' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'caller', internalType: 'address', type: 'address' },
+      { name: 'recipient', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'ProtocolRewardsWithdrawFailed',
   },
   {
     type: 'error',
@@ -292,6 +605,11 @@ export const zora1155ABI = [
       { name: 'actual', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'TokenIdMismatch',
+  },
+  {
+    type: 'error',
+    inputs: [],
+    name: 'UUPS_UPGRADEABLE_MUST_NOT_BE_CALLED_THROUGH_DELEGATECALL',
   },
   {
     type: 'error',
@@ -381,6 +699,18 @@ export const zora1155ABI = [
       },
     ],
     name: 'ContractRendererUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'structHash', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      { name: 'domainName', internalType: 'string', type: 'string', indexed: false },
+      { name: 'version', internalType: 'string', type: 'string', indexed: false },
+      { name: 'creator', internalType: 'address', type: 'address', indexed: false },
+      { name: 'signature', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'CreatorAttribution',
   },
   {
     type: 'event',
@@ -623,7 +953,7 @@ export const zora1155ABI = [
       { name: 'ids', internalType: 'uint256[]', type: 'uint256[]' },
     ],
     name: 'balanceOfBatch',
-    outputs: [{ name: '', internalType: 'uint256[]', type: 'uint256[]' }],
+    outputs: [{ name: 'batchBalances', internalType: 'uint256[]', type: 'uint256[]' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -658,6 +988,71 @@ export const zora1155ABI = [
     outputs: [],
   },
   {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [{ name: 'numTokens', internalType: 'uint256', type: 'uint256' }],
+    name: 'computeFreeMintRewards',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct RewardsSettings',
+        type: 'tuple',
+        components: [
+          { name: 'creatorReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'createReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'mintReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'firstMinterReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'zoraReward', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [{ name: 'numTokens', internalType: 'uint256', type: 'uint256' }],
+    name: 'computePaidMintRewards',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct RewardsSettings',
+        type: 'tuple',
+        components: [
+          { name: 'creatorReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'createReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'mintReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'firstMinterReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'zoraReward', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [{ name: 'numTokens', internalType: 'uint256', type: 'uint256' }],
+    name: 'computeTotalReward',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'config',
+    outputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: '__gap1', internalType: 'uint96', type: 'uint96' },
+      { name: 'fundsRecipient', internalType: 'address payable', type: 'address' },
+      { name: '__gap2', internalType: 'uint96', type: 'uint96' },
+      {
+        name: 'transferHook',
+        internalType: 'contract ITransferHookReceiver',
+        type: 'address',
+      },
+      { name: '__gap3', internalType: 'uint96', type: 'uint96' },
+    ],
+  },
+  {
     stateMutability: 'view',
     type: 'function',
     inputs: [],
@@ -675,8 +1070,73 @@ export const zora1155ABI = [
     stateMutability: 'view',
     type: 'function',
     inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'createReferrals',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     name: 'customRenderers',
     outputs: [{ name: '', internalType: 'contract IRenderer1155', type: 'address' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      {
+        name: 'premintConfig',
+        internalType: 'struct PremintConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'tokenConfig',
+            internalType: 'struct TokenCreationConfig',
+            type: 'tuple',
+            components: [
+              { name: 'tokenURI', internalType: 'string', type: 'string' },
+              { name: 'maxSupply', internalType: 'uint256', type: 'uint256' },
+              { name: 'maxTokensPerAddress', internalType: 'uint64', type: 'uint64' },
+              { name: 'pricePerToken', internalType: 'uint96', type: 'uint96' },
+              { name: 'mintStart', internalType: 'uint64', type: 'uint64' },
+              { name: 'mintDuration', internalType: 'uint64', type: 'uint64' },
+              { name: 'royaltyMintSchedule', internalType: 'uint32', type: 'uint32' },
+              { name: 'royaltyBPS', internalType: 'uint32', type: 'uint32' },
+              { name: 'royaltyRecipient', internalType: 'address', type: 'address' },
+              { name: 'fixedPriceMinter', internalType: 'address', type: 'address' },
+            ],
+          },
+          { name: 'uid', internalType: 'uint32', type: 'uint32' },
+          { name: 'version', internalType: 'uint32', type: 'uint32' },
+          { name: 'deleted', internalType: 'bool', type: 'bool' },
+        ],
+      },
+      { name: 'signature', internalType: 'bytes', type: 'bytes' },
+      { name: 'sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'delegateSetupNewToken',
+    outputs: [{ name: 'newTokenId', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    name: 'delegatedTokenId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'firstMinters',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'getCreatorRewardRecipient',
+    outputs: [{ name: '', internalType: 'address payable', type: 'address' }],
   },
   {
     stateMutability: 'view',
@@ -686,16 +1146,6 @@ export const zora1155ABI = [
     outputs: [
       { name: 'customRenderer', internalType: 'contract IRenderer1155', type: 'address' },
     ],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [
-      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
-      { name: 'user', internalType: 'address', type: 'address' },
-    ],
-    name: 'getPermissions',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'view',
@@ -732,6 +1182,13 @@ export const zora1155ABI = [
         ],
       },
     ],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'implementation',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -796,18 +1253,24 @@ export const zora1155ABI = [
     outputs: [],
   },
   {
-    stateMutability: 'view',
+    stateMutability: 'pure',
     type: 'function',
     inputs: [],
     name: 'mintFee',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
-    stateMutability: 'view',
+    stateMutability: 'payable',
     type: 'function',
-    inputs: [],
-    name: 'mintFeeRecipient',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    inputs: [
+      { name: 'minter', internalType: 'contract IMinter1155', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'quantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'minterArguments', internalType: 'bytes', type: 'bytes' },
+      { name: 'mintReferral', internalType: 'address', type: 'address' },
+    ],
+    name: 'mintWithRewards',
+    outputs: [],
   },
   {
     stateMutability: 'nonpayable',
@@ -975,18 +1438,15 @@ export const zora1155ABI = [
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
-    stateMutability: 'view',
+    stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
-      { name: 'totalSupply', internalType: 'uint256', type: 'uint256' },
-      { name: 'mintAmount', internalType: 'uint256', type: 'uint256' },
+      { name: 'newURI', internalType: 'string', type: 'string' },
+      { name: 'maxSupply', internalType: 'uint256', type: 'uint256' },
+      { name: 'createReferral', internalType: 'address', type: 'address' },
     ],
-    name: 'supplyRoyaltyInfo',
-    outputs: [
-      { name: 'receiver', internalType: 'address', type: 'address' },
-      { name: 'royaltyAmount', internalType: 'uint256', type: 'uint256' },
-    ],
+    name: 'setupNewTokenWithCreateReferral',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'view',
@@ -1010,6 +1470,16 @@ export const zora1155ABI = [
       { name: '_newName', internalType: 'string', type: 'string' },
     ],
     name: 'updateContractMetadata',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'recipient', internalType: 'address', type: 'address' },
+    ],
+    name: 'updateCreateReferral',
     outputs: [],
   },
   {
@@ -1072,17 +1542,30 @@ export const zora1155ABI = [
     name: 'withdraw',
     outputs: [],
   },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'withdrawRewards',
+    outputs: [],
+  },
 ] as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export const zora1155Address = {
   1: '0x4482c5929618b848a46E3DA830A3D71085A5DE07',
+  5: '0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA',
 } as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export const zora1155Config = { address: zora1155Address, abi: zora1155ABI } as const
 
@@ -1091,18 +1574,14 @@ export const zora1155Config = { address: zora1155Address, abi: zora1155ABI } as 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export const zora721DropABI = [
   {
     stateMutability: 'nonpayable',
     type: 'constructor',
     inputs: [
-      {
-        name: '_zoraFeeManager',
-        internalType: 'contract IZoraFeeManager',
-        type: 'address',
-      },
       { name: '_zoraERC721TransferHelper', internalType: 'address', type: 'address' },
       {
         name: '_factoryUpgradeGate',
@@ -1110,6 +1589,9 @@ export const zora721DropABI = [
         type: 'address',
       },
       { name: '_marketFilterDAOAddress', internalType: 'address', type: 'address' },
+      { name: '_mintFeeAmount', internalType: 'uint256', type: 'uint256' },
+      { name: '_mintFeeRecipient', internalType: 'address payable', type: 'address' },
+      { name: '_protocolRewards', internalType: 'address', type: 'address' },
     ],
   },
   {
@@ -1130,10 +1612,17 @@ export const zora721DropABI = [
   { type: 'error', inputs: [], name: 'ApprovalToCurrentOwner' },
   { type: 'error', inputs: [], name: 'ApproveToCaller' },
   { type: 'error', inputs: [], name: 'BalanceQueryForZeroAddress' },
+  { type: 'error', inputs: [], name: 'CREATOR_FUNDS_RECIPIENT_NOT_SET' },
+  { type: 'error', inputs: [], name: 'ExternalMetadataRenderer_CallFailed' },
+  { type: 'error', inputs: [], name: 'INVALID_ADDRESS_ZERO' },
+  { type: 'error', inputs: [], name: 'INVALID_ETH_AMOUNT' },
+  { type: 'error', inputs: [], name: 'InvalidMintSchedule' },
   { type: 'error', inputs: [], name: 'MarketFilterDAOAddressNotSupportedForChain' },
+  { type: 'error', inputs: [], name: 'MintFee_FundsSendFailure' },
   { type: 'error', inputs: [], name: 'MintToZeroAddress' },
   { type: 'error', inputs: [], name: 'MintZeroQuantity' },
   { type: 'error', inputs: [], name: 'Mint_SoldOut' },
+  { type: 'error', inputs: [], name: 'ONLY_CREATE_REFERRAL' },
   { type: 'error', inputs: [], name: 'ONLY_OWNER' },
   { type: 'error', inputs: [], name: 'ONLY_PENDING_OWNER' },
   {
@@ -1145,6 +1634,7 @@ export const zora721DropABI = [
   { type: 'error', inputs: [], name: 'Presale_Inactive' },
   { type: 'error', inputs: [], name: 'Presale_MerkleNotApproved' },
   { type: 'error', inputs: [], name: 'Presale_TooManyForAddress' },
+  { type: 'error', inputs: [], name: 'ProtocolRewards_WithdrawSendFailure' },
   { type: 'error', inputs: [], name: 'Purchase_TooManyForAddress' },
   {
     type: 'error',
@@ -1196,6 +1686,15 @@ export const zora721DropABI = [
   {
     type: 'event',
     anonymous: false,
+    inputs: [
+      { name: '_fromTokenId', internalType: 'uint256', type: 'uint256', indexed: false },
+      { name: '_toTokenId', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'BatchMetadataUpdate',
+  },
+  {
+    type: 'event',
+    anonymous: false,
     inputs: [{ name: 'beacon', internalType: 'address', type: 'address', indexed: true }],
     name: 'BeaconUpgraded',
   },
@@ -1228,6 +1727,41 @@ export const zora721DropABI = [
       { name: 'feeAmount', internalType: 'uint256', type: 'uint256', indexed: false },
     ],
     name: 'FundsWithdrawn',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '_tokenId', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'MetadataUpdate',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'sender', internalType: 'address', type: 'address', indexed: true },
+      { name: 'tokenContract', internalType: 'address', type: 'address', indexed: true },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256', indexed: true },
+      { name: 'quantity', internalType: 'uint256', type: 'uint256', indexed: false },
+      { name: 'comment', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'MintComment',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'mintFeeAmount', internalType: 'uint256', type: 'uint256', indexed: false },
+      {
+        name: 'mintFeeRecipient',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      { name: 'success', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'MintFeePayout',
   },
   {
     type: 'event',
@@ -1429,6 +1963,60 @@ export const zora721DropABI = [
     outputs: [],
   },
   {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'data', internalType: 'bytes', type: 'bytes' }],
+    name: 'callMetadataRenderer',
+    outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [{ name: 'numTokens', internalType: 'uint256', type: 'uint256' }],
+    name: 'computeFreeMintRewards',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct RewardsSettings',
+        type: 'tuple',
+        components: [
+          { name: 'creatorReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'createReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'mintReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'firstMinterReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'zoraReward', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [{ name: 'numTokens', internalType: 'uint256', type: 'uint256' }],
+    name: 'computePaidMintRewards',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct RewardsSettings',
+        type: 'tuple',
+        components: [
+          { name: 'creatorReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'createReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'mintReferralReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'firstMinterReward', internalType: 'uint256', type: 'uint256' },
+          { name: 'zoraReward', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [{ name: 'numTokens', internalType: 'uint256', type: 'uint256' }],
+    name: 'computeTotalReward',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
     stateMutability: 'view',
     type: 'function',
     inputs: [],
@@ -1457,6 +2045,22 @@ export const zora721DropABI = [
     inputs: [],
     name: 'contractVersion',
     outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'createReferral',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'factoryUpgradeGate',
+    outputs: [
+      { name: '', internalType: 'contract IFactoryUpgradeGate', type: 'address' },
+    ],
   },
   {
     stateMutability: 'nonpayable',
@@ -1509,26 +2113,14 @@ export const zora721DropABI = [
       { name: '_fundsRecipient', internalType: 'address payable', type: 'address' },
       { name: '_editionSize', internalType: 'uint64', type: 'uint64' },
       { name: '_royaltyBPS', internalType: 'uint16', type: 'uint16' },
-      {
-        name: '_salesConfig',
-        internalType: 'struct IERC721Drop.SalesConfiguration',
-        type: 'tuple',
-        components: [
-          { name: 'publicSalePrice', internalType: 'uint104', type: 'uint104' },
-          { name: 'maxSalePurchasePerAddress', internalType: 'uint32', type: 'uint32' },
-          { name: 'publicSaleStart', internalType: 'uint64', type: 'uint64' },
-          { name: 'publicSaleEnd', internalType: 'uint64', type: 'uint64' },
-          { name: 'presaleStart', internalType: 'uint64', type: 'uint64' },
-          { name: 'presaleEnd', internalType: 'uint64', type: 'uint64' },
-          { name: 'presaleMerkleRoot', internalType: 'bytes32', type: 'bytes32' },
-        ],
-      },
+      { name: '_setupCalls', internalType: 'bytes[]', type: 'bytes[]' },
       {
         name: '_metadataRenderer',
         internalType: 'contract IMetadataRenderer',
         type: 'address',
       },
       { name: '_metadataRendererInit', internalType: 'bytes', type: 'bytes' },
+      { name: '_createReferral', internalType: 'address', type: 'address' },
     ],
     name: 'initialize',
     outputs: [],
@@ -1561,8 +2153,27 @@ export const zora721DropABI = [
     stateMutability: 'view',
     type: 'function',
     inputs: [],
+    name: 'marketFilterDAOAddress',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
     name: 'metadataRenderer',
     outputs: [{ name: '', internalType: 'contract IMetadataRenderer', type: 'address' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'recipient', internalType: 'address', type: 'address' },
+      { name: 'quantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'comment', internalType: 'string', type: 'string' },
+      { name: 'mintReferral', internalType: 'address', type: 'address' },
+    ],
+    name: 'mintWithRewards',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'view',
@@ -1581,6 +2192,13 @@ export const zora721DropABI = [
         ],
       },
     ],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'data', internalType: 'bytes[]', type: 'bytes[]' }],
+    name: 'multicall',
+    outputs: [{ name: 'results', internalType: 'bytes[]', type: 'bytes[]' }],
   },
   {
     stateMutability: 'view',
@@ -1637,6 +2255,54 @@ export const zora721DropABI = [
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'quantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'maxQuantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'pricePerToken', internalType: 'uint256', type: 'uint256' },
+      { name: 'merkleProof', internalType: 'bytes32[]', type: 'bytes32[]' },
+      { name: 'comment', internalType: 'string', type: 'string' },
+    ],
+    name: 'purchasePresaleWithComment',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'quantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'maxQuantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'pricePerToken', internalType: 'uint256', type: 'uint256' },
+      { name: 'merkleProof', internalType: 'bytes32[]', type: 'bytes32[]' },
+      { name: 'comment', internalType: 'string', type: 'string' },
+      { name: 'mintReferral', internalType: 'address', type: 'address' },
+    ],
+    name: 'purchasePresaleWithRewards',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'quantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'comment', internalType: 'string', type: 'string' },
+    ],
+    name: 'purchaseWithComment',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'recipient', internalType: 'address', type: 'address' },
+      { name: 'quantity', internalType: 'uint256', type: 'uint256' },
+      { name: 'comment', internalType: 'string', type: 'string' },
+    ],
+    name: 'purchaseWithRecipient',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
@@ -1668,6 +2334,13 @@ export const zora721DropABI = [
       { name: 'receiver', internalType: 'address', type: 'address' },
       { name: 'royaltyAmount', internalType: 'uint256', type: 'uint256' },
     ],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'royaltyMintSchedule',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -1830,9 +2503,23 @@ export const zora721DropABI = [
   {
     stateMutability: 'nonpayable',
     type: 'function',
+    inputs: [{ name: 'recipient', internalType: 'address', type: 'address' }],
+    name: 'updateCreateReferral',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
     inputs: [{ name: 'args', internalType: 'bytes', type: 'bytes' }],
     name: 'updateMarketFilterSettings',
     outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'newSchedule', internalType: 'uint32', type: 'uint32' }],
+    name: 'updateRoyaltyMintSchedule',
+    outputs: [],
   },
   {
     stateMutability: 'nonpayable',
@@ -1861,32 +2548,45 @@ export const zora721DropABI = [
   {
     stateMutability: 'nonpayable',
     type: 'function',
-    inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
-    name: 'zoraFeeForAmount',
-    outputs: [
-      { name: '', internalType: 'address payable', type: 'address' },
-      { name: '', internalType: 'uint256', type: 'uint256' },
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
     ],
+    name: 'withdrawRewards',
+    outputs: [],
   },
   {
     stateMutability: 'view',
     type: 'function',
     inputs: [],
-    name: 'zoraFeeManager',
-    outputs: [{ name: '', internalType: 'contract IZoraFeeManager', type: 'address' }],
+    name: 'zoraERC721TransferHelper',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'quantity', internalType: 'uint256', type: 'uint256' }],
+    name: 'zoraFeeForAmount',
+    outputs: [
+      { name: 'recipient', internalType: 'address payable', type: 'address' },
+      { name: 'fee', internalType: 'uint256', type: 'uint256' },
+    ],
   },
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export const zora721DropAddress = {
   1: '0x7C74dfe39976dc395529c14e54a597809980e01C',
+  5: '0xe4c17055048aEe01D0d122804816fEe5E6ac4A67',
 } as const
 
 /**
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export const zora721DropConfig = {
   address: zora721DropAddress,
@@ -1898,9 +2598,812 @@ export const zora721DropConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function useErc6551AccountV2Write<
+  TFunctionName extends string,
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV2Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof erc6551AccountV2ABI, string>['request']['abi'],
+        TFunctionName,
+        TMode
+      > & { address?: Address; chainId?: TChainId }
+    : UseContractWriteConfig<typeof erc6551AccountV2ABI, TFunctionName, TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof erc6551AccountV2ABI, TFunctionName, TMode>({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV2ABI}__ and `functionName` set to `"initialize"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function useErc6551AccountV2Initialize<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV2Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV2ABI,
+          'initialize'
+        >['request']['abi'],
+        'initialize',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'initialize' }
+    : UseContractWriteConfig<typeof erc6551AccountV2ABI, 'initialize', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'initialize'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof erc6551AccountV2ABI, 'initialize', TMode>({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    functionName: 'initialize',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function usePrepareErc6551AccountV2Write<TFunctionName extends string>(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV2ABI, TFunctionName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551AccountV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV2ABI, TFunctionName>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV2ABI}__ and `functionName` set to `"initialize"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function usePrepareErc6551AccountV2Initialize(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV2ABI, 'initialize'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    functionName: 'initialize',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV2ABI, 'initialize'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function useErc6551AccountV2Event<TEventName extends string>(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV2ABI, TEventName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551AccountV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV2ABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV2ABI}__ and `eventName` set to `"AdminChanged"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function useErc6551AccountV2AdminChangedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV2ABI, 'AdminChanged'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    eventName: 'AdminChanged',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV2ABI, 'AdminChanged'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV2ABI}__ and `eventName` set to `"BeaconUpgraded"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function useErc6551AccountV2BeaconUpgradedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV2ABI, 'BeaconUpgraded'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    eventName: 'BeaconUpgraded',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV2ABI, 'BeaconUpgraded'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV2ABI}__ and `eventName` set to `"Upgraded"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
+ */
+export function useErc6551AccountV2UpgradedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV2ABI, 'Upgraded'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551AccountV2ABI,
+    address: erc6551AccountV2Address[chainId as keyof typeof erc6551AccountV2Address],
+    eventName: 'Upgraded',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV2ABI, 'Upgraded'>)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function useErc6551AccountV3Write<
+  TFunctionName extends string,
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof erc6551AccountV3ABI, string>['request']['abi'],
+        TFunctionName,
+        TMode
+      > & { address?: Address; chainId?: TChainId }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, TFunctionName, TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, TFunctionName, TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"initialize"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function useErc6551AccountV3Initialize<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'initialize'
+        >['request']['abi'],
+        'initialize',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'initialize' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'initialize', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'initialize'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'initialize', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'initialize',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function usePrepareErc6551AccountV3Write<TFunctionName extends string>(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, TFunctionName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, TFunctionName>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"initialize"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function usePrepareErc6551AccountV3Initialize(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'initialize'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'initialize',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'initialize'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function useErc6551AccountV3Event<TEventName extends string>(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, TEventName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"AdminChanged"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function useErc6551AccountV3AdminChangedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, 'AdminChanged'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    eventName: 'AdminChanged',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, 'AdminChanged'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"BeaconUpgraded"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function useErc6551AccountV3BeaconUpgradedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, 'BeaconUpgraded'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    eventName: 'BeaconUpgraded',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, 'BeaconUpgraded'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"Upgraded"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ */
+export function useErc6551AccountV3UpgradedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, 'Upgraded'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    eventName: 'Upgraded',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, 'Upgraded'>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551RegistryV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function useErc6551RegistryV2Read<
+  TFunctionName extends string,
+  TSelectData = ReadContractResult<typeof erc6551RegistryV2ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551RegistryV2ABI, TFunctionName, TSelectData>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551RegistryV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    ...config,
+  } as UseContractReadConfig<typeof erc6551RegistryV2ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551RegistryV2ABI}__ and `functionName` set to `"account"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function useErc6551RegistryV2Account<
+  TFunctionName extends 'account',
+  TSelectData = ReadContractResult<typeof erc6551RegistryV2ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551RegistryV2ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551RegistryV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    functionName: 'account',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551RegistryV2ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551RegistryV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function useErc6551RegistryV2Write<
+  TFunctionName extends string,
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551RegistryV2Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof erc6551RegistryV2ABI, string>['request']['abi'],
+        TFunctionName,
+        TMode
+      > & { address?: Address; chainId?: TChainId }
+    : UseContractWriteConfig<typeof erc6551RegistryV2ABI, TFunctionName, TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof erc6551RegistryV2ABI, TFunctionName, TMode>({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551RegistryV2ABI}__ and `functionName` set to `"createAccount"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function useErc6551RegistryV2CreateAccount<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551RegistryV2Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551RegistryV2ABI,
+          'createAccount'
+        >['request']['abi'],
+        'createAccount',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'createAccount' }
+    : UseContractWriteConfig<typeof erc6551RegistryV2ABI, 'createAccount', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'createAccount'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof erc6551RegistryV2ABI, 'createAccount', TMode>({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    functionName: 'createAccount',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551RegistryV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function usePrepareErc6551RegistryV2Write<TFunctionName extends string>(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551RegistryV2ABI, TFunctionName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551RegistryV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551RegistryV2ABI, TFunctionName>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551RegistryV2ABI}__ and `functionName` set to `"createAccount"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function usePrepareErc6551RegistryV2CreateAccount(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551RegistryV2ABI, 'createAccount'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551RegistryV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    functionName: 'createAccount',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551RegistryV2ABI, 'createAccount'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551RegistryV2ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function useErc6551RegistryV2Event<TEventName extends string>(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551RegistryV2ABI, TEventName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551RegistryV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    ...config,
+  } as UseContractEventConfig<typeof erc6551RegistryV2ABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551RegistryV2ABI}__ and `eventName` set to `"AccountCreated"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
+ */
+export function useErc6551RegistryV2AccountCreatedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551RegistryV2ABI, 'AccountCreated'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551RegistryV2Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551RegistryV2ABI,
+    address: erc6551RegistryV2Address[chainId as keyof typeof erc6551RegistryV2Address],
+    eventName: 'AccountCreated',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551RegistryV2ABI, 'AccountCreated'>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551RegistryV3ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function useErc6551RegistryV3Read<
+  TFunctionName extends string,
+  TSelectData = ReadContractResult<typeof erc6551RegistryV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551RegistryV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551RegistryV3Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    ...config,
+  } as UseContractReadConfig<typeof erc6551RegistryV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551RegistryV3ABI}__ and `functionName` set to `"account"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function useErc6551RegistryV3Account<
+  TFunctionName extends 'account',
+  TSelectData = ReadContractResult<typeof erc6551RegistryV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551RegistryV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551RegistryV3Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    functionName: 'account',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551RegistryV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551RegistryV3ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function useErc6551RegistryV3Write<
+  TFunctionName extends string,
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551RegistryV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof erc6551RegistryV3ABI, string>['request']['abi'],
+        TFunctionName,
+        TMode
+      > & { address?: Address; chainId?: TChainId }
+    : UseContractWriteConfig<typeof erc6551RegistryV3ABI, TFunctionName, TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof erc6551RegistryV3ABI, TFunctionName, TMode>({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551RegistryV3ABI}__ and `functionName` set to `"createAccount"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function useErc6551RegistryV3CreateAccount<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551RegistryV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551RegistryV3ABI,
+          'createAccount'
+        >['request']['abi'],
+        'createAccount',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'createAccount' }
+    : UseContractWriteConfig<typeof erc6551RegistryV3ABI, 'createAccount', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'createAccount'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof erc6551RegistryV3ABI, 'createAccount', TMode>({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    functionName: 'createAccount',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551RegistryV3ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function usePrepareErc6551RegistryV3Write<TFunctionName extends string>(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551RegistryV3ABI, TFunctionName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551RegistryV3Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551RegistryV3ABI, TFunctionName>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551RegistryV3ABI}__ and `functionName` set to `"createAccount"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function usePrepareErc6551RegistryV3CreateAccount(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551RegistryV3ABI, 'createAccount'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551RegistryV3Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    functionName: 'createAccount',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551RegistryV3ABI, 'createAccount'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551RegistryV3ABI}__.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function useErc6551RegistryV3Event<TEventName extends string>(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551RegistryV3ABI, TEventName>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551RegistryV3Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    ...config,
+  } as UseContractEventConfig<typeof erc6551RegistryV3ABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551RegistryV3ABI}__ and `eventName` set to `"ERC6551AccountCreated"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x002c0c13181038780F552f0eC1B72e8C720147E6)
+ */
+export function useErc6551RegistryV3Erc6551AccountCreatedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551RegistryV3ABI, 'ERC6551AccountCreated'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551RegistryV3Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: erc6551RegistryV3ABI,
+    address: erc6551RegistryV3Address[chainId as keyof typeof erc6551RegistryV3Address],
+    eventName: 'ERC6551AccountCreated',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551RegistryV3ABI, 'ERC6551AccountCreated'>)
+}
+
+/**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethRead<
   TFunctionName extends string,
@@ -1911,9 +3414,12 @@ export function useWethRead<
     'abi' | 'address'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
 }
@@ -1921,7 +3427,8 @@ export function useWethRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"name"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethName<
   TFunctionName extends 'name',
@@ -1932,9 +3439,12 @@ export function useWethName<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'name',
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
@@ -1943,7 +3453,8 @@ export function useWethName<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"totalSupply"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethTotalSupply<
   TFunctionName extends 'totalSupply',
@@ -1954,9 +3465,12 @@ export function useWethTotalSupply<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'totalSupply',
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
@@ -1965,7 +3479,8 @@ export function useWethTotalSupply<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"decimals"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethDecimals<
   TFunctionName extends 'decimals',
@@ -1976,9 +3491,12 @@ export function useWethDecimals<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'decimals',
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
@@ -1987,7 +3505,8 @@ export function useWethDecimals<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"balanceOf"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethBalanceOf<
   TFunctionName extends 'balanceOf',
@@ -1998,9 +3517,12 @@ export function useWethBalanceOf<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'balanceOf',
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
@@ -2009,7 +3531,8 @@ export function useWethBalanceOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"symbol"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethSymbol<
   TFunctionName extends 'symbol',
@@ -2020,9 +3543,12 @@ export function useWethSymbol<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'symbol',
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
@@ -2031,7 +3557,8 @@ export function useWethSymbol<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"allowance"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethAllowance<
   TFunctionName extends 'allowance',
@@ -2042,9 +3569,12 @@ export function useWethAllowance<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'allowance',
     ...config,
   } as UseContractReadConfig<typeof wethABI, TFunctionName, TSelectData>)
@@ -2053,7 +3583,8 @@ export function useWethAllowance<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethWrite<
   TFunctionName extends string,
@@ -2072,9 +3603,12 @@ export function useWethWrite<
         chainId?: TChainId
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof wethABI, TFunctionName, TMode>({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     ...config,
   } as any)
 }
@@ -2082,7 +3616,8 @@ export function useWethWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"approve"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethApprove<
   TMode extends WriteContractMode = undefined,
@@ -2101,9 +3636,12 @@ export function useWethApprove<
         functionName?: 'approve'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof wethABI, 'approve', TMode>({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'approve',
     ...config,
   } as any)
@@ -2112,7 +3650,8 @@ export function useWethApprove<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -2131,9 +3670,12 @@ export function useWethTransferFrom<
         functionName?: 'transferFrom'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof wethABI, 'transferFrom', TMode>({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'transferFrom',
     ...config,
   } as any)
@@ -2142,7 +3684,8 @@ export function useWethTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethWithdraw<
   TMode extends WriteContractMode = undefined,
@@ -2161,9 +3704,12 @@ export function useWethWithdraw<
         functionName?: 'withdraw'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof wethABI, 'withdraw', TMode>({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'withdraw',
     ...config,
   } as any)
@@ -2172,7 +3718,8 @@ export function useWethWithdraw<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transfer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethTransfer<
   TMode extends WriteContractMode = undefined,
@@ -2191,9 +3738,12 @@ export function useWethTransfer<
         functionName?: 'transfer'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof wethABI, 'transfer', TMode>({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'transfer',
     ...config,
   } as any)
@@ -2202,7 +3752,8 @@ export function useWethTransfer<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"deposit"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethDeposit<
   TMode extends WriteContractMode = undefined,
@@ -2221,9 +3772,12 @@ export function useWethDeposit<
         functionName?: 'deposit'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof wethABI, 'deposit', TMode>({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'deposit',
     ...config,
   } as any)
@@ -2232,7 +3786,8 @@ export function useWethDeposit<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function usePrepareWethWrite<TFunctionName extends string>(
   config: Omit<
@@ -2240,9 +3795,12 @@ export function usePrepareWethWrite<TFunctionName extends string>(
     'abi' | 'address'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     ...config,
   } as UsePrepareContractWriteConfig<typeof wethABI, TFunctionName>)
 }
@@ -2250,7 +3808,8 @@ export function usePrepareWethWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"approve"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function usePrepareWethApprove(
   config: Omit<
@@ -2258,9 +3817,12 @@ export function usePrepareWethApprove(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'approve',
     ...config,
   } as UsePrepareContractWriteConfig<typeof wethABI, 'approve'>)
@@ -2269,7 +3831,8 @@ export function usePrepareWethApprove(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function usePrepareWethTransferFrom(
   config: Omit<
@@ -2277,9 +3840,12 @@ export function usePrepareWethTransferFrom(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'transferFrom',
     ...config,
   } as UsePrepareContractWriteConfig<typeof wethABI, 'transferFrom'>)
@@ -2288,7 +3854,8 @@ export function usePrepareWethTransferFrom(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function usePrepareWethWithdraw(
   config: Omit<
@@ -2296,9 +3863,12 @@ export function usePrepareWethWithdraw(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'withdraw',
     ...config,
   } as UsePrepareContractWriteConfig<typeof wethABI, 'withdraw'>)
@@ -2307,7 +3877,8 @@ export function usePrepareWethWithdraw(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"transfer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function usePrepareWethTransfer(
   config: Omit<
@@ -2315,9 +3886,12 @@ export function usePrepareWethTransfer(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'transfer',
     ...config,
   } as UsePrepareContractWriteConfig<typeof wethABI, 'transfer'>)
@@ -2326,7 +3900,8 @@ export function usePrepareWethTransfer(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link wethABI}__ and `functionName` set to `"deposit"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function usePrepareWethDeposit(
   config: Omit<
@@ -2334,9 +3909,12 @@ export function usePrepareWethDeposit(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     functionName: 'deposit',
     ...config,
   } as UsePrepareContractWriteConfig<typeof wethABI, 'deposit'>)
@@ -2345,16 +3923,20 @@ export function usePrepareWethDeposit(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethEvent<TEventName extends string>(
   config: Omit<UseContractEventConfig<typeof wethABI, TEventName>, 'abi' | 'address'> & {
     chainId?: keyof typeof wethAddress
   } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     ...config,
   } as UseContractEventConfig<typeof wethABI, TEventName>)
 }
@@ -2362,7 +3944,8 @@ export function useWethEvent<TEventName extends string>(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Approval"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethApprovalEvent(
   config: Omit<
@@ -2370,9 +3953,12 @@ export function useWethApprovalEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     eventName: 'Approval',
     ...config,
   } as UseContractEventConfig<typeof wethABI, 'Approval'>)
@@ -2381,7 +3967,8 @@ export function useWethApprovalEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Transfer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethTransferEvent(
   config: Omit<
@@ -2389,9 +3976,12 @@ export function useWethTransferEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     eventName: 'Transfer',
     ...config,
   } as UseContractEventConfig<typeof wethABI, 'Transfer'>)
@@ -2400,7 +3990,8 @@ export function useWethTransferEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Deposit"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethDepositEvent(
   config: Omit<
@@ -2408,9 +3999,12 @@ export function useWethDepositEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     eventName: 'Deposit',
     ...config,
   } as UseContractEventConfig<typeof wethABI, 'Deposit'>)
@@ -2419,7 +4013,8 @@ export function useWethDepositEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link wethABI}__ and `eventName` set to `"Withdrawal"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
 export function useWethWithdrawalEvent(
   config: Omit<
@@ -2427,9 +4022,12 @@ export function useWethWithdrawalEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof wethAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: wethABI,
-    address: wethAddress[1],
+    address: wethAddress[chainId as keyof typeof wethAddress],
     eventName: 'Withdrawal',
     ...config,
   } as UseContractEventConfig<typeof wethABI, 'Withdrawal'>)
@@ -2438,7 +4036,8 @@ export function useWethWithdrawalEvent(
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Read<
   TFunctionName extends string,
@@ -2449,9 +4048,12 @@ export function useZora1155Read<
     'abi' | 'address'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2459,7 +4061,8 @@ export function useZora1155Read<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"CONTRACT_BASE_ID"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ContractBaseId<
   TFunctionName extends 'CONTRACT_BASE_ID',
@@ -2470,9 +4073,12 @@ export function useZora1155ContractBaseId<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'CONTRACT_BASE_ID',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2481,7 +4087,8 @@ export function useZora1155ContractBaseId<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_ADMIN"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155PermissionBitAdmin<
   TFunctionName extends 'PERMISSION_BIT_ADMIN',
@@ -2492,9 +4099,12 @@ export function useZora1155PermissionBitAdmin<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'PERMISSION_BIT_ADMIN',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2503,7 +4113,8 @@ export function useZora1155PermissionBitAdmin<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_FUNDS_MANAGER"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155PermissionBitFundsManager<
   TFunctionName extends 'PERMISSION_BIT_FUNDS_MANAGER',
@@ -2514,9 +4125,12 @@ export function useZora1155PermissionBitFundsManager<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'PERMISSION_BIT_FUNDS_MANAGER',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2525,7 +4139,8 @@ export function useZora1155PermissionBitFundsManager<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_METADATA"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155PermissionBitMetadata<
   TFunctionName extends 'PERMISSION_BIT_METADATA',
@@ -2536,9 +4151,12 @@ export function useZora1155PermissionBitMetadata<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'PERMISSION_BIT_METADATA',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2547,7 +4165,8 @@ export function useZora1155PermissionBitMetadata<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_MINTER"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155PermissionBitMinter<
   TFunctionName extends 'PERMISSION_BIT_MINTER',
@@ -2558,9 +4177,12 @@ export function useZora1155PermissionBitMinter<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'PERMISSION_BIT_MINTER',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2569,7 +4191,8 @@ export function useZora1155PermissionBitMinter<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"PERMISSION_BIT_SALES"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155PermissionBitSales<
   TFunctionName extends 'PERMISSION_BIT_SALES',
@@ -2580,9 +4203,12 @@ export function useZora1155PermissionBitSales<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'PERMISSION_BIT_SALES',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2591,7 +4217,8 @@ export function useZora1155PermissionBitSales<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"assumeLastTokenIdMatches"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155AssumeLastTokenIdMatches<
   TFunctionName extends 'assumeLastTokenIdMatches',
@@ -2602,9 +4229,12 @@ export function useZora1155AssumeLastTokenIdMatches<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'assumeLastTokenIdMatches',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2613,7 +4243,8 @@ export function useZora1155AssumeLastTokenIdMatches<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"balanceOf"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155BalanceOf<
   TFunctionName extends 'balanceOf',
@@ -2624,9 +4255,12 @@ export function useZora1155BalanceOf<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'balanceOf',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2635,7 +4269,8 @@ export function useZora1155BalanceOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"balanceOfBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155BalanceOfBatch<
   TFunctionName extends 'balanceOfBatch',
@@ -2646,10 +4281,117 @@ export function useZora1155BalanceOfBatch<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'balanceOfBatch',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"computeFreeMintRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155ComputeFreeMintRewards<
+  TFunctionName extends 'computeFreeMintRewards',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'computeFreeMintRewards',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"computePaidMintRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155ComputePaidMintRewards<
+  TFunctionName extends 'computePaidMintRewards',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'computePaidMintRewards',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"computeTotalReward"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155ComputeTotalReward<
+  TFunctionName extends 'computeTotalReward',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'computeTotalReward',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"config"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155Config<
+  TFunctionName extends 'config',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'config',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2657,7 +4399,8 @@ export function useZora1155BalanceOfBatch<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"contractURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ContractUri<
   TFunctionName extends 'contractURI',
@@ -2668,9 +4411,12 @@ export function useZora1155ContractUri<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'contractURI',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2679,7 +4425,8 @@ export function useZora1155ContractUri<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"contractVersion"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ContractVersion<
   TFunctionName extends 'contractVersion',
@@ -2690,10 +4437,39 @@ export function useZora1155ContractVersion<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'contractVersion',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"createReferrals"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155CreateReferrals<
+  TFunctionName extends 'createReferrals',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'createReferrals',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2701,7 +4477,8 @@ export function useZora1155ContractVersion<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"customRenderers"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155CustomRenderers<
   TFunctionName extends 'customRenderers',
@@ -2712,10 +4489,91 @@ export function useZora1155CustomRenderers<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'customRenderers',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"delegatedTokenId"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155DelegatedTokenId<
+  TFunctionName extends 'delegatedTokenId',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'delegatedTokenId',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"firstMinters"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155FirstMinters<
+  TFunctionName extends 'firstMinters',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'firstMinters',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getCreatorRewardRecipient"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155GetCreatorRewardRecipient<
+  TFunctionName extends 'getCreatorRewardRecipient',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'getCreatorRewardRecipient',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2723,7 +4581,8 @@ export function useZora1155CustomRenderers<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getCustomRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155GetCustomRenderer<
   TFunctionName extends 'getCustomRenderer',
@@ -2734,32 +4593,13 @@ export function useZora1155GetCustomRenderer<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'getCustomRenderer',
-    ...config,
-  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
-}
-
-/**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getPermissions"`.
- *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
- */
-export function useZora1155GetPermissions<
-  TFunctionName extends 'getPermissions',
-  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
->(
-  config: Omit<
-    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof zora1155Address } = {} as any
-) {
-  return useContractRead({
-    abi: zora1155ABI,
-    address: zora1155Address[1],
-    functionName: 'getPermissions',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2767,7 +4607,8 @@ export function useZora1155GetPermissions<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getRoyalties"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155GetRoyalties<
   TFunctionName extends 'getRoyalties',
@@ -2778,9 +4619,12 @@ export function useZora1155GetRoyalties<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'getRoyalties',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2789,7 +4633,8 @@ export function useZora1155GetRoyalties<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"getTokenInfo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155GetTokenInfo<
   TFunctionName extends 'getTokenInfo',
@@ -2800,10 +4645,39 @@ export function useZora1155GetTokenInfo<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'getTokenInfo',
+    ...config,
+  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"implementation"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155Implementation<
+  TFunctionName extends 'implementation',
+  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'implementation',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2811,7 +4685,8 @@ export function useZora1155GetTokenInfo<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"isAdminOrRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155IsAdminOrRole<
   TFunctionName extends 'isAdminOrRole',
@@ -2822,9 +4697,12 @@ export function useZora1155IsAdminOrRole<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'isAdminOrRole',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2833,7 +4711,8 @@ export function useZora1155IsAdminOrRole<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"isApprovedForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155IsApprovedForAll<
   TFunctionName extends 'isApprovedForAll',
@@ -2844,9 +4723,12 @@ export function useZora1155IsApprovedForAll<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'isApprovedForAll',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2855,7 +4737,8 @@ export function useZora1155IsApprovedForAll<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"metadataRendererContract"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155MetadataRendererContract<
   TFunctionName extends 'metadataRendererContract',
@@ -2866,9 +4749,12 @@ export function useZora1155MetadataRendererContract<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'metadataRendererContract',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2877,7 +4763,8 @@ export function useZora1155MetadataRendererContract<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mintFee"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155MintFee<
   TFunctionName extends 'mintFee',
@@ -2888,32 +4775,13 @@ export function useZora1155MintFee<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'mintFee',
-    ...config,
-  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
-}
-
-/**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mintFeeRecipient"`.
- *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
- */
-export function useZora1155MintFeeRecipient<
-  TFunctionName extends 'mintFeeRecipient',
-  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
->(
-  config: Omit<
-    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof zora1155Address } = {} as any
-) {
-  return useContractRead({
-    abi: zora1155ABI,
-    address: zora1155Address[1],
-    functionName: 'mintFeeRecipient',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -2921,7 +4789,8 @@ export function useZora1155MintFeeRecipient<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"name"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Name<
   TFunctionName extends 'name',
@@ -2932,9 +4801,12 @@ export function useZora1155Name<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'name',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2943,7 +4815,8 @@ export function useZora1155Name<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"nextTokenId"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155NextTokenId<
   TFunctionName extends 'nextTokenId',
@@ -2954,9 +4827,12 @@ export function useZora1155NextTokenId<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'nextTokenId',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2965,7 +4841,8 @@ export function useZora1155NextTokenId<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"owner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Owner<
   TFunctionName extends 'owner',
@@ -2976,9 +4853,12 @@ export function useZora1155Owner<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'owner',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -2987,7 +4867,8 @@ export function useZora1155Owner<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"permissions"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Permissions<
   TFunctionName extends 'permissions',
@@ -2998,9 +4879,12 @@ export function useZora1155Permissions<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'permissions',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -3009,7 +4893,8 @@ export function useZora1155Permissions<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"proxiableUUID"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ProxiableUuid<
   TFunctionName extends 'proxiableUUID',
@@ -3020,9 +4905,12 @@ export function useZora1155ProxiableUuid<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'proxiableUUID',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -3031,7 +4919,8 @@ export function useZora1155ProxiableUuid<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"royalties"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Royalties<
   TFunctionName extends 'royalties',
@@ -3042,9 +4931,12 @@ export function useZora1155Royalties<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'royalties',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -3053,7 +4945,8 @@ export function useZora1155Royalties<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"royaltyInfo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155RoyaltyInfo<
   TFunctionName extends 'royaltyInfo',
@@ -3064,32 +4957,13 @@ export function useZora1155RoyaltyInfo<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'royaltyInfo',
-    ...config,
-  } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
-}
-
-/**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"supplyRoyaltyInfo"`.
- *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
- */
-export function useZora1155SupplyRoyaltyInfo<
-  TFunctionName extends 'supplyRoyaltyInfo',
-  TSelectData = ReadContractResult<typeof zora1155ABI, TFunctionName>
->(
-  config: Omit<
-    UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof zora1155Address } = {} as any
-) {
-  return useContractRead({
-    abi: zora1155ABI,
-    address: zora1155Address[1],
-    functionName: 'supplyRoyaltyInfo',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
 }
@@ -3097,7 +4971,8 @@ export function useZora1155SupplyRoyaltyInfo<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -3108,9 +4983,12 @@ export function useZora1155SupportsInterface<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'supportsInterface',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -3119,7 +4997,8 @@ export function useZora1155SupportsInterface<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"symbol"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Symbol<
   TFunctionName extends 'symbol',
@@ -3130,9 +5009,12 @@ export function useZora1155Symbol<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'symbol',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -3141,7 +5023,8 @@ export function useZora1155Symbol<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"uri"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Uri<
   TFunctionName extends 'uri',
@@ -3152,9 +5035,12 @@ export function useZora1155Uri<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'uri',
     ...config,
   } as UseContractReadConfig<typeof zora1155ABI, TFunctionName, TSelectData>)
@@ -3163,7 +5049,8 @@ export function useZora1155Uri<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Write<
   TFunctionName extends string,
@@ -3182,9 +5069,12 @@ export function useZora1155Write<
         chainId?: TChainId
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, TFunctionName, TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     ...config,
   } as any)
 }
@@ -3192,7 +5082,8 @@ export function useZora1155Write<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"addPermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155AddPermission<
   TMode extends WriteContractMode = undefined,
@@ -3211,9 +5102,12 @@ export function useZora1155AddPermission<
         functionName?: 'addPermission'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'addPermission', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'addPermission',
     ...config,
   } as any)
@@ -3222,7 +5116,8 @@ export function useZora1155AddPermission<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155AdminMint<
   TMode extends WriteContractMode = undefined,
@@ -3241,9 +5136,12 @@ export function useZora1155AdminMint<
         functionName?: 'adminMint'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'adminMint', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'adminMint',
     ...config,
   } as any)
@@ -3252,7 +5150,8 @@ export function useZora1155AdminMint<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMintBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155AdminMintBatch<
   TMode extends WriteContractMode = undefined,
@@ -3274,9 +5173,12 @@ export function useZora1155AdminMintBatch<
         functionName?: 'adminMintBatch'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'adminMintBatch', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'adminMintBatch',
     ...config,
   } as any)
@@ -3285,7 +5187,8 @@ export function useZora1155AdminMintBatch<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"burnBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155BurnBatch<
   TMode extends WriteContractMode = undefined,
@@ -3304,9 +5207,12 @@ export function useZora1155BurnBatch<
         functionName?: 'burnBatch'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'burnBatch', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'burnBatch',
     ...config,
   } as any)
@@ -3315,7 +5221,8 @@ export function useZora1155BurnBatch<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155CallRenderer<
   TMode extends WriteContractMode = undefined,
@@ -3334,9 +5241,12 @@ export function useZora1155CallRenderer<
         functionName?: 'callRenderer'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'callRenderer', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'callRenderer',
     ...config,
   } as any)
@@ -3345,7 +5255,8 @@ export function useZora1155CallRenderer<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callSale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155CallSale<
   TMode extends WriteContractMode = undefined,
@@ -3364,10 +5275,54 @@ export function useZora1155CallSale<
         functionName?: 'callSale'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'callSale', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'callSale',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"delegateSetupNewToken"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155DelegateSetupNewToken<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora1155Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora1155ABI,
+          'delegateSetupNewToken'
+        >['request']['abi'],
+        'delegateSetupNewToken',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'delegateSetupNewToken'
+      }
+    : UseContractWriteConfig<typeof zora1155ABI, 'delegateSetupNewToken', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'delegateSetupNewToken'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora1155ABI, 'delegateSetupNewToken', TMode>({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'delegateSetupNewToken',
     ...config,
   } as any)
 }
@@ -3375,7 +5330,8 @@ export function useZora1155CallSale<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Initialize<
   TMode extends WriteContractMode = undefined,
@@ -3394,9 +5350,12 @@ export function useZora1155Initialize<
         functionName?: 'initialize'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'initialize', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'initialize',
     ...config,
   } as any)
@@ -3405,7 +5364,8 @@ export function useZora1155Initialize<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Mint<
   TMode extends WriteContractMode = undefined,
@@ -3424,10 +5384,50 @@ export function useZora1155Mint<
         functionName?: 'mint'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'mint', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'mint',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mintWithRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155MintWithRewards<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora1155Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora1155ABI,
+          'mintWithRewards'
+        >['request']['abi'],
+        'mintWithRewards',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'mintWithRewards' }
+    : UseContractWriteConfig<typeof zora1155ABI, 'mintWithRewards', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'mintWithRewards'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora1155ABI, 'mintWithRewards', TMode>({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'mintWithRewards',
     ...config,
   } as any)
 }
@@ -3435,7 +5435,8 @@ export function useZora1155Mint<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"multicall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Multicall<
   TMode extends WriteContractMode = undefined,
@@ -3454,9 +5455,12 @@ export function useZora1155Multicall<
         functionName?: 'multicall'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'multicall', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'multicall',
     ...config,
   } as any)
@@ -3465,7 +5469,8 @@ export function useZora1155Multicall<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"removePermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155RemovePermission<
   TMode extends WriteContractMode = undefined,
@@ -3487,9 +5492,12 @@ export function useZora1155RemovePermission<
         functionName?: 'removePermission'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'removePermission', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'removePermission',
     ...config,
   } as any)
@@ -3498,7 +5506,8 @@ export function useZora1155RemovePermission<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeBatchTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SafeBatchTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -3524,9 +5533,12 @@ export function useZora1155SafeBatchTransferFrom<
         functionName?: 'safeBatchTransferFrom'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'safeBatchTransferFrom', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'safeBatchTransferFrom',
     ...config,
   } as any)
@@ -3535,7 +5547,8 @@ export function useZora1155SafeBatchTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SafeTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -3557,9 +5570,12 @@ export function useZora1155SafeTransferFrom<
         functionName?: 'safeTransferFrom'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'safeTransferFrom', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'safeTransferFrom',
     ...config,
   } as any)
@@ -3568,7 +5584,8 @@ export function useZora1155SafeTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetApprovalForAll<
   TMode extends WriteContractMode = undefined,
@@ -3590,9 +5607,12 @@ export function useZora1155SetApprovalForAll<
         functionName?: 'setApprovalForAll'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'setApprovalForAll', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setApprovalForAll',
     ...config,
   } as any)
@@ -3601,7 +5621,8 @@ export function useZora1155SetApprovalForAll<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setFundsRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetFundsRecipient<
   TMode extends WriteContractMode = undefined,
@@ -3623,9 +5644,12 @@ export function useZora1155SetFundsRecipient<
         functionName?: 'setFundsRecipient'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'setFundsRecipient', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setFundsRecipient',
     ...config,
   } as any)
@@ -3634,7 +5658,8 @@ export function useZora1155SetFundsRecipient<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setOwner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetOwner<
   TMode extends WriteContractMode = undefined,
@@ -3653,9 +5678,12 @@ export function useZora1155SetOwner<
         functionName?: 'setOwner'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'setOwner', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setOwner',
     ...config,
   } as any)
@@ -3664,7 +5692,8 @@ export function useZora1155SetOwner<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTokenMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetTokenMetadataRenderer<
   TMode extends WriteContractMode = undefined,
@@ -3690,9 +5719,12 @@ export function useZora1155SetTokenMetadataRenderer<
         functionName?: 'setTokenMetadataRenderer'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'setTokenMetadataRenderer', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setTokenMetadataRenderer',
     ...config,
   } as any)
@@ -3701,7 +5733,8 @@ export function useZora1155SetTokenMetadataRenderer<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTransferHook"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetTransferHook<
   TMode extends WriteContractMode = undefined,
@@ -3723,9 +5756,12 @@ export function useZora1155SetTransferHook<
         functionName?: 'setTransferHook'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'setTransferHook', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setTransferHook',
     ...config,
   } as any)
@@ -3734,7 +5770,8 @@ export function useZora1155SetTransferHook<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setupNewToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetupNewToken<
   TMode extends WriteContractMode = undefined,
@@ -3753,10 +5790,58 @@ export function useZora1155SetupNewToken<
         functionName?: 'setupNewToken'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'setupNewToken', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setupNewToken',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setupNewTokenWithCreateReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155SetupNewTokenWithCreateReferral<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora1155Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora1155ABI,
+          'setupNewTokenWithCreateReferral'
+        >['request']['abi'],
+        'setupNewTokenWithCreateReferral',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'setupNewTokenWithCreateReferral'
+      }
+    : UseContractWriteConfig<
+        typeof zora1155ABI,
+        'setupNewTokenWithCreateReferral',
+        TMode
+      > & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'setupNewTokenWithCreateReferral'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora1155ABI, 'setupNewTokenWithCreateReferral', TMode>({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'setupNewTokenWithCreateReferral',
     ...config,
   } as any)
 }
@@ -3764,7 +5849,8 @@ export function useZora1155SetupNewToken<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateContractMetadata"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpdateContractMetadata<
   TMode extends WriteContractMode = undefined,
@@ -3790,10 +5876,50 @@ export function useZora1155UpdateContractMetadata<
         functionName?: 'updateContractMetadata'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'updateContractMetadata', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'updateContractMetadata',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateCreateReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155UpdateCreateReferral<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora1155Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora1155ABI,
+          'updateCreateReferral'
+        >['request']['abi'],
+        'updateCreateReferral',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'updateCreateReferral' }
+    : UseContractWriteConfig<typeof zora1155ABI, 'updateCreateReferral', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'updateCreateReferral'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora1155ABI, 'updateCreateReferral', TMode>({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'updateCreateReferral',
     ...config,
   } as any)
 }
@@ -3801,7 +5927,8 @@ export function useZora1155UpdateContractMetadata<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateRoyaltiesForToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpdateRoyaltiesForToken<
   TMode extends WriteContractMode = undefined,
@@ -3827,9 +5954,12 @@ export function useZora1155UpdateRoyaltiesForToken<
         functionName?: 'updateRoyaltiesForToken'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'updateRoyaltiesForToken', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'updateRoyaltiesForToken',
     ...config,
   } as any)
@@ -3838,7 +5968,8 @@ export function useZora1155UpdateRoyaltiesForToken<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateTokenURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpdateTokenUri<
   TMode extends WriteContractMode = undefined,
@@ -3860,9 +5991,12 @@ export function useZora1155UpdateTokenUri<
         functionName?: 'updateTokenURI'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'updateTokenURI', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'updateTokenURI',
     ...config,
   } as any)
@@ -3871,7 +6005,8 @@ export function useZora1155UpdateTokenUri<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeTo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpgradeTo<
   TMode extends WriteContractMode = undefined,
@@ -3890,9 +6025,12 @@ export function useZora1155UpgradeTo<
         functionName?: 'upgradeTo'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'upgradeTo', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'upgradeTo',
     ...config,
   } as any)
@@ -3901,7 +6039,8 @@ export function useZora1155UpgradeTo<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeToAndCall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpgradeToAndCall<
   TMode extends WriteContractMode = undefined,
@@ -3923,9 +6062,12 @@ export function useZora1155UpgradeToAndCall<
         functionName?: 'upgradeToAndCall'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'upgradeToAndCall', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'upgradeToAndCall',
     ...config,
   } as any)
@@ -3934,7 +6076,8 @@ export function useZora1155UpgradeToAndCall<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Withdraw<
   TMode extends WriteContractMode = undefined,
@@ -3953,10 +6096,50 @@ export function useZora1155Withdraw<
         functionName?: 'withdraw'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora1155ABI, 'withdraw', TMode>({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'withdraw',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"withdrawRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155WithdrawRewards<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora1155Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora1155ABI,
+          'withdrawRewards'
+        >['request']['abi'],
+        'withdrawRewards',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'withdrawRewards' }
+    : UseContractWriteConfig<typeof zora1155ABI, 'withdrawRewards', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'withdrawRewards'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora1155ABI, 'withdrawRewards', TMode>({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'withdrawRewards',
     ...config,
   } as any)
 }
@@ -3964,7 +6147,8 @@ export function useZora1155Withdraw<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155Write<TFunctionName extends string>(
   config: Omit<
@@ -3972,9 +6156,12 @@ export function usePrepareZora1155Write<TFunctionName extends string>(
     'abi' | 'address'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, TFunctionName>)
 }
@@ -3982,7 +6169,8 @@ export function usePrepareZora1155Write<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"addPermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155AddPermission(
   config: Omit<
@@ -3990,9 +6178,12 @@ export function usePrepareZora1155AddPermission(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'addPermission',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'addPermission'>)
@@ -4001,7 +6192,8 @@ export function usePrepareZora1155AddPermission(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155AdminMint(
   config: Omit<
@@ -4009,9 +6201,12 @@ export function usePrepareZora1155AdminMint(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'adminMint',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'adminMint'>)
@@ -4020,7 +6215,8 @@ export function usePrepareZora1155AdminMint(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"adminMintBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155AdminMintBatch(
   config: Omit<
@@ -4028,9 +6224,12 @@ export function usePrepareZora1155AdminMintBatch(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'adminMintBatch',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'adminMintBatch'>)
@@ -4039,7 +6238,8 @@ export function usePrepareZora1155AdminMintBatch(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"burnBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155BurnBatch(
   config: Omit<
@@ -4047,9 +6247,12 @@ export function usePrepareZora1155BurnBatch(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'burnBatch',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'burnBatch'>)
@@ -4058,7 +6261,8 @@ export function usePrepareZora1155BurnBatch(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155CallRenderer(
   config: Omit<
@@ -4066,9 +6270,12 @@ export function usePrepareZora1155CallRenderer(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'callRenderer',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'callRenderer'>)
@@ -4077,7 +6284,8 @@ export function usePrepareZora1155CallRenderer(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"callSale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155CallSale(
   config: Omit<
@@ -4085,18 +6293,45 @@ export function usePrepareZora1155CallSale(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'callSale',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'callSale'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"delegateSetupNewToken"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function usePrepareZora1155DelegateSetupNewToken(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora1155ABI, 'delegateSetupNewToken'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'delegateSetupNewToken',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'delegateSetupNewToken'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155Initialize(
   config: Omit<
@@ -4104,9 +6339,12 @@ export function usePrepareZora1155Initialize(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'initialize',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'initialize'>)
@@ -4115,7 +6353,8 @@ export function usePrepareZora1155Initialize(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155Mint(
   config: Omit<
@@ -4123,18 +6362,45 @@ export function usePrepareZora1155Mint(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'mint',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'mint'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"mintWithRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function usePrepareZora1155MintWithRewards(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora1155ABI, 'mintWithRewards'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'mintWithRewards',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'mintWithRewards'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"multicall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155Multicall(
   config: Omit<
@@ -4142,9 +6408,12 @@ export function usePrepareZora1155Multicall(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'multicall',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'multicall'>)
@@ -4153,7 +6422,8 @@ export function usePrepareZora1155Multicall(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"removePermission"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155RemovePermission(
   config: Omit<
@@ -4161,9 +6431,12 @@ export function usePrepareZora1155RemovePermission(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'removePermission',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'removePermission'>)
@@ -4172,7 +6445,8 @@ export function usePrepareZora1155RemovePermission(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeBatchTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SafeBatchTransferFrom(
   config: Omit<
@@ -4180,9 +6454,12 @@ export function usePrepareZora1155SafeBatchTransferFrom(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'safeBatchTransferFrom',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'safeBatchTransferFrom'>)
@@ -4191,7 +6468,8 @@ export function usePrepareZora1155SafeBatchTransferFrom(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"safeTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SafeTransferFrom(
   config: Omit<
@@ -4199,9 +6477,12 @@ export function usePrepareZora1155SafeTransferFrom(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'safeTransferFrom',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'safeTransferFrom'>)
@@ -4210,7 +6491,8 @@ export function usePrepareZora1155SafeTransferFrom(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SetApprovalForAll(
   config: Omit<
@@ -4218,9 +6500,12 @@ export function usePrepareZora1155SetApprovalForAll(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setApprovalForAll',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'setApprovalForAll'>)
@@ -4229,7 +6514,8 @@ export function usePrepareZora1155SetApprovalForAll(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setFundsRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SetFundsRecipient(
   config: Omit<
@@ -4237,9 +6523,12 @@ export function usePrepareZora1155SetFundsRecipient(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setFundsRecipient',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'setFundsRecipient'>)
@@ -4248,7 +6537,8 @@ export function usePrepareZora1155SetFundsRecipient(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setOwner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SetOwner(
   config: Omit<
@@ -4256,9 +6546,12 @@ export function usePrepareZora1155SetOwner(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setOwner',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'setOwner'>)
@@ -4267,7 +6560,8 @@ export function usePrepareZora1155SetOwner(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTokenMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SetTokenMetadataRenderer(
   config: Omit<
@@ -4275,9 +6569,12 @@ export function usePrepareZora1155SetTokenMetadataRenderer(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setTokenMetadataRenderer',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'setTokenMetadataRenderer'>)
@@ -4286,7 +6583,8 @@ export function usePrepareZora1155SetTokenMetadataRenderer(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setTransferHook"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SetTransferHook(
   config: Omit<
@@ -4294,9 +6592,12 @@ export function usePrepareZora1155SetTransferHook(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setTransferHook',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'setTransferHook'>)
@@ -4305,7 +6606,8 @@ export function usePrepareZora1155SetTransferHook(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setupNewToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155SetupNewToken(
   config: Omit<
@@ -4313,18 +6615,48 @@ export function usePrepareZora1155SetupNewToken(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'setupNewToken',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'setupNewToken'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"setupNewTokenWithCreateReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function usePrepareZora1155SetupNewTokenWithCreateReferral(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora1155ABI, 'setupNewTokenWithCreateReferral'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'setupNewTokenWithCreateReferral',
+    ...config,
+  } as UsePrepareContractWriteConfig<
+    typeof zora1155ABI,
+    'setupNewTokenWithCreateReferral'
+  >)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateContractMetadata"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155UpdateContractMetadata(
   config: Omit<
@@ -4332,18 +6664,45 @@ export function usePrepareZora1155UpdateContractMetadata(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'updateContractMetadata',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'updateContractMetadata'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateCreateReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function usePrepareZora1155UpdateCreateReferral(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora1155ABI, 'updateCreateReferral'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'updateCreateReferral',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'updateCreateReferral'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateRoyaltiesForToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155UpdateRoyaltiesForToken(
   config: Omit<
@@ -4351,9 +6710,12 @@ export function usePrepareZora1155UpdateRoyaltiesForToken(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'updateRoyaltiesForToken',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'updateRoyaltiesForToken'>)
@@ -4362,7 +6724,8 @@ export function usePrepareZora1155UpdateRoyaltiesForToken(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"updateTokenURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155UpdateTokenUri(
   config: Omit<
@@ -4370,9 +6733,12 @@ export function usePrepareZora1155UpdateTokenUri(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'updateTokenURI',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'updateTokenURI'>)
@@ -4381,7 +6747,8 @@ export function usePrepareZora1155UpdateTokenUri(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeTo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155UpgradeTo(
   config: Omit<
@@ -4389,9 +6756,12 @@ export function usePrepareZora1155UpgradeTo(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'upgradeTo',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'upgradeTo'>)
@@ -4400,7 +6770,8 @@ export function usePrepareZora1155UpgradeTo(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"upgradeToAndCall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155UpgradeToAndCall(
   config: Omit<
@@ -4408,9 +6779,12 @@ export function usePrepareZora1155UpgradeToAndCall(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'upgradeToAndCall',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'upgradeToAndCall'>)
@@ -4419,7 +6793,8 @@ export function usePrepareZora1155UpgradeToAndCall(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function usePrepareZora1155Withdraw(
   config: Omit<
@@ -4427,18 +6802,45 @@ export function usePrepareZora1155Withdraw(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     functionName: 'withdraw',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'withdraw'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora1155ABI}__ and `functionName` set to `"withdrawRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function usePrepareZora1155WithdrawRewards(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora1155ABI, 'withdrawRewards'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    functionName: 'withdrawRewards',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora1155ABI, 'withdrawRewards'>)
+}
+
+/**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155Event<TEventName extends string>(
   config: Omit<
@@ -4446,9 +6848,12 @@ export function useZora1155Event<TEventName extends string>(
     'abi' | 'address'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, TEventName>)
 }
@@ -4456,7 +6861,8 @@ export function useZora1155Event<TEventName extends string>(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"AdminChanged"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155AdminChangedEvent(
   config: Omit<
@@ -4464,9 +6870,12 @@ export function useZora1155AdminChangedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'AdminChanged',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'AdminChanged'>)
@@ -4475,7 +6884,8 @@ export function useZora1155AdminChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ApprovalForAllEvent(
   config: Omit<
@@ -4483,9 +6893,12 @@ export function useZora1155ApprovalForAllEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'ApprovalForAll',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'ApprovalForAll'>)
@@ -4494,7 +6907,8 @@ export function useZora1155ApprovalForAllEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"BeaconUpgraded"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155BeaconUpgradedEvent(
   config: Omit<
@@ -4502,9 +6916,12 @@ export function useZora1155BeaconUpgradedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'BeaconUpgraded',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'BeaconUpgraded'>)
@@ -4513,7 +6930,8 @@ export function useZora1155BeaconUpgradedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ConfigUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ConfigUpdatedEvent(
   config: Omit<
@@ -4521,9 +6939,12 @@ export function useZora1155ConfigUpdatedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'ConfigUpdated',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'ConfigUpdated'>)
@@ -4532,7 +6953,8 @@ export function useZora1155ConfigUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ContractMetadataUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ContractMetadataUpdatedEvent(
   config: Omit<
@@ -4540,9 +6962,12 @@ export function useZora1155ContractMetadataUpdatedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'ContractMetadataUpdated',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'ContractMetadataUpdated'>)
@@ -4551,7 +6976,8 @@ export function useZora1155ContractMetadataUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"ContractRendererUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155ContractRendererUpdatedEvent(
   config: Omit<
@@ -4559,18 +6985,45 @@ export function useZora1155ContractRendererUpdatedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'ContractRendererUpdated',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'ContractRendererUpdated'>)
 }
 
 /**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"CreatorAttribution"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
+ */
+export function useZora1155CreatorAttributionEvent(
+  config: Omit<
+    UseContractEventConfig<typeof zora1155ABI, 'CreatorAttribution'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof zora1155Address } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: zora1155ABI,
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
+    eventName: 'CreatorAttribution',
+    ...config,
+  } as UseContractEventConfig<typeof zora1155ABI, 'CreatorAttribution'>)
+}
+
+/**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"Initialized"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155InitializedEvent(
   config: Omit<
@@ -4578,9 +7031,12 @@ export function useZora1155InitializedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'Initialized',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'Initialized'>)
@@ -4589,7 +7045,8 @@ export function useZora1155InitializedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"OwnershipTransferred"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155OwnershipTransferredEvent(
   config: Omit<
@@ -4597,9 +7054,12 @@ export function useZora1155OwnershipTransferredEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'OwnershipTransferred',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'OwnershipTransferred'>)
@@ -4608,7 +7068,8 @@ export function useZora1155OwnershipTransferredEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"Purchased"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155PurchasedEvent(
   config: Omit<
@@ -4616,9 +7077,12 @@ export function useZora1155PurchasedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'Purchased',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'Purchased'>)
@@ -4627,7 +7091,8 @@ export function useZora1155PurchasedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"RendererUpdated"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155RendererUpdatedEvent(
   config: Omit<
@@ -4635,9 +7100,12 @@ export function useZora1155RendererUpdatedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'RendererUpdated',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'RendererUpdated'>)
@@ -4646,7 +7114,8 @@ export function useZora1155RendererUpdatedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"SetupNewToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155SetupNewTokenEvent(
   config: Omit<
@@ -4654,9 +7123,12 @@ export function useZora1155SetupNewTokenEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'SetupNewToken',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'SetupNewToken'>)
@@ -4665,7 +7137,8 @@ export function useZora1155SetupNewTokenEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"TransferBatch"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155TransferBatchEvent(
   config: Omit<
@@ -4673,9 +7146,12 @@ export function useZora1155TransferBatchEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'TransferBatch',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'TransferBatch'>)
@@ -4684,7 +7160,8 @@ export function useZora1155TransferBatchEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"TransferSingle"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155TransferSingleEvent(
   config: Omit<
@@ -4692,9 +7169,12 @@ export function useZora1155TransferSingleEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'TransferSingle',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'TransferSingle'>)
@@ -4703,7 +7183,8 @@ export function useZora1155TransferSingleEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"URI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UriEvent(
   config: Omit<
@@ -4711,9 +7192,12 @@ export function useZora1155UriEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'URI',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'URI'>)
@@ -4722,7 +7206,8 @@ export function useZora1155UriEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"UpdatedPermissions"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpdatedPermissionsEvent(
   config: Omit<
@@ -4730,9 +7215,12 @@ export function useZora1155UpdatedPermissionsEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'UpdatedPermissions',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'UpdatedPermissions'>)
@@ -4741,7 +7229,8 @@ export function useZora1155UpdatedPermissionsEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"UpdatedRoyalties"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpdatedRoyaltiesEvent(
   config: Omit<
@@ -4749,9 +7238,12 @@ export function useZora1155UpdatedRoyaltiesEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'UpdatedRoyalties',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'UpdatedRoyalties'>)
@@ -4760,7 +7252,8 @@ export function useZora1155UpdatedRoyaltiesEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"UpdatedToken"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpdatedTokenEvent(
   config: Omit<
@@ -4768,9 +7261,12 @@ export function useZora1155UpdatedTokenEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'UpdatedToken',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'UpdatedToken'>)
@@ -4779,7 +7275,8 @@ export function useZora1155UpdatedTokenEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora1155ABI}__ and `eventName` set to `"Upgraded"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA)
  */
 export function useZora1155UpgradedEvent(
   config: Omit<
@@ -4787,9 +7284,12 @@ export function useZora1155UpgradedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora1155Address } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora1155ABI,
-    address: zora1155Address[1],
+    address: zora1155Address[chainId as keyof typeof zora1155Address],
     eventName: 'Upgraded',
     ...config,
   } as UseContractEventConfig<typeof zora1155ABI, 'Upgraded'>)
@@ -4798,7 +7298,8 @@ export function useZora1155UpgradedEvent(
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRead<
   TFunctionName extends string,
@@ -4809,9 +7310,12 @@ export function useZora721DropRead<
     'abi' | 'address'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
@@ -4819,7 +7323,8 @@ export function useZora721DropRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"DEFAULT_ADMIN_ROLE"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropDefaultAdminRole<
   TFunctionName extends 'DEFAULT_ADMIN_ROLE',
@@ -4830,9 +7335,12 @@ export function useZora721DropDefaultAdminRole<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'DEFAULT_ADMIN_ROLE',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -4841,7 +7349,8 @@ export function useZora721DropDefaultAdminRole<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"MINTER_ROLE"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropMinterRole<
   TFunctionName extends 'MINTER_ROLE',
@@ -4852,9 +7361,12 @@ export function useZora721DropMinterRole<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'MINTER_ROLE',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -4863,7 +7375,8 @@ export function useZora721DropMinterRole<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"SALES_MANAGER_ROLE"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSalesManagerRole<
   TFunctionName extends 'SALES_MANAGER_ROLE',
@@ -4874,9 +7387,12 @@ export function useZora721DropSalesManagerRole<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'SALES_MANAGER_ROLE',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -4885,7 +7401,8 @@ export function useZora721DropSalesManagerRole<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"balanceOf"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropBalanceOf<
   TFunctionName extends 'balanceOf',
@@ -4896,10 +7413,91 @@ export function useZora721DropBalanceOf<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'balanceOf',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"computeFreeMintRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropComputeFreeMintRewards<
+  TFunctionName extends 'computeFreeMintRewards',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'computeFreeMintRewards',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"computePaidMintRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropComputePaidMintRewards<
+  TFunctionName extends 'computePaidMintRewards',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'computePaidMintRewards',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"computeTotalReward"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropComputeTotalReward<
+  TFunctionName extends 'computeTotalReward',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'computeTotalReward',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
@@ -4907,7 +7505,8 @@ export function useZora721DropBalanceOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"config"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropConfig<
   TFunctionName extends 'config',
@@ -4918,9 +7517,12 @@ export function useZora721DropConfig<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'config',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -4929,7 +7531,8 @@ export function useZora721DropConfig<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"contractURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropContractUri<
   TFunctionName extends 'contractURI',
@@ -4940,9 +7543,12 @@ export function useZora721DropContractUri<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'contractURI',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -4951,7 +7557,8 @@ export function useZora721DropContractUri<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"contractVersion"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropContractVersion<
   TFunctionName extends 'contractVersion',
@@ -4962,10 +7569,65 @@ export function useZora721DropContractVersion<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'contractVersion',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"createReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropCreateReferral<
+  TFunctionName extends 'createReferral',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'createReferral',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"factoryUpgradeGate"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropFactoryUpgradeGate<
+  TFunctionName extends 'factoryUpgradeGate',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'factoryUpgradeGate',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
@@ -4973,7 +7635,8 @@ export function useZora721DropContractVersion<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"getApproved"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropGetApproved<
   TFunctionName extends 'getApproved',
@@ -4984,9 +7647,12 @@ export function useZora721DropGetApproved<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'getApproved',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -4995,7 +7661,8 @@ export function useZora721DropGetApproved<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"getRoleAdmin"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropGetRoleAdmin<
   TFunctionName extends 'getRoleAdmin',
@@ -5006,9 +7673,12 @@ export function useZora721DropGetRoleAdmin<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'getRoleAdmin',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5017,7 +7687,8 @@ export function useZora721DropGetRoleAdmin<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"hasRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropHasRole<
   TFunctionName extends 'hasRole',
@@ -5028,9 +7699,12 @@ export function useZora721DropHasRole<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'hasRole',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5039,7 +7713,8 @@ export function useZora721DropHasRole<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"isAdmin"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropIsAdmin<
   TFunctionName extends 'isAdmin',
@@ -5050,9 +7725,12 @@ export function useZora721DropIsAdmin<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'isAdmin',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5061,7 +7739,8 @@ export function useZora721DropIsAdmin<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"isApprovedForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropIsApprovedForAll<
   TFunctionName extends 'isApprovedForAll',
@@ -5072,10 +7751,39 @@ export function useZora721DropIsApprovedForAll<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'isApprovedForAll',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"marketFilterDAOAddress"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropMarketFilterDaoAddress<
+  TFunctionName extends 'marketFilterDAOAddress',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'marketFilterDAOAddress',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
@@ -5083,7 +7791,8 @@ export function useZora721DropIsApprovedForAll<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"metadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropMetadataRenderer<
   TFunctionName extends 'metadataRenderer',
@@ -5094,9 +7803,12 @@ export function useZora721DropMetadataRenderer<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'metadataRenderer',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5105,7 +7817,8 @@ export function useZora721DropMetadataRenderer<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"mintedPerAddress"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropMintedPerAddress<
   TFunctionName extends 'mintedPerAddress',
@@ -5116,9 +7829,12 @@ export function useZora721DropMintedPerAddress<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'mintedPerAddress',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5127,7 +7843,8 @@ export function useZora721DropMintedPerAddress<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"name"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropName<
   TFunctionName extends 'name',
@@ -5138,9 +7855,12 @@ export function useZora721DropName<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'name',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5149,7 +7869,8 @@ export function useZora721DropName<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"owner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropOwner<
   TFunctionName extends 'owner',
@@ -5160,9 +7881,12 @@ export function useZora721DropOwner<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'owner',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5171,7 +7895,8 @@ export function useZora721DropOwner<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"ownerOf"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropOwnerOf<
   TFunctionName extends 'ownerOf',
@@ -5182,9 +7907,12 @@ export function useZora721DropOwnerOf<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'ownerOf',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5193,7 +7921,8 @@ export function useZora721DropOwnerOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"presaleMintsByAddress"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropPresaleMintsByAddress<
   TFunctionName extends 'presaleMintsByAddress',
@@ -5204,9 +7933,12 @@ export function useZora721DropPresaleMintsByAddress<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'presaleMintsByAddress',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5215,7 +7947,8 @@ export function useZora721DropPresaleMintsByAddress<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"proxiableUUID"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropProxiableUuid<
   TFunctionName extends 'proxiableUUID',
@@ -5226,9 +7959,12 @@ export function useZora721DropProxiableUuid<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'proxiableUUID',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5237,7 +7973,8 @@ export function useZora721DropProxiableUuid<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"royaltyInfo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRoyaltyInfo<
   TFunctionName extends 'royaltyInfo',
@@ -5248,10 +7985,39 @@ export function useZora721DropRoyaltyInfo<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'royaltyInfo',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"royaltyMintSchedule"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropRoyaltyMintSchedule<
+  TFunctionName extends 'royaltyMintSchedule',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'royaltyMintSchedule',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
@@ -5259,7 +8025,8 @@ export function useZora721DropRoyaltyInfo<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"saleDetails"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSaleDetails<
   TFunctionName extends 'saleDetails',
@@ -5270,9 +8037,12 @@ export function useZora721DropSaleDetails<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'saleDetails',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5281,7 +8051,8 @@ export function useZora721DropSaleDetails<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"salesConfig"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSalesConfig<
   TFunctionName extends 'salesConfig',
@@ -5292,9 +8063,12 @@ export function useZora721DropSalesConfig<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'salesConfig',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5303,7 +8077,8 @@ export function useZora721DropSalesConfig<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -5314,9 +8089,12 @@ export function useZora721DropSupportsInterface<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'supportsInterface',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5325,7 +8103,8 @@ export function useZora721DropSupportsInterface<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"symbol"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSymbol<
   TFunctionName extends 'symbol',
@@ -5336,9 +8115,12 @@ export function useZora721DropSymbol<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'symbol',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5347,7 +8129,8 @@ export function useZora721DropSymbol<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"tokenURI"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropTokenUri<
   TFunctionName extends 'tokenURI',
@@ -5358,9 +8141,12 @@ export function useZora721DropTokenUri<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'tokenURI',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
@@ -5369,7 +8155,8 @@ export function useZora721DropTokenUri<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"totalSupply"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropTotalSupply<
   TFunctionName extends 'totalSupply',
@@ -5380,21 +8167,25 @@ export function useZora721DropTotalSupply<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'totalSupply',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"zoraFeeManager"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"zoraERC721TransferHelper"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
-export function useZora721DropZoraFeeManager<
-  TFunctionName extends 'zoraFeeManager',
+export function useZora721DropZoraErc721TransferHelper<
+  TFunctionName extends 'zoraERC721TransferHelper',
   TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
 >(
   config: Omit<
@@ -5402,10 +8193,39 @@ export function useZora721DropZoraFeeManager<
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
-    functionName: 'zoraFeeManager',
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'zoraERC721TransferHelper',
+    ...config,
+  } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"zoraFeeForAmount"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropZoraFeeForAmount<
+  TFunctionName extends 'zoraFeeForAmount',
+  TSelectData = ReadContractResult<typeof zora721DropABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'zoraFeeForAmount',
     ...config,
   } as UseContractReadConfig<typeof zora721DropABI, TFunctionName, TSelectData>)
 }
@@ -5413,7 +8233,8 @@ export function useZora721DropZoraFeeManager<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropWrite<
   TFunctionName extends string,
@@ -5432,9 +8253,12 @@ export function useZora721DropWrite<
         chainId?: TChainId
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, TFunctionName, TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     ...config,
   } as any)
 }
@@ -5442,7 +8266,8 @@ export function useZora721DropWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"adminMint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropAdminMint<
   TMode extends WriteContractMode = undefined,
@@ -5461,9 +8286,12 @@ export function useZora721DropAdminMint<
         functionName?: 'adminMint'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'adminMint', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'adminMint',
     ...config,
   } as any)
@@ -5472,7 +8300,8 @@ export function useZora721DropAdminMint<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"adminMintAirdrop"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropAdminMintAirdrop<
   TMode extends WriteContractMode = undefined,
@@ -5494,9 +8323,12 @@ export function useZora721DropAdminMintAirdrop<
         functionName?: 'adminMintAirdrop'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'adminMintAirdrop', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'adminMintAirdrop',
     ...config,
   } as any)
@@ -5505,7 +8337,8 @@ export function useZora721DropAdminMintAirdrop<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"approve"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropApprove<
   TMode extends WriteContractMode = undefined,
@@ -5524,9 +8357,12 @@ export function useZora721DropApprove<
         functionName?: 'approve'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'approve', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'approve',
     ...config,
   } as any)
@@ -5535,7 +8371,8 @@ export function useZora721DropApprove<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"burn"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropBurn<
   TMode extends WriteContractMode = undefined,
@@ -5554,10 +8391,50 @@ export function useZora721DropBurn<
         functionName?: 'burn'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'burn', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'burn',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"callMetadataRenderer"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropCallMetadataRenderer<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'callMetadataRenderer'
+        >['request']['abi'],
+        'callMetadataRenderer',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'callMetadataRenderer' }
+    : UseContractWriteConfig<typeof zora721DropABI, 'callMetadataRenderer', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'callMetadataRenderer'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'callMetadataRenderer', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'callMetadataRenderer',
     ...config,
   } as any)
 }
@@ -5565,7 +8442,8 @@ export function useZora721DropBurn<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"finalizeOpenEdition"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropFinalizeOpenEdition<
   TMode extends WriteContractMode = undefined,
@@ -5587,9 +8465,12 @@ export function useZora721DropFinalizeOpenEdition<
         functionName?: 'finalizeOpenEdition'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'finalizeOpenEdition', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'finalizeOpenEdition',
     ...config,
   } as any)
@@ -5598,7 +8479,8 @@ export function useZora721DropFinalizeOpenEdition<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"grantRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropGrantRole<
   TMode extends WriteContractMode = undefined,
@@ -5617,9 +8499,12 @@ export function useZora721DropGrantRole<
         functionName?: 'grantRole'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'grantRole', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'grantRole',
     ...config,
   } as any)
@@ -5628,7 +8513,8 @@ export function useZora721DropGrantRole<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropInitialize<
   TMode extends WriteContractMode = undefined,
@@ -5647,9 +8533,12 @@ export function useZora721DropInitialize<
         functionName?: 'initialize'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'initialize', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'initialize',
     ...config,
   } as any)
@@ -5658,7 +8547,8 @@ export function useZora721DropInitialize<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"manageMarketFilterDAOSubscription"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropManageMarketFilterDaoSubscription<
   TMode extends WriteContractMode = undefined,
@@ -5688,14 +8578,88 @@ export function useZora721DropManageMarketFilterDaoSubscription<
         functionName?: 'manageMarketFilterDAOSubscription'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<
     typeof zora721DropABI,
     'manageMarketFilterDAOSubscription',
     TMode
   >({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'manageMarketFilterDAOSubscription',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"mintWithRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropMintWithRewards<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'mintWithRewards'
+        >['request']['abi'],
+        'mintWithRewards',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'mintWithRewards' }
+    : UseContractWriteConfig<typeof zora721DropABI, 'mintWithRewards', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'mintWithRewards'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'mintWithRewards', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'mintWithRewards',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"multicall"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropMulticall<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof zora721DropABI, 'multicall'>['request']['abi'],
+        'multicall',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'multicall' }
+    : UseContractWriteConfig<typeof zora721DropABI, 'multicall', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'multicall'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'multicall', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'multicall',
     ...config,
   } as any)
 }
@@ -5703,7 +8667,8 @@ export function useZora721DropManageMarketFilterDaoSubscription<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchase"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropPurchase<
   TMode extends WriteContractMode = undefined,
@@ -5722,9 +8687,12 @@ export function useZora721DropPurchase<
         functionName?: 'purchase'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'purchase', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'purchase',
     ...config,
   } as any)
@@ -5733,7 +8701,8 @@ export function useZora721DropPurchase<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchasePresale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropPurchasePresale<
   TMode extends WriteContractMode = undefined,
@@ -5755,10 +8724,181 @@ export function useZora721DropPurchasePresale<
         functionName?: 'purchasePresale'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'purchasePresale', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'purchasePresale',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchasePresaleWithComment"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropPurchasePresaleWithComment<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'purchasePresaleWithComment'
+        >['request']['abi'],
+        'purchasePresaleWithComment',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'purchasePresaleWithComment'
+      }
+    : UseContractWriteConfig<
+        typeof zora721DropABI,
+        'purchasePresaleWithComment',
+        TMode
+      > & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'purchasePresaleWithComment'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'purchasePresaleWithComment', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchasePresaleWithComment',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchasePresaleWithRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropPurchasePresaleWithRewards<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'purchasePresaleWithRewards'
+        >['request']['abi'],
+        'purchasePresaleWithRewards',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'purchasePresaleWithRewards'
+      }
+    : UseContractWriteConfig<
+        typeof zora721DropABI,
+        'purchasePresaleWithRewards',
+        TMode
+      > & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'purchasePresaleWithRewards'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'purchasePresaleWithRewards', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchasePresaleWithRewards',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchaseWithComment"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropPurchaseWithComment<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'purchaseWithComment'
+        >['request']['abi'],
+        'purchaseWithComment',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'purchaseWithComment' }
+    : UseContractWriteConfig<typeof zora721DropABI, 'purchaseWithComment', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'purchaseWithComment'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'purchaseWithComment', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchaseWithComment',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchaseWithRecipient"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropPurchaseWithRecipient<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'purchaseWithRecipient'
+        >['request']['abi'],
+        'purchaseWithRecipient',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'purchaseWithRecipient'
+      }
+    : UseContractWriteConfig<typeof zora721DropABI, 'purchaseWithRecipient', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'purchaseWithRecipient'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'purchaseWithRecipient', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchaseWithRecipient',
     ...config,
   } as any)
 }
@@ -5766,7 +8906,8 @@ export function useZora721DropPurchasePresale<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"renounceRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRenounceRole<
   TMode extends WriteContractMode = undefined,
@@ -5788,9 +8929,12 @@ export function useZora721DropRenounceRole<
         functionName?: 'renounceRole'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'renounceRole', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'renounceRole',
     ...config,
   } as any)
@@ -5799,7 +8943,8 @@ export function useZora721DropRenounceRole<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"revokeRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRevokeRole<
   TMode extends WriteContractMode = undefined,
@@ -5818,9 +8963,12 @@ export function useZora721DropRevokeRole<
         functionName?: 'revokeRole'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'revokeRole', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'revokeRole',
     ...config,
   } as any)
@@ -5829,7 +8977,8 @@ export function useZora721DropRevokeRole<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"safeTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSafeTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -5851,9 +9000,12 @@ export function useZora721DropSafeTransferFrom<
         functionName?: 'safeTransferFrom'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'safeTransferFrom', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'safeTransferFrom',
     ...config,
   } as any)
@@ -5862,7 +9014,8 @@ export function useZora721DropSafeTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSetApprovalForAll<
   TMode extends WriteContractMode = undefined,
@@ -5884,9 +9037,12 @@ export function useZora721DropSetApprovalForAll<
         functionName?: 'setApprovalForAll'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'setApprovalForAll', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setApprovalForAll',
     ...config,
   } as any)
@@ -5895,7 +9051,8 @@ export function useZora721DropSetApprovalForAll<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setFundsRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSetFundsRecipient<
   TMode extends WriteContractMode = undefined,
@@ -5917,9 +9074,12 @@ export function useZora721DropSetFundsRecipient<
         functionName?: 'setFundsRecipient'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'setFundsRecipient', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setFundsRecipient',
     ...config,
   } as any)
@@ -5928,7 +9088,8 @@ export function useZora721DropSetFundsRecipient<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSetMetadataRenderer<
   TMode extends WriteContractMode = undefined,
@@ -5950,9 +9111,12 @@ export function useZora721DropSetMetadataRenderer<
         functionName?: 'setMetadataRenderer'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'setMetadataRenderer', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setMetadataRenderer',
     ...config,
   } as any)
@@ -5961,7 +9125,8 @@ export function useZora721DropSetMetadataRenderer<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setOwner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSetOwner<
   TMode extends WriteContractMode = undefined,
@@ -5980,9 +9145,12 @@ export function useZora721DropSetOwner<
         functionName?: 'setOwner'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'setOwner', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setOwner',
     ...config,
   } as any)
@@ -5991,7 +9159,8 @@ export function useZora721DropSetOwner<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setSaleConfiguration"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSetSaleConfiguration<
   TMode extends WriteContractMode = undefined,
@@ -6013,9 +9182,12 @@ export function useZora721DropSetSaleConfiguration<
         functionName?: 'setSaleConfiguration'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'setSaleConfiguration', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setSaleConfiguration',
     ...config,
   } as any)
@@ -6024,7 +9196,8 @@ export function useZora721DropSetSaleConfiguration<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"transferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropTransferFrom<
   TMode extends WriteContractMode = undefined,
@@ -6046,10 +9219,50 @@ export function useZora721DropTransferFrom<
         functionName?: 'transferFrom'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'transferFrom', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'transferFrom',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"updateCreateReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropUpdateCreateReferral<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'updateCreateReferral'
+        >['request']['abi'],
+        'updateCreateReferral',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'updateCreateReferral' }
+    : UseContractWriteConfig<typeof zora721DropABI, 'updateCreateReferral', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'updateCreateReferral'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'updateCreateReferral', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'updateCreateReferral',
     ...config,
   } as any)
 }
@@ -6057,7 +9270,8 @@ export function useZora721DropTransferFrom<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"updateMarketFilterSettings"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropUpdateMarketFilterSettings<
   TMode extends WriteContractMode = undefined,
@@ -6087,10 +9301,58 @@ export function useZora721DropUpdateMarketFilterSettings<
         functionName?: 'updateMarketFilterSettings'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'updateMarketFilterSettings', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'updateMarketFilterSettings',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"updateRoyaltyMintSchedule"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropUpdateRoyaltyMintSchedule<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof zora721DropAddress
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof zora721DropABI,
+          'updateRoyaltyMintSchedule'
+        >['request']['abi'],
+        'updateRoyaltyMintSchedule',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'updateRoyaltyMintSchedule'
+      }
+    : UseContractWriteConfig<
+        typeof zora721DropABI,
+        'updateRoyaltyMintSchedule',
+        TMode
+      > & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'updateRoyaltyMintSchedule'
+      } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'updateRoyaltyMintSchedule', TMode>({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'updateRoyaltyMintSchedule',
     ...config,
   } as any)
 }
@@ -6098,7 +9360,8 @@ export function useZora721DropUpdateMarketFilterSettings<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"upgradeTo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropUpgradeTo<
   TMode extends WriteContractMode = undefined,
@@ -6117,9 +9380,12 @@ export function useZora721DropUpgradeTo<
         functionName?: 'upgradeTo'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'upgradeTo', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'upgradeTo',
     ...config,
   } as any)
@@ -6128,7 +9394,8 @@ export function useZora721DropUpgradeTo<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"upgradeToAndCall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropUpgradeToAndCall<
   TMode extends WriteContractMode = undefined,
@@ -6150,9 +9417,12 @@ export function useZora721DropUpgradeToAndCall<
         functionName?: 'upgradeToAndCall'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'upgradeToAndCall', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'upgradeToAndCall',
     ...config,
   } as any)
@@ -6161,7 +9431,8 @@ export function useZora721DropUpgradeToAndCall<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropWithdraw<
   TMode extends WriteContractMode = undefined,
@@ -6180,20 +9451,24 @@ export function useZora721DropWithdraw<
         functionName?: 'withdraw'
       } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof zora721DropABI, 'withdraw', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'withdraw',
     ...config,
   } as any)
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"zoraFeeForAmount"`.
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"withdrawRewards"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
-export function useZora721DropZoraFeeForAmount<
+export function useZora721DropWithdrawRewards<
   TMode extends WriteContractMode = undefined,
   TChainId extends number = keyof typeof zora721DropAddress
 >(
@@ -6201,22 +9476,25 @@ export function useZora721DropZoraFeeForAmount<
     ? UseContractWriteConfig<
         PrepareWriteContractResult<
           typeof zora721DropABI,
-          'zoraFeeForAmount'
+          'withdrawRewards'
         >['request']['abi'],
-        'zoraFeeForAmount',
+        'withdrawRewards',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'zoraFeeForAmount' }
-    : UseContractWriteConfig<typeof zora721DropABI, 'zoraFeeForAmount', TMode> & {
+      > & { address?: Address; chainId?: TChainId; functionName?: 'withdrawRewards' }
+    : UseContractWriteConfig<typeof zora721DropABI, 'withdrawRewards', TMode> & {
         abi?: never
         address?: never
         chainId?: TChainId
-        functionName?: 'zoraFeeForAmount'
+        functionName?: 'withdrawRewards'
       } = {} as any
 ) {
-  return useContractWrite<typeof zora721DropABI, 'zoraFeeForAmount', TMode>({
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof zora721DropABI, 'withdrawRewards', TMode>({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
-    functionName: 'zoraFeeForAmount',
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'withdrawRewards',
     ...config,
   } as any)
 }
@@ -6224,7 +9502,8 @@ export function useZora721DropZoraFeeForAmount<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropWrite<TFunctionName extends string>(
   config: Omit<
@@ -6232,9 +9511,12 @@ export function usePrepareZora721DropWrite<TFunctionName extends string>(
     'abi' | 'address'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, TFunctionName>)
 }
@@ -6242,7 +9524,8 @@ export function usePrepareZora721DropWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"adminMint"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropAdminMint(
   config: Omit<
@@ -6250,9 +9533,12 @@ export function usePrepareZora721DropAdminMint(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'adminMint',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'adminMint'>)
@@ -6261,7 +9547,8 @@ export function usePrepareZora721DropAdminMint(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"adminMintAirdrop"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropAdminMintAirdrop(
   config: Omit<
@@ -6269,9 +9556,12 @@ export function usePrepareZora721DropAdminMintAirdrop(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'adminMintAirdrop',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'adminMintAirdrop'>)
@@ -6280,7 +9570,8 @@ export function usePrepareZora721DropAdminMintAirdrop(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"approve"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropApprove(
   config: Omit<
@@ -6288,9 +9579,12 @@ export function usePrepareZora721DropApprove(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'approve',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'approve'>)
@@ -6299,7 +9593,8 @@ export function usePrepareZora721DropApprove(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"burn"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropBurn(
   config: Omit<
@@ -6307,18 +9602,45 @@ export function usePrepareZora721DropBurn(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'burn',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'burn'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"callMetadataRenderer"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropCallMetadataRenderer(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'callMetadataRenderer'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'callMetadataRenderer',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'callMetadataRenderer'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"finalizeOpenEdition"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropFinalizeOpenEdition(
   config: Omit<
@@ -6326,9 +9648,12 @@ export function usePrepareZora721DropFinalizeOpenEdition(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'finalizeOpenEdition',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'finalizeOpenEdition'>)
@@ -6337,7 +9662,8 @@ export function usePrepareZora721DropFinalizeOpenEdition(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"grantRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropGrantRole(
   config: Omit<
@@ -6345,9 +9671,12 @@ export function usePrepareZora721DropGrantRole(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'grantRole',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'grantRole'>)
@@ -6356,7 +9685,8 @@ export function usePrepareZora721DropGrantRole(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropInitialize(
   config: Omit<
@@ -6364,9 +9694,12 @@ export function usePrepareZora721DropInitialize(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'initialize',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'initialize'>)
@@ -6375,7 +9708,8 @@ export function usePrepareZora721DropInitialize(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"manageMarketFilterDAOSubscription"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropManageMarketFilterDaoSubscription(
   config: Omit<
@@ -6386,9 +9720,12 @@ export function usePrepareZora721DropManageMarketFilterDaoSubscription(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'manageMarketFilterDAOSubscription',
     ...config,
   } as UsePrepareContractWriteConfig<
@@ -6398,9 +9735,56 @@ export function usePrepareZora721DropManageMarketFilterDaoSubscription(
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"mintWithRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropMintWithRewards(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'mintWithRewards'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'mintWithRewards',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'mintWithRewards'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"multicall"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropMulticall(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'multicall'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'multicall',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'multicall'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchase"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropPurchase(
   config: Omit<
@@ -6408,9 +9792,12 @@ export function usePrepareZora721DropPurchase(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'purchase',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchase'>)
@@ -6419,7 +9806,8 @@ export function usePrepareZora721DropPurchase(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchasePresale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropPurchasePresale(
   config: Omit<
@@ -6427,18 +9815,114 @@ export function usePrepareZora721DropPurchasePresale(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'purchasePresale',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchasePresale'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchasePresaleWithComment"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropPurchasePresaleWithComment(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchasePresaleWithComment'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchasePresaleWithComment',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchasePresaleWithComment'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchasePresaleWithRewards"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropPurchasePresaleWithRewards(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchasePresaleWithRewards'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchasePresaleWithRewards',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchasePresaleWithRewards'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchaseWithComment"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropPurchaseWithComment(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchaseWithComment'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchaseWithComment',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchaseWithComment'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"purchaseWithRecipient"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropPurchaseWithRecipient(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchaseWithRecipient'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'purchaseWithRecipient',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'purchaseWithRecipient'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"renounceRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropRenounceRole(
   config: Omit<
@@ -6446,9 +9930,12 @@ export function usePrepareZora721DropRenounceRole(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'renounceRole',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'renounceRole'>)
@@ -6457,7 +9944,8 @@ export function usePrepareZora721DropRenounceRole(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"revokeRole"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropRevokeRole(
   config: Omit<
@@ -6465,9 +9953,12 @@ export function usePrepareZora721DropRevokeRole(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'revokeRole',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'revokeRole'>)
@@ -6476,7 +9967,8 @@ export function usePrepareZora721DropRevokeRole(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"safeTransferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropSafeTransferFrom(
   config: Omit<
@@ -6484,9 +9976,12 @@ export function usePrepareZora721DropSafeTransferFrom(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'safeTransferFrom',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'safeTransferFrom'>)
@@ -6495,7 +9990,8 @@ export function usePrepareZora721DropSafeTransferFrom(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropSetApprovalForAll(
   config: Omit<
@@ -6503,9 +9999,12 @@ export function usePrepareZora721DropSetApprovalForAll(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setApprovalForAll',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'setApprovalForAll'>)
@@ -6514,7 +10013,8 @@ export function usePrepareZora721DropSetApprovalForAll(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setFundsRecipient"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropSetFundsRecipient(
   config: Omit<
@@ -6522,9 +10022,12 @@ export function usePrepareZora721DropSetFundsRecipient(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setFundsRecipient',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'setFundsRecipient'>)
@@ -6533,7 +10036,8 @@ export function usePrepareZora721DropSetFundsRecipient(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropSetMetadataRenderer(
   config: Omit<
@@ -6541,9 +10045,12 @@ export function usePrepareZora721DropSetMetadataRenderer(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setMetadataRenderer',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'setMetadataRenderer'>)
@@ -6552,7 +10059,8 @@ export function usePrepareZora721DropSetMetadataRenderer(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setOwner"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropSetOwner(
   config: Omit<
@@ -6560,9 +10068,12 @@ export function usePrepareZora721DropSetOwner(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setOwner',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'setOwner'>)
@@ -6571,7 +10082,8 @@ export function usePrepareZora721DropSetOwner(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"setSaleConfiguration"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropSetSaleConfiguration(
   config: Omit<
@@ -6579,9 +10091,12 @@ export function usePrepareZora721DropSetSaleConfiguration(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'setSaleConfiguration',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'setSaleConfiguration'>)
@@ -6590,7 +10105,8 @@ export function usePrepareZora721DropSetSaleConfiguration(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"transferFrom"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropTransferFrom(
   config: Omit<
@@ -6598,18 +10114,45 @@ export function usePrepareZora721DropTransferFrom(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'transferFrom',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'transferFrom'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"updateCreateReferral"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropUpdateCreateReferral(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'updateCreateReferral'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'updateCreateReferral',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'updateCreateReferral'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"updateMarketFilterSettings"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropUpdateMarketFilterSettings(
   config: Omit<
@@ -6617,18 +10160,45 @@ export function usePrepareZora721DropUpdateMarketFilterSettings(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'updateMarketFilterSettings',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'updateMarketFilterSettings'>)
 }
 
 /**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"updateRoyaltyMintSchedule"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function usePrepareZora721DropUpdateRoyaltyMintSchedule(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'updateRoyaltyMintSchedule'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'updateRoyaltyMintSchedule',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'updateRoyaltyMintSchedule'>)
+}
+
+/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"upgradeTo"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropUpgradeTo(
   config: Omit<
@@ -6636,9 +10206,12 @@ export function usePrepareZora721DropUpgradeTo(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'upgradeTo',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'upgradeTo'>)
@@ -6647,7 +10220,8 @@ export function usePrepareZora721DropUpgradeTo(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"upgradeToAndCall"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropUpgradeToAndCall(
   config: Omit<
@@ -6655,9 +10229,12 @@ export function usePrepareZora721DropUpgradeToAndCall(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'upgradeToAndCall',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'upgradeToAndCall'>)
@@ -6666,7 +10243,8 @@ export function usePrepareZora721DropUpgradeToAndCall(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"withdraw"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function usePrepareZora721DropWithdraw(
   config: Omit<
@@ -6674,37 +10252,45 @@ export function usePrepareZora721DropWithdraw(
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     functionName: 'withdraw',
     ...config,
   } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'withdraw'>)
 }
 
 /**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"zoraFeeForAmount"`.
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link zora721DropABI}__ and `functionName` set to `"withdrawRewards"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
-export function usePrepareZora721DropZoraFeeForAmount(
+export function usePrepareZora721DropWithdrawRewards(
   config: Omit<
-    UsePrepareContractWriteConfig<typeof zora721DropABI, 'zoraFeeForAmount'>,
+    UsePrepareContractWriteConfig<typeof zora721DropABI, 'withdrawRewards'>,
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
-    functionName: 'zoraFeeForAmount',
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    functionName: 'withdrawRewards',
     ...config,
-  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'zoraFeeForAmount'>)
+  } as UsePrepareContractWriteConfig<typeof zora721DropABI, 'withdrawRewards'>)
 }
 
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropEvent<TEventName extends string>(
   config: Omit<
@@ -6712,9 +10298,12 @@ export function useZora721DropEvent<TEventName extends string>(
     'abi' | 'address'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, TEventName>)
 }
@@ -6722,7 +10311,8 @@ export function useZora721DropEvent<TEventName extends string>(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"AdminChanged"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropAdminChangedEvent(
   config: Omit<
@@ -6730,9 +10320,12 @@ export function useZora721DropAdminChangedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'AdminChanged',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'AdminChanged'>)
@@ -6741,7 +10334,8 @@ export function useZora721DropAdminChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"Approval"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropApprovalEvent(
   config: Omit<
@@ -6749,9 +10343,12 @@ export function useZora721DropApprovalEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'Approval',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'Approval'>)
@@ -6760,7 +10357,8 @@ export function useZora721DropApprovalEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"ApprovalForAll"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropApprovalForAllEvent(
   config: Omit<
@@ -6768,18 +10366,45 @@ export function useZora721DropApprovalForAllEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'ApprovalForAll',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'ApprovalForAll'>)
 }
 
 /**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"BatchMetadataUpdate"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropBatchMetadataUpdateEvent(
+  config: Omit<
+    UseContractEventConfig<typeof zora721DropABI, 'BatchMetadataUpdate'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    eventName: 'BatchMetadataUpdate',
+    ...config,
+  } as UseContractEventConfig<typeof zora721DropABI, 'BatchMetadataUpdate'>)
+}
+
+/**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"BeaconUpgraded"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropBeaconUpgradedEvent(
   config: Omit<
@@ -6787,9 +10412,12 @@ export function useZora721DropBeaconUpgradedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'BeaconUpgraded',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'BeaconUpgraded'>)
@@ -6798,7 +10426,8 @@ export function useZora721DropBeaconUpgradedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"FundsReceived"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropFundsReceivedEvent(
   config: Omit<
@@ -6806,9 +10435,12 @@ export function useZora721DropFundsReceivedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'FundsReceived',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'FundsReceived'>)
@@ -6817,7 +10449,8 @@ export function useZora721DropFundsReceivedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"FundsRecipientChanged"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropFundsRecipientChangedEvent(
   config: Omit<
@@ -6825,9 +10458,12 @@ export function useZora721DropFundsRecipientChangedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'FundsRecipientChanged',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'FundsRecipientChanged'>)
@@ -6836,7 +10472,8 @@ export function useZora721DropFundsRecipientChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"FundsWithdrawn"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropFundsWithdrawnEvent(
   config: Omit<
@@ -6844,18 +10481,91 @@ export function useZora721DropFundsWithdrawnEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'FundsWithdrawn',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'FundsWithdrawn'>)
 }
 
 /**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"MetadataUpdate"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropMetadataUpdateEvent(
+  config: Omit<
+    UseContractEventConfig<typeof zora721DropABI, 'MetadataUpdate'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    eventName: 'MetadataUpdate',
+    ...config,
+  } as UseContractEventConfig<typeof zora721DropABI, 'MetadataUpdate'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"MintComment"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropMintCommentEvent(
+  config: Omit<
+    UseContractEventConfig<typeof zora721DropABI, 'MintComment'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    eventName: 'MintComment',
+    ...config,
+  } as UseContractEventConfig<typeof zora721DropABI, 'MintComment'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"MintFeePayout"`.
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
+ */
+export function useZora721DropMintFeePayoutEvent(
+  config: Omit<
+    UseContractEventConfig<typeof zora721DropABI, 'MintFeePayout'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof zora721DropAddress } = {} as any
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: zora721DropABI,
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
+    eventName: 'MintFeePayout',
+    ...config,
+  } as UseContractEventConfig<typeof zora721DropABI, 'MintFeePayout'>)
+}
+
+/**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"OpenMintFinalized"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropOpenMintFinalizedEvent(
   config: Omit<
@@ -6863,9 +10573,12 @@ export function useZora721DropOpenMintFinalizedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'OpenMintFinalized',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'OpenMintFinalized'>)
@@ -6874,7 +10587,8 @@ export function useZora721DropOpenMintFinalizedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"OwnerCanceled"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropOwnerCanceledEvent(
   config: Omit<
@@ -6882,9 +10596,12 @@ export function useZora721DropOwnerCanceledEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'OwnerCanceled',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'OwnerCanceled'>)
@@ -6893,7 +10610,8 @@ export function useZora721DropOwnerCanceledEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"OwnerPending"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropOwnerPendingEvent(
   config: Omit<
@@ -6901,9 +10619,12 @@ export function useZora721DropOwnerPendingEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'OwnerPending',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'OwnerPending'>)
@@ -6912,7 +10633,8 @@ export function useZora721DropOwnerPendingEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"OwnershipTransferred"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropOwnershipTransferredEvent(
   config: Omit<
@@ -6920,9 +10642,12 @@ export function useZora721DropOwnershipTransferredEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'OwnershipTransferred',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'OwnershipTransferred'>)
@@ -6931,7 +10656,8 @@ export function useZora721DropOwnershipTransferredEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"RoleAdminChanged"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRoleAdminChangedEvent(
   config: Omit<
@@ -6939,9 +10665,12 @@ export function useZora721DropRoleAdminChangedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'RoleAdminChanged',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'RoleAdminChanged'>)
@@ -6950,7 +10679,8 @@ export function useZora721DropRoleAdminChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"RoleGranted"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRoleGrantedEvent(
   config: Omit<
@@ -6958,9 +10688,12 @@ export function useZora721DropRoleGrantedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'RoleGranted',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'RoleGranted'>)
@@ -6969,7 +10702,8 @@ export function useZora721DropRoleGrantedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"RoleRevoked"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropRoleRevokedEvent(
   config: Omit<
@@ -6977,9 +10711,12 @@ export function useZora721DropRoleRevokedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'RoleRevoked',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'RoleRevoked'>)
@@ -6988,7 +10725,8 @@ export function useZora721DropRoleRevokedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"Sale"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSaleEvent(
   config: Omit<
@@ -6996,9 +10734,12 @@ export function useZora721DropSaleEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'Sale',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'Sale'>)
@@ -7007,7 +10748,8 @@ export function useZora721DropSaleEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"SalesConfigChanged"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropSalesConfigChangedEvent(
   config: Omit<
@@ -7015,9 +10757,12 @@ export function useZora721DropSalesConfigChangedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'SalesConfigChanged',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'SalesConfigChanged'>)
@@ -7026,7 +10771,8 @@ export function useZora721DropSalesConfigChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"Transfer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropTransferEvent(
   config: Omit<
@@ -7034,9 +10780,12 @@ export function useZora721DropTransferEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'Transfer',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'Transfer'>)
@@ -7045,7 +10794,8 @@ export function useZora721DropTransferEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"UpdatedMetadataRenderer"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropUpdatedMetadataRendererEvent(
   config: Omit<
@@ -7053,9 +10803,12 @@ export function useZora721DropUpdatedMetadataRendererEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'UpdatedMetadataRenderer',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'UpdatedMetadataRenderer'>)
@@ -7064,7 +10817,8 @@ export function useZora721DropUpdatedMetadataRendererEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link zora721DropABI}__ and `eventName` set to `"Upgraded"`.
  *
- * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xe4c17055048aEe01D0d122804816fEe5E6ac4A67)
  */
 export function useZora721DropUpgradedEvent(
   config: Omit<
@@ -7072,9 +10826,12 @@ export function useZora721DropUpgradedEvent(
     'abi' | 'address' | 'eventName'
   > & { chainId?: keyof typeof zora721DropAddress } = {} as any
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractEvent({
     abi: zora721DropABI,
-    address: zora721DropAddress[1],
+    address: zora721DropAddress[chainId as keyof typeof zora721DropAddress],
     eventName: 'Upgraded',
     ...config,
   } as UseContractEventConfig<typeof zora721DropABI, 'Upgraded'>)

@@ -11,8 +11,10 @@ import {
   SignableMessage,
 } from 'viem'
 import {
-  erc6551AccountAbi,
-  erc6551RegistryAbi,
+  // erc6551AccountAbiV2,
+  // erc6551RegistryAbiV2,
+  // erc6551AccountAbiV3,
+  // erc6551RegistryAbiV3,
   erc1155Abi,
   erc721Abi,
   erc20Abi,
@@ -55,6 +57,7 @@ import {
   resolvePossibleENS,
 } from './utils'
 import { version as TB_SDK_VERSION } from '../package.json'
+// import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from './constants'
 
 declare global {
   interface Window {
@@ -530,11 +533,16 @@ class TokenboundClient {
     }
   }
 }
-
+// const erc6551AccountAbiV2 = ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI
+// const erc6551RegistryAbiV2 = ERC_6551_LEGACY_V2.REGISTRY.ABI
+// const erc6551AccountAbiV3 = ERC_6551_DEFAULT.IMPLEMENTATION.ABI
+// const erc6551RegistryAbiV3 = ERC_6551_DEFAULT.REGISTRY.ABI
 export {
   TokenboundClient,
-  erc6551AccountAbi,
-  erc6551RegistryAbi,
+  // erc6551AccountAbiV2,
+  // erc6551RegistryAbiV2,
+  // erc6551AccountAbiV3,
+  // erc6551RegistryAbiV3,
   getAccount,
   createAccount,
   getCreationCode,

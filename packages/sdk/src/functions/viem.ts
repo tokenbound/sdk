@@ -7,17 +7,28 @@ import {
   encodeFunctionData,
   encodeAbiParameters,
   pad,
-  getAddress,
+  isAddressEqual,
+  parseAbiParameters,
+  numberToHex,
 } from 'viem'
 
-import { erc6551AccountAbi, erc6551RegistryAbi } from '../../abis'
 import {
-  erc6551AccountImplementationAddressV1,
-  erc6551RegistryAddressV1,
-} from '../constants'
-import { addressToUint8Array } from '../utils'
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountAbiV3,
+  erc6551RegistryAbiV3,
+} from '../../abis'
+import { addressToUint8Array, getActiveImplementation, getActiveRegistry } from '../utils'
+import { ERC_6551_LEGACY_V2 } from '../constants'
 
-export { erc6551AccountAbi, erc6551RegistryAbi }
+export {
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountAbiV3,
+  erc6551RegistryAbiV3,
+}
+
+// const zeroBytes32: string = '0x' + '0'.repeat(64)
 
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
@@ -30,27 +41,45 @@ export async function getAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`
 ): Promise<`0x${string}`> {
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
+
+  // console.log('getAcct test', implementation, erc6551registry)
+  // getAcct 0x2D25602551487C3f3354dD80D76D54383A243358 0x002c0c13181038780F552f0eC1B72e8C720147E6
+  // console.log('getAccount impl', implementationAddress, ' > ', implementation.ADDRESS)
 
   const registry = getContract({
-    address: erc6551registry,
-    abi: erc6551RegistryAbi,
-    publicClient: client as PublicClient,
+    address: erc6551registry.ADDRESS,
+    abi: erc6551registry.ABI,
+    publicClient: client,
   })
 
   const chainId = await client.getChainId()
 
-  const account = await registry.read.account([
-    implementationAddress
-      ? getAddress(implementationAddress)
-      : erc6551AccountImplementationAddressV1,
-    chainId,
-    tokenContract,
-    tokenId,
-    0,
-  ])
+  const isV2Compatible = isAddressEqual(
+    implementation.ADDRESS,
+    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  )
+  const account = isV2Compatible
+    ? await registry.read.account([
+        implementation.ADDRESS,
+        chainId,
+        tokenContract,
+        tokenId,
+        0,
+      ])
+    : await registry.read.account([
+        implementation.ADDRESS,
+        // 0,
+        // numberToBytes(0, { size: 32 }),
+        encodeAbiParameters(parseAbiParameters(['bytes32']), [
+          numberToHex(0, { size: 32 }),
+        ]),
+
+        chainId,
+        tokenContract,
+        tokenId,
+      ])
 
   return account as `0x${string}`
 }
@@ -70,12 +99,13 @@ export async function prepareCreateAccount(
   value: bigint
   data: `0x${string}`
 }> {
-  const implementation = implementationAddress
-    ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
+
+  const isV2Compatible = isAddressEqual(
+    implementation.ADDRESS,
+    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  )
 
   const initData = encodeFunctionData({
     abi: [
@@ -90,20 +120,33 @@ export async function prepareCreateAccount(
     functionName: 'initialize',
   })
 
-  return {
-    to: erc6551registry,
-    value: BigInt(0),
-    data: encodeFunctionData({
-      abi: erc6551RegistryAbi,
-      functionName: 'createAccount',
-      args: [
-        implementation,
+  const createAcctArgs = isV2Compatible
+    ? [
+        implementation.ADDRESS,
         chainId,
         tokenContract,
         tokenId,
         0, // salt
         initData,
-      ],
+      ]
+    : [
+        implementation.ADDRESS,
+        encodeAbiParameters(parseAbiParameters(['bytes32']), [
+          // salt of 0
+          numberToHex(0, { size: 32 }),
+        ]),
+        chainId,
+        tokenContract,
+        tokenId,
+      ]
+
+  return {
+    to: erc6551registry.ADDRESS,
+    value: BigInt(0),
+    data: encodeFunctionData({
+      abi: erc6551registry.ABI,
+      functionName: 'createAccount',
+      args: createAcctArgs,
     }),
   }
 }
@@ -119,16 +162,19 @@ export async function createAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`
 ): Promise<`0x${string}`> {
-  const implementation = implementationAddress
-    ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
+
+  const isV2Compatible = isAddressEqual(
+    implementation.ADDRESS,
+    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  )
+
+  // console.log('createAccount test', implementation, erc6551registry)
 
   const registry = getContract({
-    address: erc6551registry,
-    abi: erc6551RegistryAbi,
+    address: erc6551registry.ADDRESS,
+    abi: erc6551registry.ABI,
     walletClient: client,
   })
 
@@ -147,14 +193,48 @@ export async function createAccount(
     functionName: 'initialize',
   })
 
-  return registry.write.createAccount([
-    implementation,
-    chainId,
-    tokenContract,
-    tokenId,
-    0, // salt
-    initData,
-  ])
+  const createAcctArgs = isV2Compatible
+    ? [
+        implementation.ADDRESS,
+        chainId,
+        tokenContract,
+        tokenId,
+        0, // salt
+        initData,
+      ]
+    : [
+        implementation.ADDRESS,
+        encodeAbiParameters(parseAbiParameters(['bytes32']), [
+          // salt of 0
+          numberToHex(0, { size: 32 }),
+        ]),
+        chainId,
+        tokenContract,
+        tokenId,
+      ]
+
+  // const initData = encodeFunctionData({
+  //   abi: [
+  //     {
+  //       inputs: [],
+  //       name: 'initialize',
+  //       outputs: [],
+  //       stateMutability: 'nonpayable',
+  //       type: 'function',
+  //     },
+  //   ],
+  //   functionName: 'initialize',
+  // })
+
+  return registry.write.createAccount(createAcctArgs)
+  // return registry.write.createAccount([
+  //   implementation.ADDRESS,
+  //   chainId,
+  //   tokenContract,
+  //   tokenId,
+  //   0, // salt
+  //   isV2Compatible ? initData : undefined,
+  // ])
 }
 
 /**
@@ -171,11 +251,14 @@ export async function prepareExecuteCall(
   value: bigint
   data: `0x${string}`
 }> {
+  const implementation = getActiveImplementation(
+    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  )
   return {
     to: account as `0x${string}`,
     value: 0n,
     data: encodeFunctionData({
-      abi: erc6551AccountAbi,
+      abi: implementation.ABI,
       functionName: 'executeCall',
       args: [to as `0x${string}`, value, data as `0x${string}`],
     }),
@@ -193,9 +276,13 @@ export async function executeCall(
   data: string,
   client: WalletClient
 ) {
+  const implementation = getActiveImplementation(
+    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  )
   const registry = getContract({
     address: account as `0x${string}`,
-    abi: erc6551AccountAbi,
+    // abi: erc6551AccountAbi,
+    abi: implementation.ABI,
     walletClient: client,
   })
 
@@ -213,21 +300,29 @@ export function computeAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`
 ): `0x${string}` {
-  const implementation = implementationAddress
-    ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
-  const erc6551registry = registryAddress
-    ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+  const implementation = getActiveImplementation(implementationAddress)
+  const erc6551registry = getActiveRegistry(registryAddress)
 
-  const code = getCreationCode(implementation, chainId, tokenContract, tokenId, '0')
+  // console.log('computeAccount test', implementation, erc6551registry)
+
+  console.log('computeAccount impl', implementationAddress, ' > ', implementation.ADDRESS)
+
+  // computeAccount test 0x2D25602551487C3f3354dD80D76D54383A243358 0x002c0c13181038780F552f0eC1B72e8C720147E6
+
+  const code = getCreationCode(
+    implementation.ADDRESS,
+    chainId,
+    tokenContract,
+    tokenId,
+    '0'
+  )
 
   const bigIntZero = BigInt('0').toString(16) as `0x${string}`
   const saltHex = pad(bigIntZero, { size: 32 })
 
   return getContractAddress({
     bytecode: code,
-    from: erc6551registry,
+    from: erc6551registry.ADDRESS,
     opcode: 'CREATE2',
     salt: saltHex,
   })

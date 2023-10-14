@@ -1,4 +1,9 @@
-import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
+import {
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountAbiV3,
+  erc6551RegistryAbiV3,
+} from '../abis'
 
 import {
   getAccount,
@@ -32,8 +37,10 @@ import { TokenboundClient } from './TokenboundClient'
 
 export {
   TokenboundClient,
-  erc6551AccountAbi,
-  erc6551RegistryAbi,
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountAbiV3,
+  erc6551RegistryAbiV3,
   getAccount,
   computeAccount,
   prepareCreateAccount,
