@@ -67,11 +67,11 @@ import {
 } from './utils'
 import {
   IERC6551AccountInterface,
-  erc6551AccountImplementationAddressV3,
-  ERC_6551_LEGACY_V1,
+  // erc6551AccountImplementationAddressV3,
+  ERC_6551_DEFAULT,
+  ERC_6551_LEGACY_V2,
 } from './constants'
 import { version as TB_SDK_VERSION } from '../package.json'
-// import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from './constants'
 
 declare global {
   interface Window {
@@ -171,7 +171,7 @@ class TokenboundClient {
 
       const accountContract = getContract({
         address: accountImplementation,
-        abi: erc6551AccountAbi, // REPLACEME
+        abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI, // REPLACEME
         publicClient: this.publicClient,
       })
 
@@ -358,7 +358,7 @@ class TokenboundClient {
       to: account as `0x${string}`,
       value: 0n,
       data: encodeFunctionData({
-        abi: erc6551AccountAbi, // TODO: REPLACEME WITH V3 ABI FOR _EXECUTION INTERFACE_
+        abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI, // TODO: REPLACEME WITH V3 ABI FOR _EXECUTION INTERFACE_
         functionName: 'execute',
         args: [to as `0x${string}`, value, data as `0x${string}`, operation],
       }),
@@ -435,7 +435,7 @@ class TokenboundClient {
     try {
       const accountInstance = getContract({
         address: account,
-        abi: erc6551AccountAbi, // TODO: REPLACE ME
+        abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI, // TODO: REPLACE ME
         // walletClient,
         publicClient: this.publicClient,
       })
@@ -449,11 +449,11 @@ class TokenboundClient {
       // return (await this.execute({
       //   // account: walletAddress,
       //   account,
-      //   to: this.implementationAddress ?? erc6551AccountImplementationAddressV3,
+      //   to: this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
       //   // to: walletAddress,
       //   value: 0n,
       //   data: encodeFunctionData({
-      //     abi: erc6551AccountAbi, // TODO: REPLACE ME
+      //     abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI, // TODO: REPLACE ME
       //     functionName: 'isValidSigner',
       //     // args: [walletAddress],
       //     args: [this.walletClient!.account?.address, data],

@@ -10,24 +10,14 @@ import {
   getAddress,
 } from 'viem'
 
-// import { erc6551AccountAbi, erc6551RegistryAbi } from '../../abis'
-// import {
-//   erc6551AccountImplementationAddressV1,
-//   erc6551RegistryAddressV1,
-// } from '../constants'
-
 import {
   erc6551AccountAbiV2,
   erc6551RegistryAbiV2,
   erc6551AccountAbiV3,
   erc6551RegistryAbiV3,
 } from '../../abis'
-import { addressToUint8Array, getActiveImplementation, getActiveRegistry } from '../utils'
+import { addressToUint8Array } from '../utils'
 import { ERC_6551_LEGACY_V2 } from '../constants'
-
-// import { addressToUint8Array } from '../utils'
-
-// export { erc6551AccountAbi, erc6551RegistryAbi }
 
 export {
   erc6551AccountAbiV2,

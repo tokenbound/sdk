@@ -1,5 +1,6 @@
 export * from './addressToUint8Array'
 export * from './chainIdToChain'
+export * from './ethersAdaptors'
 export * from './getImplementationName'
 export * from './getActiveImplementation'
 export * from './getActiveRegistry'
