@@ -13,7 +13,6 @@ export const TEST_CONFIG = {
   ),
 
   TB_ACCOUNT: <`0x${string}`>`0x5194b1c04Ed6464b3225324d6794f7d2698D8d1c`,
-  // TB_ACCOUNT_V3: <`0x${string}`>`0xe7f65065f6a808Ed3A5f4b7B672904Ab88942A4A`,
 
   RECIPIENT_ADDRESS: <`0x${string}`>`0x02101dfb77fde026414827fdc604ddaf224f0921`,
 
