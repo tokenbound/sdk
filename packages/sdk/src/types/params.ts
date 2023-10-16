@@ -2,7 +2,7 @@ import { WalletClient, PublicClient, Chain } from 'viem'
 import { Prettify } from './prettify'
 import { UniversalSignableMessage, CallOperation } from '.'
 import { PossibleENSAddress } from './addresses'
-import { ERC_6551_LEGACY_V1 } from '../constants'
+import { ERC_6551_LEGACY_V2 } from '../constants'
 
 export const NFTTokenType = {
   ERC721: 'ERC721',
@@ -49,7 +49,9 @@ export type ERC20TransferParams = Prettify<{
   erc20tokenDecimals: number
 }>
 
-type ImplementationAddress = `0x${string}` | typeof ERC_6551_LEGACY_V1.IMPLEMENTATION
+type ImplementationAddress =
+  | `0x${string}`
+  | typeof ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
 
 export type TokenboundClientOptions = Prettify<{
   chainId?: number

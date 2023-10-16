@@ -314,8 +314,8 @@ importers:
         specifier: ^0.33.0
         version: 0.33.0(vitest@0.34.2)
       '@wagmi/cli':
-        specifier: ^1.5.0
-        version: 1.5.0(typescript@5.2.2)(wagmi@1.4.3)
+        specifier: ^1.5.2
+        version: 1.5.2(typescript@5.2.2)(wagmi@1.4.3)
       connectkit:
         specifier: ^1.5.3
         version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.16.2)(wagmi@1.4.3)
@@ -3060,8 +3060,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wagmi/cli@1.5.0(typescript@5.2.2)(wagmi@1.4.3):
-    resolution: {integrity: sha512-3L1b/zgdkYPYsnBbtalRcEmSJWGy9hnZjCmkjAj5FDXfaslMmJFTJiNDDYpkpxCtL9iqjbYj0y3ECW7mDfJr7A==}
+  /@wagmi/cli@1.5.2(typescript@5.2.2)(wagmi@1.4.3):
+    resolution: {integrity: sha512-UfLMYhW6mQBCjR8A5s01Chf9GpHzdpcuuBuzJ36QGXcMSJAxylz5ImVZWfCRV0ct1UruydjKVSW1QSI6azNxRQ==}
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:

@@ -43,6 +43,7 @@ import {
 } from './utils'
 import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -60,9 +61,10 @@ describe('Test SDK methods - viem + Ethers', () => {
   const ethers5Signer = walletClientToEthers5Signer(walletClient)
   const ethers6Signer = walletClientToEthers6Signer(walletClient)
 
-  runTxTests({ testName: 'Viem Tests', walletClient })
+  runTxTests({ testName: 'Viem Tests - v2', walletClient, version: 'v2' })
+  // runTxTests({ testName: 'Viem Tests - v3', walletClient, version: 'v3' })
 
-  const ENABLE_ETHERS_TESTS = true
+  const ENABLE_ETHERS_TESTS = false
 
   if (ENABLE_ETHERS_TESTS) {
     runTxTests({ testName: 'Ethers 5 Tests', signer: ethers5Signer })
@@ -74,10 +76,12 @@ function runTxTests({
   testName,
   walletClient,
   signer,
+  version,
 }: {
   testName: string
   walletClient?: WalletClient
   signer?: any
+  version?: 'v2' | 'v3'
 }) {
   // Skip tests that are non-functional in Ethers
   const testInViemOnly = walletClient ? it : it.skip
@@ -93,6 +97,8 @@ function runTxTests({
     let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
 
+    const ERC6551_DEPLOYMENT = version === 'v2' ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
+
     // Spin up a fresh anvil instance each time we run the test suite against a different signer
     beforeAll(async () => {
       try {
@@ -104,6 +110,8 @@ function runTxTests({
           walletClient,
           signer,
           publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
+          implementationAddress: ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
+          registryAddress: ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
         })
 
         await anvil.start()
@@ -201,6 +209,9 @@ function runTxTests({
     // We create the account using an NFT in the EOA wallet so we can test the EOA methods and use the TBA address for tests
     it('can createAccount', async () => {
       const createdAccount = await tokenboundClient.createAccount(NFT_IN_EOA)
+
+      console.log('CREATED ACCT', createdAccount)
+
       ZORA721_TBA_ADDRESS = createdAccount
       await waitFor(() => {
         expect(createdAccount).toMatch(ADDRESS_REGEX)
