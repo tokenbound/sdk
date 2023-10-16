@@ -7,6 +7,7 @@ import {
   sepolia,
   optimism,
   arbitrum,
+  optimismGoerli,
   base,
   gnosis,
 } from 'viem/chains'
@@ -14,6 +15,7 @@ import {
 const allChains = {
   mainnet,
   goerli,
+  optimismGoerli,
   polygon,
   polygonMumbai,
   sepolia,
