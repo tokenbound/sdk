@@ -15,8 +15,10 @@ export function getActiveImplementation(
 
   // If it's a custom implementation, we need to know if it supports V2 or V3
 
-  return !!implementationAddress &&
-    isAddressEqual(implementationAddress, ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS)
-    ? ERC_6551_LEGACY_V2.IMPLEMENTATION
-    : ERC_6551_DEFAULT.IMPLEMENTATION
+  // return !!implementationAddress &&
+  //   isAddressEqual(implementationAddress, ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS)
+  //   ? ERC_6551_LEGACY_V2.IMPLEMENTATION
+  //   : ERC_6551_DEFAULT.IMPLEMENTATION
+
+  return ERC_6551_DEFAULT.IMPLEMENTATION
 }

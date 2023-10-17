@@ -41,31 +41,39 @@ export function App() {
     transport: window.ethereum ? custom(window.ethereum) : http(),
   })
 
-  const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id })
+  const tokenboundClient = new TokenboundClient({
+    walletClient,
+    chainId: goerli.id,
+    // implementationAddress: '0x2d25602551487c3f3354dd80d76d54383a243358',
+  })
 
   useEffect(() => {
     async function testTokenboundClass() {
       if (!tokenboundClient) return
+
+      const isV3Supported = await tokenboundClient.isV3Supported()
+      // alert(`isV3Supported: ${isV3Supported}`)
 
       const tokenboundAccount = tokenboundClient.getAccount({
         tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
         tokenId: '9',
       })
 
-      const preparedExecuteCall = await tokenboundClient.prepareExecuteCall({
-        account: tokenboundAccount,
-        to: recipientAddress,
-        value: 0n,
-        data: '',
-      })
+      // const preparedExecuteCall = await tokenboundClient.prepareExecuteCall({
+      //   account: tokenboundAccount,
+      //   to: recipientAddress,
+      //   value: 0n,
+      //   data: '',
+      // })
 
       const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
         tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
         tokenId: '1',
       })
 
+      console.log(`isV3Supported: ${isV3Supported}`)
       console.log('getAccount', tokenboundAccount)
-      console.log('preparedExecuteCall', preparedExecuteCall)
+      // console.log('preparedExecuteCall', preparedExecuteCall)
       console.log('preparedAccount', preparedCreateAccount)
 
       // if (address) {
@@ -86,16 +94,16 @@ export function App() {
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
-  const executeCall = useCallback(async () => {
-    if (!tokenboundClient || !address) return
-    const executedCall = await tokenboundClient.executeCall({
-      account: sendingTBA,
-      to: recipientAddress,
-      value: ethAmountWei,
-      data: '0x',
-    })
-    executedCall && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
-  }, [tokenboundClient])
+  // const executeCall = useCallback(async () => {
+  //   if (!tokenboundClient || !address) return
+  //   const executedCall = await tokenboundClient.executeCall({
+  //     account: sendingTBA,
+  //     to: recipientAddress,
+  //     value: ethAmountWei,
+  //     data: '0x',
+  //   })
+  //   executedCall && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
+  // }, [tokenboundClient])
 
   return (
     <>
@@ -112,7 +120,6 @@ export function App() {
             maxWidth: '320px',
           }}
         >
-          <button onClick={() => executeCall()}>EXECUTE CALL</button>
           <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
         </div>
       )}

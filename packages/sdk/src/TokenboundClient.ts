@@ -11,6 +11,7 @@ import {
   SignableMessage,
   getContract,
   isAddressEqual,
+  parseAbi,
 } from 'viem'
 import {
   // erc6551AccountAbiV2,
@@ -63,11 +64,10 @@ import {
   isViemSignableMessage,
   resolvePossibleENS,
   getImplementationName,
-  getActiveImplementation,
+  // getActiveImplementation,
 } from './utils'
 import {
   IERC6551AccountInterface,
-  // erc6551AccountImplementationAddressV3,
   ERC_6551_DEFAULT,
   ERC_6551_LEGACY_V2,
 } from './constants'
@@ -143,10 +143,15 @@ class TokenboundClient {
       this.registryAddress = registryAddress
     }
 
-    // If the legacy V1 implementation is in use, ensure we're also using the legacy V1 registry (unless a custom registry is provided)
-    if (implementationAddress && !registryAddress) {
-      if (isAddressEqual(implementationAddress, ERC_6551_LEGACY_V1.IMPLEMENTATION)) {
-        this.registryAddress = ERC_6551_LEGACY_V1.REGISTRY
+    // If the legacy V2 implementation is in use,
+    // ensure we're also using the legacy V2 registry (unless a custom registry is provided)
+    if (
+      implementationAddress &&
+      !registryAddress &&
+      isAddressEqual(implementationAddress, ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS)
+    ) {
+      {
+        this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
       }
     }
 
@@ -162,26 +167,51 @@ class TokenboundClient {
    * Checks if V3's IERC6551AccountInterface is supported, and sets the `supportsV3` property. Returns true if supported, otherwise false.
    * @returns a Promise that resolves to true if V3 is supported, otherwise false
    */
-  private async isV3Supported(): Promise<boolean> {
+  // private async isV3Supported(): Promise<boolean> {
+  public async isV3Supported(): Promise<boolean> {
     // Check if implementation supports V3
     //   // supportsInterface // https://github.com/erc6551/reference/blob/main/src/interfaces/IERC6551Account.sol
     //   // @dev the ERC-165 identifier for this interface is `0x6faff5f1`
     try {
-      const accountImplementation = getActiveImplementation(this.implementationAddress)
-
+      // {
+      //   stateMutability: 'view',
+      //   type: 'function',
+      //   inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+      //   name: 'supportsInterface',
+      //   outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+      // },
       const accountContract = getContract({
-        address: accountImplementation,
-        abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI, // REPLACEME
+        address: this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
+        // abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
+        abi: parseAbi([
+          'function supportsInterface(bytes4 interfaceId) view returns (bool)',
+        ]),
         publicClient: this.publicClient,
       })
 
+      console.log('ACCOUNT CONTRACT', accountContract)
+
+      // Check if supportsInterface function exists in the ABI
+      // const supportsInterfaceFunction = accountContract.abi.find((func: any) => {
+      //   return func.name === 'supportsInterface' && func.type === 'function'
+      // })
+      // accountContract.abi.map((func: any) => {fun.})
+
+      // if ('supportsInterface' in accountContract.read) {
+      // if (supportsInterfaceFunction) {
       this.supportsV3 = (await accountContract.read.supportsInterface([
         IERC6551AccountInterface,
       ])) as boolean
 
       return this.supportsV3
+      // } else {
+      // The supportsInterface function does not exist in the ABI
+      // return false
+      // }
     } catch (error) {
-      throw error
+      this.supportsV3 = false
+      return false
+      // throw error
     }
   }
 
@@ -712,16 +742,17 @@ class TokenboundClient {
     }
   }
 }
-// const erc6551AccountAbiV2 = ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI
-// const erc6551RegistryAbiV2 = ERC_6551_LEGACY_V2.REGISTRY.ABI
-// const erc6551AccountAbiV3 = ERC_6551_DEFAULT.IMPLEMENTATION.ABI
-// const erc6551RegistryAbiV3 = ERC_6551_DEFAULT.REGISTRY.ABI
+const erc6551AccountAbiV2 = ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI
+const erc6551RegistryAbiV2 = ERC_6551_LEGACY_V2.REGISTRY.ABI
+const erc6551AccountAbiV3 = ERC_6551_DEFAULT.IMPLEMENTATION.ABI
+const erc6551RegistryAbiV3 = ERC_6551_DEFAULT.REGISTRY.ABI
+
 export {
   TokenboundClient,
-  // erc6551AccountAbiV2,
-  // erc6551RegistryAbiV2,
-  // erc6551AccountAbiV3,
-  // erc6551RegistryAbiV3,
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountAbiV3,
+  erc6551RegistryAbiV3,
   getAccount,
   createAccount,
   getCreationCode,

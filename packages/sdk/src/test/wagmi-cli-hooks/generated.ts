@@ -90,19 +90,31 @@ export const erc6551AccountV2Config = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export const erc6551AccountV3ABI = [
   {
     stateMutability: 'nonpayable',
     type: 'constructor',
     inputs: [
-      { name: '_guardian', internalType: 'address', type: 'address' },
-      { name: '_defaultImplementation', internalType: 'address', type: 'address' },
+      { name: 'entryPoint_', internalType: 'address', type: 'address' },
+      { name: 'multicallForwarder', internalType: 'address', type: 'address' },
+      { name: 'erc6551Registry', internalType: 'address', type: 'address' },
+      { name: 'guardian', internalType: 'address', type: 'address' },
     ],
   },
-  { type: 'error', inputs: [], name: 'AlreadyInitialized' },
+  { type: 'error', inputs: [], name: 'AccountLocked' },
+  { type: 'error', inputs: [], name: 'ContractCreationFailed' },
+  { type: 'error', inputs: [], name: 'ExceedsMaxLockTime' },
+  { type: 'error', inputs: [], name: 'InvalidAccountProof' },
+  { type: 'error', inputs: [], name: 'InvalidERC6551Registry' },
+  { type: 'error', inputs: [], name: 'InvalidEntryPoint' },
   { type: 'error', inputs: [], name: 'InvalidImplementation' },
+  { type: 'error', inputs: [], name: 'InvalidInput' },
+  { type: 'error', inputs: [], name: 'InvalidMulticallForwarder' },
+  { type: 'error', inputs: [], name: 'InvalidOperation' },
+  { type: 'error', inputs: [], name: 'NotAuthorized' },
+  { type: 'error', inputs: [], name: 'OwnershipCycle' },
   {
     type: 'event',
     anonymous: false,
@@ -122,30 +134,379 @@ export const erc6551AccountV3ABI = [
     type: 'event',
     anonymous: false,
     inputs: [
+      { name: 'lockedUntil', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'LockUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address', indexed: false },
+      { name: 'selector', internalType: 'bytes4', type: 'bytes4', indexed: false },
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'OverrideUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address', indexed: false },
+      { name: 'caller', internalType: 'address', type: 'address', indexed: false },
+      { name: 'hasPermission', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'PermissionUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       { name: 'implementation', internalType: 'address', type: 'address', indexed: true },
     ],
     name: 'Upgraded',
   },
   { stateMutability: 'payable', type: 'fallback' },
   {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'entryPoint',
+    outputs: [{ name: '', internalType: 'contract IEntryPoint', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'erc6551Registry',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+      { name: 'operation', internalType: 'uint8', type: 'uint8' },
+    ],
+    name: 'execute',
+    outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      {
+        name: 'operations',
+        internalType: 'struct BatchExecutor.Operation[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'to', internalType: 'address', type: 'address' },
+          { name: 'value', internalType: 'uint256', type: 'uint256' },
+          { name: 'data', internalType: 'bytes', type: 'bytes' },
+          { name: 'operation', internalType: 'uint8', type: 'uint8' },
+        ],
+      },
+    ],
+    name: 'executeBatch',
+    outputs: [{ name: '', internalType: 'bytes[]', type: 'bytes[]' }],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+      { name: 'operation', internalType: 'uint8', type: 'uint8' },
+      {
+        name: 'proof',
+        internalType: 'struct NestedAccountExecutor.ERC6551AccountInfo[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'tokenContract', internalType: 'address', type: 'address' },
+          { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    name: 'executeNested',
+    outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+  },
+  {
     stateMutability: 'nonpayable',
     type: 'function',
-    inputs: [{ name: 'implementation', internalType: 'address', type: 'address' }],
-    name: 'initialize',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'extcall',
+    outputs: [{ name: 'result', internalType: 'bytes', type: 'bytes' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'bytecode', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'extcreate',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'bytecode', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'extcreate2',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'extsload',
+    outputs: [{ name: 'value', internalType: 'bytes32', type: 'bytes32' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'getNonce',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'isLocked',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'forwarder', internalType: 'address', type: 'address' }],
+    name: 'isTrustedForwarder',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'hash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'signature', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'isValidSignature',
+    outputs: [{ name: 'magicValue', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'signer', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'isValidSigner',
+    outputs: [{ name: 'magicValue', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: '_lockedUntil', internalType: 'uint256', type: 'uint256' }],
+    name: 'lock',
     outputs: [],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'lockedUntil',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC1155BatchReceived',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC1155Received',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC721Received',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'bytes4', type: 'bytes4' },
+    ],
+    name: 'overrides',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+    ],
+    name: 'permissions',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'selectors', internalType: 'bytes4[]', type: 'bytes4[]' },
+      { name: 'implementations', internalType: 'address[]', type: 'address[]' },
+    ],
+    name: 'setOverrides',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'callers', internalType: 'address[]', type: 'address[]' },
+      { name: '_permissions', internalType: 'bool[]', type: 'bool[]' },
+    ],
+    name: 'setPermissions',
+    outputs: [],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'state',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'token',
+    outputs: [
+      { name: 'chainId', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokenContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'newImplementation', internalType: 'address', type: 'address' }],
+    name: 'upgradeTo',
+    outputs: [],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      {
+        name: 'userOp',
+        internalType: 'struct UserOperation',
+        type: 'tuple',
+        components: [
+          { name: 'sender', internalType: 'address', type: 'address' },
+          { name: 'nonce', internalType: 'uint256', type: 'uint256' },
+          { name: 'initCode', internalType: 'bytes', type: 'bytes' },
+          { name: 'callData', internalType: 'bytes', type: 'bytes' },
+          { name: 'callGasLimit', internalType: 'uint256', type: 'uint256' },
+          { name: 'verificationGasLimit', internalType: 'uint256', type: 'uint256' },
+          { name: 'preVerificationGas', internalType: 'uint256', type: 'uint256' },
+          { name: 'maxFeePerGas', internalType: 'uint256', type: 'uint256' },
+          { name: 'maxPriorityFeePerGas', internalType: 'uint256', type: 'uint256' },
+          { name: 'paymasterAndData', internalType: 'bytes', type: 'bytes' },
+          { name: 'signature', internalType: 'bytes', type: 'bytes' },
+        ],
+      },
+      { name: 'userOpHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'missingAccountFunds', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'validateUserOp',
+    outputs: [{ name: 'validationData', internalType: 'uint256', type: 'uint256' }],
   },
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export const erc6551AccountV3Address = {
-  5: '0x9FFDEb36540e1a12b1F27751508715174122C090',
+  5: '0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2',
 } as const
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export const erc6551AccountV3Config = {
   address: erc6551AccountV3Address,
@@ -2804,9 +3165,382 @@ export function useErc6551AccountV2UpgradedEvent(
 }
 
 /**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Read<
+  TFunctionName extends string,
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"entryPoint"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3EntryPoint<
+  TFunctionName extends 'entryPoint',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'entryPoint',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"erc6551Registry"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Erc6551Registry<
+  TFunctionName extends 'erc6551Registry',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'erc6551Registry',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extsload"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Extsload<
+  TFunctionName extends 'extsload',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extsload',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"getNonce"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3GetNonce<
+  TFunctionName extends 'getNonce',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'getNonce',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"isLocked"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3IsLocked<
+  TFunctionName extends 'isLocked',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'isLocked',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"isTrustedForwarder"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3IsTrustedForwarder<
+  TFunctionName extends 'isTrustedForwarder',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'isTrustedForwarder',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"isValidSignature"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3IsValidSignature<
+  TFunctionName extends 'isValidSignature',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'isValidSignature',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"isValidSigner"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3IsValidSigner<
+  TFunctionName extends 'isValidSigner',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'isValidSigner',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"lockedUntil"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3LockedUntil<
+  TFunctionName extends 'lockedUntil',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'lockedUntil',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"overrides"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Overrides<
+  TFunctionName extends 'overrides',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'overrides',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"owner"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Owner<
+  TFunctionName extends 'owner',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'owner',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"permissions"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Permissions<
+  TFunctionName extends 'permissions',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'permissions',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"proxiableUUID"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3ProxiableUuid<
+  TFunctionName extends 'proxiableUUID',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'proxiableUUID',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"state"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3State<
+  TFunctionName extends 'state',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'state',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"supportsInterface"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3SupportsInterface<
+  TFunctionName extends 'supportsInterface',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'supportsInterface',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"token"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Token<
+  TFunctionName extends 'token',
+  TSelectData = ReadContractResult<typeof erc6551AccountV3ABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractRead({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'token',
+    ...config,
+  } as UseContractReadConfig<typeof erc6551AccountV3ABI, TFunctionName, TSelectData>)
+}
+
+/**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export function useErc6551AccountV3Write<
   TFunctionName extends string,
@@ -2833,11 +3567,11 @@ export function useErc6551AccountV3Write<
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"initialize"`.
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"execute"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
-export function useErc6551AccountV3Initialize<
+export function useErc6551AccountV3Execute<
   TMode extends WriteContractMode = undefined,
   TChainId extends number = keyof typeof erc6551AccountV3Address
 >(
@@ -2845,22 +3579,489 @@ export function useErc6551AccountV3Initialize<
     ? UseContractWriteConfig<
         PrepareWriteContractResult<
           typeof erc6551AccountV3ABI,
-          'initialize'
+          'execute'
         >['request']['abi'],
-        'initialize',
+        'execute',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'initialize' }
-    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'initialize', TMode> & {
+      > & { address?: Address; chainId?: TChainId; functionName?: 'execute' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'execute', TMode> & {
         abi?: never
         address?: never
         chainId?: TChainId
-        functionName?: 'initialize'
+        functionName?: 'execute'
       } = {} as any
 ) {
-  return useContractWrite<typeof erc6551AccountV3ABI, 'initialize', TMode>({
+  return useContractWrite<typeof erc6551AccountV3ABI, 'execute', TMode>({
     abi: erc6551AccountV3ABI,
     address: erc6551AccountV3Address[5],
-    functionName: 'initialize',
+    functionName: 'execute',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"executeBatch"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3ExecuteBatch<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'executeBatch'
+        >['request']['abi'],
+        'executeBatch',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'executeBatch' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'executeBatch', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'executeBatch'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'executeBatch', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'executeBatch',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"executeNested"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3ExecuteNested<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'executeNested'
+        >['request']['abi'],
+        'executeNested',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'executeNested' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'executeNested', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'executeNested'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'executeNested', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'executeNested',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extcall"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Extcall<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'extcall'
+        >['request']['abi'],
+        'extcall',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'extcall' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'extcall', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'extcall'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'extcall', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extcall',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extcreate"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Extcreate<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'extcreate'
+        >['request']['abi'],
+        'extcreate',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'extcreate' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'extcreate', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'extcreate'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'extcreate', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extcreate',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extcreate2"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Extcreate2<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'extcreate2'
+        >['request']['abi'],
+        'extcreate2',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'extcreate2' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'extcreate2', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'extcreate2'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'extcreate2', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extcreate2',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"lock"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3Lock<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof erc6551AccountV3ABI, 'lock'>['request']['abi'],
+        'lock',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'lock' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'lock', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'lock'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'lock', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'lock',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"onERC1155BatchReceived"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3OnErc1155BatchReceived<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'onERC1155BatchReceived'
+        >['request']['abi'],
+        'onERC1155BatchReceived',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'onERC1155BatchReceived'
+      }
+    : UseContractWriteConfig<
+        typeof erc6551AccountV3ABI,
+        'onERC1155BatchReceived',
+        TMode
+      > & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'onERC1155BatchReceived'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'onERC1155BatchReceived', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'onERC1155BatchReceived',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"onERC1155Received"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3OnErc1155Received<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'onERC1155Received'
+        >['request']['abi'],
+        'onERC1155Received',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'onERC1155Received' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC1155Received', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'onERC1155Received'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'onERC1155Received', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'onERC1155Received',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"onERC721Received"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3OnErc721Received<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'onERC721Received'
+        >['request']['abi'],
+        'onERC721Received',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'onERC721Received' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC721Received', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'onERC721Received'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'onERC721Received', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'onERC721Received',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"setOverrides"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3SetOverrides<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'setOverrides'
+        >['request']['abi'],
+        'setOverrides',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'setOverrides' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'setOverrides', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'setOverrides'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'setOverrides', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'setOverrides',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"setPermissions"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3SetPermissions<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'setPermissions'
+        >['request']['abi'],
+        'setPermissions',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'setPermissions' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'setPermissions', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'setPermissions'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'setPermissions', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'setPermissions',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"upgradeTo"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3UpgradeTo<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'upgradeTo'
+        >['request']['abi'],
+        'upgradeTo',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'upgradeTo' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'upgradeTo', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'upgradeTo'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'upgradeTo', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'upgradeTo',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"upgradeToAndCall"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3UpgradeToAndCall<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'upgradeToAndCall'
+        >['request']['abi'],
+        'upgradeToAndCall',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'upgradeToAndCall' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'upgradeToAndCall', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'upgradeToAndCall'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'upgradeToAndCall', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'upgradeToAndCall',
+    ...config,
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"validateUserOp"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3ValidateUserOp<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof erc6551AccountV3Address
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof erc6551AccountV3ABI,
+          'validateUserOp'
+        >['request']['abi'],
+        'validateUserOp',
+        TMode
+      > & { address?: Address; chainId?: TChainId; functionName?: 'validateUserOp' }
+    : UseContractWriteConfig<typeof erc6551AccountV3ABI, 'validateUserOp', TMode> & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'validateUserOp'
+      } = {} as any
+) {
+  return useContractWrite<typeof erc6551AccountV3ABI, 'validateUserOp', TMode>({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'validateUserOp',
     ...config,
   } as any)
 }
@@ -2868,7 +4069,7 @@ export function useErc6551AccountV3Initialize<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export function usePrepareErc6551AccountV3Write<TFunctionName extends string>(
   config: Omit<
@@ -2884,28 +4085,297 @@ export function usePrepareErc6551AccountV3Write<TFunctionName extends string>(
 }
 
 /**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"initialize"`.
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"execute"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
-export function usePrepareErc6551AccountV3Initialize(
+export function usePrepareErc6551AccountV3Execute(
   config: Omit<
-    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'initialize'>,
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'execute'>,
     'abi' | 'address' | 'functionName'
   > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
 ) {
   return usePrepareContractWrite({
     abi: erc6551AccountV3ABI,
     address: erc6551AccountV3Address[5],
-    functionName: 'initialize',
+    functionName: 'execute',
     ...config,
-  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'initialize'>)
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'execute'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"executeBatch"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3ExecuteBatch(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'executeBatch'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'executeBatch',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'executeBatch'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"executeNested"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3ExecuteNested(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'executeNested'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'executeNested',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'executeNested'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extcall"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3Extcall(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'extcall'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extcall',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'extcall'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extcreate"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3Extcreate(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'extcreate'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extcreate',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'extcreate'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"extcreate2"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3Extcreate2(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'extcreate2'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'extcreate2',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'extcreate2'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"lock"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3Lock(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'lock'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'lock',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'lock'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"onERC1155BatchReceived"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3OnErc1155BatchReceived(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC1155BatchReceived'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'onERC1155BatchReceived',
+    ...config,
+  } as UsePrepareContractWriteConfig<
+    typeof erc6551AccountV3ABI,
+    'onERC1155BatchReceived'
+  >)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"onERC1155Received"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3OnErc1155Received(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC1155Received'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'onERC1155Received',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC1155Received'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"onERC721Received"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3OnErc721Received(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC721Received'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'onERC721Received',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'onERC721Received'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"setOverrides"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3SetOverrides(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'setOverrides'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'setOverrides',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'setOverrides'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"setPermissions"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3SetPermissions(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'setPermissions'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'setPermissions',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'setPermissions'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"upgradeTo"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3UpgradeTo(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'upgradeTo'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'upgradeTo',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'upgradeTo'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"upgradeToAndCall"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3UpgradeToAndCall(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'upgradeToAndCall'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'upgradeToAndCall',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'upgradeToAndCall'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `functionName` set to `"validateUserOp"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function usePrepareErc6551AccountV3ValidateUserOp(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'validateUserOp'>,
+    'abi' | 'address' | 'functionName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    functionName: 'validateUserOp',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof erc6551AccountV3ABI, 'validateUserOp'>)
 }
 
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export function useErc6551AccountV3Event<TEventName extends string>(
   config: Omit<
@@ -2923,7 +4393,7 @@ export function useErc6551AccountV3Event<TEventName extends string>(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"AdminChanged"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export function useErc6551AccountV3AdminChangedEvent(
   config: Omit<
@@ -2942,7 +4412,7 @@ export function useErc6551AccountV3AdminChangedEvent(
 /**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"BeaconUpgraded"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export function useErc6551AccountV3BeaconUpgradedEvent(
   config: Omit<
@@ -2959,9 +4429,66 @@ export function useErc6551AccountV3BeaconUpgradedEvent(
 }
 
 /**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"LockUpdated"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3LockUpdatedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, 'LockUpdated'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    eventName: 'LockUpdated',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, 'LockUpdated'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"OverrideUpdated"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3OverrideUpdatedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, 'OverrideUpdated'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    eventName: 'OverrideUpdated',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, 'OverrideUpdated'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"PermissionUpdated"`.
+ *
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
+ */
+export function useErc6551AccountV3PermissionUpdatedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof erc6551AccountV3ABI, 'PermissionUpdated'>,
+    'abi' | 'address' | 'eventName'
+  > & { chainId?: keyof typeof erc6551AccountV3Address } = {} as any
+) {
+  return useContractEvent({
+    abi: erc6551AccountV3ABI,
+    address: erc6551AccountV3Address[5],
+    eventName: 'PermissionUpdated',
+    ...config,
+  } as UseContractEventConfig<typeof erc6551AccountV3ABI, 'PermissionUpdated'>)
+}
+
+/**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link erc6551AccountV3ABI}__ and `eventName` set to `"Upgraded"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x9FFDEb36540e1a12b1F27751508715174122C090)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xDBb56A571a1eb9d5d973b1D682f3DC19bEE5Cbd2)
  */
 export function useErc6551AccountV3UpgradedEvent(
   config: Omit<

@@ -34,7 +34,7 @@ export {
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
  * @internal
  */
-export async function getAccount(
+export async function getTokenboundAccount(
   tokenContract: string,
   tokenId: string,
   client: PublicClient,
@@ -56,39 +56,29 @@ export async function getAccount(
 
   const chainId = await client.getChainId()
 
-  const isV2Compatible = isAddressEqual(
+  // const isV2Compatible = isAddressEqual(
+  //   implementation.ADDRESS,
+  //   ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  // )
+  const account: `0x${string}` = (await registry.read.account([
     implementation.ADDRESS,
-    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
-  )
-  const account = isV2Compatible
-    ? await registry.read.account([
-        implementation.ADDRESS,
-        chainId,
-        tokenContract,
-        tokenId,
-        0,
-      ])
-    : await registry.read.account([
-        implementation.ADDRESS,
-        // 0,
-        // numberToBytes(0, { size: 32 }),
-        encodeAbiParameters(parseAbiParameters(['bytes32']), [
-          numberToHex(0, { size: 32 }),
-        ]),
+    // 0,
+    // numberToBytes(0, { size: 32 }),
+    encodeAbiParameters(parseAbiParameters(['bytes32']), [numberToHex(0, { size: 32 })]),
 
-        chainId,
-        tokenContract,
-        tokenId,
-      ])
+    chainId,
+    tokenContract,
+    tokenId,
+  ])) as `0x${string}`
 
-  return account as `0x${string}`
+  return account
 }
 
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
  * @internal
  */
-export async function prepareCreateAccount(
+export async function prepareCreateTokenboundAccount(
   tokenContract: string,
   tokenId: string,
   chainId: number,
@@ -155,7 +145,7 @@ export async function prepareCreateAccount(
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
  * @internal
  */
-export async function createAccount(
+export async function createTokenboundAccount(
   tokenContract: string,
   tokenId: string,
   client: WalletClient,
@@ -165,10 +155,10 @@ export async function createAccount(
   const implementation = getActiveImplementation(implementationAddress)
   const erc6551registry = getActiveRegistry(registryAddress)
 
-  const isV2Compatible = isAddressEqual(
-    implementation.ADDRESS,
-    ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
-  )
+  // const isV2Compatible = isAddressEqual(
+  //   implementation.ADDRESS,
+  //   ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+  // )
 
   // console.log('createAccount test', implementation, erc6551registry)
 
@@ -180,38 +170,40 @@ export async function createAccount(
 
   const chainId = await client.getChainId()
 
-  const initData = encodeFunctionData({
-    abi: [
-      {
-        inputs: [],
-        name: 'initialize',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-    ],
-    functionName: 'initialize',
-  })
+  // const initData = encodeFunctionData({
+  //   abi: [
+  //     {
+  //       inputs: [],
+  //       name: 'initialize',
+  //       outputs: [],
+  //       stateMutability: 'nonpayable',
+  //       type: 'function',
+  //     },
+  //   ],
+  //   functionName: 'initialize',
+  // })
 
-  const createAcctArgs = isV2Compatible
-    ? [
-        implementation.ADDRESS,
-        chainId,
-        tokenContract,
-        tokenId,
-        0, // salt
-        initData,
-      ]
-    : [
-        implementation.ADDRESS,
-        encodeAbiParameters(parseAbiParameters(['bytes32']), [
-          // salt of 0
-          numberToHex(0, { size: 32 }),
-        ]),
-        chainId,
-        tokenContract,
-        tokenId,
-      ]
+  const createAcctArgs =
+    // isV2Compatible
+    //   ? [
+    //       implementation.ADDRESS,
+    //       chainId,
+    //       tokenContract,
+    //       tokenId,
+    //       0, // salt
+    //       initData,
+    //     ]
+    //   :
+    [
+      implementation.ADDRESS,
+      encodeAbiParameters(parseAbiParameters(['bytes32']), [
+        // salt of 0
+        numberToHex(0, { size: 32 }),
+      ]),
+      chainId,
+      tokenContract,
+      tokenId,
+    ]
 
   // const initData = encodeFunctionData({
   //   abi: [
@@ -309,19 +301,41 @@ export function computeAccount(
 
   // computeAccount test 0x2D25602551487C3f3354dD80D76D54383A243358 0x002c0c13181038780F552f0eC1B72e8C720147E6
 
-  const code = getCreationCode(
-    implementation.ADDRESS,
-    chainId,
-    tokenContract,
-    tokenId,
-    '0'
-  )
+  // const code = getCreationCode(
+  //   implementation.ADDRESS,
+  //   chainId,
+  //   tokenContract,
+  //   tokenId,
+  //   '0'
+  // )
 
+  const types = [
+    { type: 'uint256' },
+    { type: 'uint256' },
+    { type: 'address' },
+    { type: 'uint256' },
+  ]
+
+  const salt = '0'
+  const values: (string | bigint)[] = [salt, BigInt(chainId), tokenContract, tokenId]
+  const encodedABI = encodeAbiParameters(types, values)
+  // const hexImplementation = implementation_ as `0x${string}`
+
+  const StandardEIP1167Implementation = '0x5af43d82803e903d91602b57fd5bf3'
+
+  const hexCreationCode = concat([
+    '0x3d60ad80600a3d3981f3363d3d373d3d3d363d73',
+    implementation.ADDRESS,
+    StandardEIP1167Implementation,
+    encodedABI,
+  ])
+
+  const creationCode = addressToUint8Array(hexCreationCode)
   const bigIntZero = BigInt('0').toString(16) as `0x${string}`
   const saltHex = pad(bigIntZero, { size: 32 })
 
   return getContractAddress({
-    bytecode: code,
+    bytecode: creationCode,
     from: erc6551registry.ADDRESS,
     opcode: 'CREATE2',
     salt: saltHex,
@@ -332,31 +346,31 @@ export function computeAccount(
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
  * @internal
  */
-export function getCreationCode(
-  implementation_: `0x${string}`,
-  chainId_: number,
-  tokenContract_: string,
-  tokenId_: string,
-  salt_: string
-): Uint8Array {
-  const types = [
-    { type: 'uint256' },
-    { type: 'uint256' },
-    { type: 'address' },
-    { type: 'uint256' },
-  ]
-  const values: (string | bigint)[] = [salt_, BigInt(chainId_), tokenContract_, tokenId_]
-  const encodedABI = encodeAbiParameters(types, values)
-  const hexImplementation = implementation_ as `0x${string}`
+// export function getCreationCode(
+//   implementation_: `0x${string}`,
+//   chainId_: number,
+//   tokenContract_: string,
+//   tokenId_: string,
+//   salt_: string
+// ): Uint8Array {
+//   const types = [
+//     { type: 'uint256' },
+//     { type: 'uint256' },
+//     { type: 'address' },
+//     { type: 'uint256' },
+//   ]
+//   const values: (string | bigint)[] = [salt_, BigInt(chainId_), tokenContract_, tokenId_]
+//   const encodedABI = encodeAbiParameters(types, values)
+//   const hexImplementation = implementation_ as `0x${string}`
 
-  const hexCreationCode = concat([
-    '0x3d60ad80600a3d3981f3363d3d373d3d3d363d73',
-    hexImplementation,
-    '0x5af43d82803e903d91602b57fd5bf3',
-    encodedABI,
-  ])
+//   const hexCreationCode = concat([
+//     '0x3d60ad80600a3d3981f3363d3d373d3d3d363d73',
+//     hexImplementation,
+//     '0x5af43d82803e903d91602b57fd5bf3',
+//     encodedABI,
+//   ])
 
-  const creationCode = addressToUint8Array(hexCreationCode)
+//   const creationCode = addressToUint8Array(hexCreationCode)
 
-  return creationCode
-}
+//   return creationCode
+// }

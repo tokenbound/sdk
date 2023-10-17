@@ -31,7 +31,7 @@ function runTests({
     registryAddress,
   })
 
-  test('tokenboundClient.getAccount', () => {
+  test(`tokenboundClient.getAccount ${testName}`, () => {
     const result = tokenboundClient.getAccount({
       tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
       tokenId: TEST_CONFIG.TOKEN_ID,
@@ -41,7 +41,7 @@ function runTests({
 
   test.todo('tokenboundClient.getCreationCode')
 
-  test('tokenboundClient.prepareExecuteCall', async () => {
+  test(`tokenboundClient.prepareExecuteCall ${testName}`, async () => {
     const preparedCall = await tokenboundClient.prepareExecuteCall({
       account: TEST_CONFIG.TB_ACCOUNT,
       to: TEST_CONFIG.RECIPIENT_ADDRESS,
@@ -56,7 +56,7 @@ function runTests({
 
   test.todo('tokenboundClient.executeCall')
 
-  test('tokenboundClient.prepareCreateAccount', async () => {
+  test(`tokenboundClient.prepareCreateAccount ${testName}`, async () => {
     const preparedAccount = await tokenboundClient.prepareCreateAccount({
       tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
       tokenId: TEST_CONFIG.TOKEN_ID,
@@ -67,7 +67,7 @@ function runTests({
     expect(isHex(preparedAccount.data)).toEqual(true)
   })
 
-  test('tokenboundClient.checkAccountDeployment', async () => {
+  test(`tokenboundClient.checkAccountDeployment ${testName}`, async () => {
     const isSapienz0Deployed = await tokenboundClient.checkAccountDeployment({
       accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
     })
@@ -79,7 +79,7 @@ function runTests({
     expect(isSapienz1Deployed).toEqual(false)
   })
 
-  test('tokenboundClient.deconstructBytecode', async () => {
+  test(`tokenboundClient.deconstructBytecode ${testName}`, async () => {
     const bytecode = await tokenboundClient.deconstructBytecode({
       accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
     })
@@ -105,7 +105,7 @@ function runTests({
     expect(salt).toEqual(0)
   })
 
-  test('tokenboundClient.getNFT', async () => {
+  test(`tokenboundClient.getNFT ${testName}`, async () => {
     const nft = await tokenboundClient.getNFT({
       accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
     })
