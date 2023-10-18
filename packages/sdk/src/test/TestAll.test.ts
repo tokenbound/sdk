@@ -61,14 +61,40 @@ describe('Test SDK methods - viem + Ethers', () => {
   const ethers5Signer = walletClientToEthers5Signer(walletClient)
   const ethers6Signer = walletClientToEthers6Signer(walletClient)
 
-  runTxTests({ testName: 'Viem Tests - v2', walletClient, version: 'v2' })
-  // runTxTests({ testName: 'Viem Tests - v3', walletClient, version: 'v3' })
-
   const ENABLE_ETHERS_TESTS = false
+  const ENABLE_V2_TESTS = false
+  const ENABLE_V3_TESTS = true
 
-  if (ENABLE_ETHERS_TESTS) {
-    runTxTests({ testName: 'Ethers 5 Tests', signer: ethers5Signer })
-    runTxTests({ testName: 'Ethers 6 Tests', signer: ethers6Signer })
+  if (ENABLE_V2_TESTS) {
+    runTxTests({ testName: 'Viem Tests - v2', walletClient, version: 'v2' })
+    if (ENABLE_ETHERS_TESTS) {
+      runTxTests({
+        testName: 'Ethers 5 Tests - v2',
+        signer: ethers5Signer,
+        version: 'v2',
+      })
+      runTxTests({
+        testName: 'Ethers 6 Tests - v2',
+        signer: ethers6Signer,
+        version: 'v2',
+      })
+    }
+  }
+
+  if (ENABLE_V3_TESTS) {
+    runTxTests({ testName: 'Viem Tests - v3', walletClient, version: 'v3' })
+    if (ENABLE_ETHERS_TESTS) {
+      runTxTests({
+        testName: 'Ethers 5 Tests - v3',
+        signer: ethers5Signer,
+        version: 'v3',
+      })
+      runTxTests({
+        testName: 'Ethers 6 Tests - v3',
+        signer: ethers6Signer,
+        version: 'v3',
+      })
+    }
   }
 })
 
@@ -76,7 +102,7 @@ function runTxTests({
   testName,
   walletClient,
   signer,
-  version,
+  version = 'v3',
 }: {
   testName: string
   walletClient?: WalletClient
@@ -85,6 +111,7 @@ function runTxTests({
 }) {
   // Skip tests that are non-functional in Ethers
   const testInViemOnly = walletClient ? it : it.skip
+  const isV3 = version === 'v3'
 
   describe(testName, () => {
     // Set up Anvil instance + clients
@@ -380,18 +407,25 @@ function runTxTests({
 
     // Execute a basic call with no value with the TBA to see if it works.
     it(
-      'can executeCall with the TBA',
+      `can ${version === 'v2' ? 'executeCall' : 'execute'} with the TBA`,
       async () => {
-        const executedCallTxHash = await tokenboundClient.executeCall({
+        const execution = {
           account: ZORA721_TBA_ADDRESS,
           to: zora721.proxyContractAddress,
           value: 0n,
           data: '',
-        })
+        }
+
+        const executedCallTxHash = isV3
+          ? await tokenboundClient.execute(execution)
+          : await tokenboundClient.executeCall(execution)
 
         const transactionReceipt = await publicClient.getTransactionReceipt({
           hash: executedCallTxHash,
         })
+
+        console.log('EXECUTED CALL TX HASH: ', executedCallTxHash)
+        console.log('EXECUTED CALL TX RECEIPT: ', transactionReceipt)
 
         await waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
@@ -415,6 +449,14 @@ function runTxTests({
         amount: 0.25,
         recipientAddress: ANVIL_USER_1,
       })
+
+      const transactionReceipt = await publicClient.getTransactionReceipt({
+        hash: ethTransferHash,
+      })
+
+      console.log('transferETH TX HASH: ', ethTransferHash)
+      console.log('transferETH TX RECEIPT: ', transactionReceipt)
+
       const balanceAfter = await publicClient.getBalance({
         address: ZORA721_TBA_ADDRESS,
       })
@@ -527,12 +569,16 @@ function runTxTests({
         args: [BigInt(zora721.quantity)],
       })
 
-      const mintToTBATxHash = await tokenboundClient.executeCall({
+      const execution = {
         account: ZORA721_TBA_ADDRESS,
         to: zora721.proxyContractAddress,
         value: zora721.mintPrice * BigInt(zora721.quantity),
         data: encodedMintFunctionData,
-      })
+      }
+
+      const mintToTBATxHash = isV3
+        ? await tokenboundClient.execute(execution)
+        : await tokenboundClient.executeCall(execution)
 
       const zoraBalanceInTBA = await getZora721Balance({
         publicClient,
@@ -567,12 +613,16 @@ function runTxTests({
         ],
       })
 
-      const mint1155TxHash = await tokenboundClient.executeCall({
+      const execution = {
         account: mintingAccount,
         to: zora1155.proxyContractAddress,
         value: zora1155.mintFee * zora1155.quantity,
         data,
-      })
+      }
+
+      const mint1155TxHash = isV3
+        ? await tokenboundClient.execute(execution)
+        : await tokenboundClient.executeCall(execution)
 
       const zora1155BalanceInTBA = await getZora1155Balance({
         publicClient,

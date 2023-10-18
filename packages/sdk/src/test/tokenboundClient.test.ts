@@ -41,18 +41,34 @@ function runTests({
 
   test.todo('tokenboundClient.getCreationCode')
 
-  test(`tokenboundClient.prepareExecuteCall ${testName}`, async () => {
-    const preparedCall = await tokenboundClient.prepareExecuteCall({
-      account: TEST_CONFIG.TB_ACCOUNT,
-      to: TEST_CONFIG.RECIPIENT_ADDRESS,
-      value: 0n,
-      data: TEST_CONFIG.EXAMPLE_DATA,
-    })
+  if (testName === 'v2') {
+    test(`tokenboundClient.prepareExecuteCall ${testName}`, async () => {
+      const preparedCall = await tokenboundClient.prepareExecuteCall({
+        account: TEST_CONFIG.TB_ACCOUNT,
+        to: TEST_CONFIG.RECIPIENT_ADDRESS,
+        value: 0n,
+        data: TEST_CONFIG.EXAMPLE_DATA,
+      })
 
-    expect(isAddress(preparedCall.to)).toEqual(true)
-    expect(typeof preparedCall.value).toEqual('bigint')
-    expect(isHex(preparedCall.data)).toEqual(true)
-  })
+      expect(isAddress(preparedCall.to)).toEqual(true)
+      expect(typeof preparedCall.value).toEqual('bigint')
+      expect(isHex(preparedCall.data)).toEqual(true)
+    })
+  }
+  if (testName === 'v3') {
+    test(`tokenboundClient.prepareExecute ${testName}`, async () => {
+      const preparedCall = await tokenboundClient.prepareExecute({
+        account: TEST_CONFIG.TB_ACCOUNT,
+        to: TEST_CONFIG.RECIPIENT_ADDRESS,
+        value: 0n,
+        data: TEST_CONFIG.EXAMPLE_DATA,
+      })
+
+      expect(isAddress(preparedCall.to)).toEqual(true)
+      expect(typeof preparedCall.value).toEqual('bigint')
+      expect(isHex(preparedCall.data)).toEqual(true)
+    })
+  }
 
   test.todo('tokenboundClient.executeCall')
 

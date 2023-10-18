@@ -3,11 +3,14 @@ import { isHex, isAddress } from 'viem'
 
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from './config'
+import { ERC_6551_LEGACY_V2 } from '../constants'
 
 const tokenboundClient = new TokenboundClient({
   // signer,
   chainId: TEST_CONFIG.CHAIN_ID,
   implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
+  registryAddress: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS,
+  // version: 'V2',
 })
 
 test('tokenboundClient.getAccount → customImplementation', () => {

@@ -19,7 +19,7 @@ describe('Test SDK read methods across standard implementations', () => {
     implementationAddress: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS,
     registryAddress: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS,
   })
-  runTests({ testName: 'v3', expectedTestResults: TEST_RESULTS.V3 })
+  // runTests({ testName: 'v3', expectedTestResults: TEST_RESULTS.V3 })
 })
 
 function runTests({

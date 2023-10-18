@@ -9,6 +9,13 @@ export const NFTTokenType = {
   ERC1155: 'ERC1155',
 } as const
 
+export const TBVersion = {
+  V2: 'V2',
+  V3: 'V3',
+} as const
+
+export type TBImplementationVersion = (typeof TBVersion)[keyof typeof TBVersion]
+
 type TokenType = (typeof NFTTokenType)[keyof typeof NFTTokenType]
 
 type NFTParams = Prettify<{
@@ -62,6 +69,7 @@ export type TokenboundClientOptions = Prettify<{
   publicClientRPCUrl?: string
   implementationAddress?: ImplementationAddress
   registryAddress?: `0x${string}`
+  version?: TBImplementationVersion
 }>
 
 type Custom6551Implementation = Prettify<{
