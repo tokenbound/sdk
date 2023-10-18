@@ -12,6 +12,7 @@ import {
   getContract,
   isAddressEqual,
   parseAbi,
+  numberToHex,
 } from 'viem'
 import { erc1155Abi, erc721Abi, erc20Abi } from '../abis'
 import {
@@ -507,52 +508,36 @@ class TokenboundClient {
   /**
    * Check if a tokenbound account is a valid signer for a transaction
    * @param {string} params.account The tokenbound account address
-   * @param {string} params.data The ??ENCODED?? transaction calldata
+   * @param {string} params.data The encoded transaction calldata
    * @returns a Promise that resolves to true if the account is a valid signer, otherwise false
    */
   public async isValidSigner({
-    // walletAddress,
     account,
-    data, // @ BJ TODO: determine how this is used / whether it's needed
+    data = numberToHex(0, { size: 32 }), // @ BJ TODO: determine how this is used / whether it's needed
   }: ValidSignerParams): Promise<boolean> {
     const { signer, walletClient } = this
-
+    const VALID_SIGNER_MAGIC_VALUE = '0x523e3260' // isValidSigner MUST return this bytes4 magic value if the given signer is valid
     if (!signer && !walletClient) {
       throw new Error('No signer or wallet client available.')
     }
 
     if (!this.supportsV3) {
-      throw new Error('isValidSigner is not supported on this implementation')
+      throw new Error('isValidSigner is not supported using the V2 implementation')
     }
 
     const walletAddress = walletClient?.account?.address ?? (await signer?.getAddress())
-    // signer && walletClient
 
     try {
-      const accountInstance = getContract({
+      const validityCheck = await this.publicClient.readContract({
         address: account,
         abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
-        publicClient: this.publicClient,
+        functionName: 'isValidSigner',
+        args: [walletAddress, data],
       })
 
-      // {
-      //   stateMutability: 'view',
-      //   type: 'function',
-      //   inputs: [
-      //     { name: 'signer', internalType: 'address', type: 'address' },
-      //     { name: 'data', internalType: 'bytes', type: 'bytes' },
-      //   ],
-      //   name: 'isValidSigner',
-      //   outputs: [{ name: 'magicValue', internalType: 'bytes4', type: 'bytes4' }],
-      // },
-      const validityCheck = await accountInstance.read.isValidSigner([
-        // this.walletClient!.account?.address, data
-        walletAddress,
-        data,
-      ])
+      console.log('validityCheck', validityCheck)
 
-      // * MUST return the bytes4 magic value 0x523e3260 if the given signer is valid
-      return validityCheck === '0x523e3260'
+      return validityCheck === VALID_SIGNER_MAGIC_VALUE
     } catch (error) {
       throw error
     }

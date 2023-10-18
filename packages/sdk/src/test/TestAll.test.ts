@@ -109,9 +109,9 @@ function runTxTests({
   signer?: any
   version?: 'v2' | 'v3'
 }) {
-  // Skip tests that are non-functional in Ethers
-  const testInViemOnly = walletClient ? it : it.skip
   const isV3 = version === 'v3'
+  const testInViemOnly = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
+  const v3OnlyIt = isV3 ? it : it.skip
 
   describe(testName, () => {
     // Set up Anvil instance + clients
@@ -234,15 +234,27 @@ function runTxTests({
     )
 
     // We create the account using an NFT in the EOA wallet so we can test the EOA methods and use the TBA address for tests
-    it('can createAccount', async () => {
-      const createdAccount = await tokenboundClient.createAccount(NFT_IN_EOA)
+    it(
+      'can createAccount',
+      async () => {
+        const createdAccount = await tokenboundClient.createAccount(NFT_IN_EOA)
 
-      console.log('CREATED ACCT', createdAccount)
+        console.log('CREATED ACCT', createdAccount)
 
-      ZORA721_TBA_ADDRESS = createdAccount
-      await waitFor(() => {
-        expect(createdAccount).toMatch(ADDRESS_REGEX)
+        ZORA721_TBA_ADDRESS = createdAccount
+        await waitFor(() => {
+          expect(createdAccount).toMatch(ADDRESS_REGEX)
+        })
+      },
+      TIMEOUT
+    )
+
+    it('can checkAccountDeployment for the created account', async () => {
+      const isAccountDeployed = await tokenboundClient.checkAccountDeployment({
+        accountAddress: ZORA721_TBA_ADDRESS,
       })
+
+      expect(isAccountDeployed).toEqual(true)
     })
 
     it('can getAccount', async () => {
@@ -659,6 +671,18 @@ function runTxTests({
       await waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1_1155Balance).toBe(BigInt(transferAmount))
+      })
+    })
+
+    v3OnlyIt('can verify if a wallet isValidSigner for an owned NFT', async () => {
+      const isValidSigner = await tokenboundClient.isValidSigner({
+        account: ZORA721_TBA_ADDRESS,
+      })
+
+      console.log('isValidSigner?', isValidSigner)
+
+      await waitFor(() => {
+        expect(isValidSigner).toBe(true)
       })
     })
 

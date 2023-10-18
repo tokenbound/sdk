@@ -171,8 +171,6 @@ export function getTokenboundV3Account(
   // ]
   const types = [
     { type: 'uint256' }, // salt
-    // { type: 'bytes32' }, // salt
-    // { type: 'bytes1' }, // salt
     { type: 'uint256' }, // chainId
     { type: 'address' }, // tokenContract
     { type: 'uint256' }, // tokenId
