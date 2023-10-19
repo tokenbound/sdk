@@ -6,7 +6,7 @@ import { TEST_CONFIG } from './config'
 import { ERC_6551_LEGACY_V2 } from '../constants'
 
 const tokenboundClient = new TokenboundClient({
-  // signer,
+  // signer, // no signer, only performing writes
   chainId: TEST_CONFIG.CHAIN_ID,
   implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
   registryAddress: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS,

@@ -71,12 +71,14 @@ export async function prepareCreateAccount(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): Promise<{
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
 }> {
+  salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
     : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
@@ -103,14 +105,7 @@ export async function prepareCreateAccount(
     data: encodeFunctionData({
       abi: ERC_6551_LEGACY_V2.REGISTRY.ABI,
       functionName: 'createAccount',
-      args: [
-        implementation,
-        chainId,
-        tokenContract,
-        tokenId,
-        0, // salt
-        initData,
-      ],
+      args: [implementation, chainId, tokenContract, tokenId, salt, initData],
     }),
   }
 }
@@ -124,8 +119,10 @@ export async function createAccount(
   tokenId: string,
   client: WalletClient,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): Promise<`0x${string}`> {
+  salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
     : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
@@ -159,7 +156,7 @@ export async function createAccount(
     chainId,
     tokenContract,
     tokenId,
-    0, // salt
+    salt,
     initData,
   ])
 }
@@ -218,8 +215,10 @@ export function computeAccount(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): `0x${string}` {
+  salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
     : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
@@ -227,10 +226,16 @@ export function computeAccount(
     ? getAddress(registryAddress)
     : ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
-  const code = getCreationCode(implementation, chainId, tokenContract, tokenId, '0')
+  const code = getCreationCode(
+    implementation,
+    chainId,
+    tokenContract,
+    tokenId,
+    salt.toString()
+  )
 
-  const bigIntZero = BigInt('0').toString(16) as `0x${string}`
-  const saltHex = pad(bigIntZero, { size: 32 })
+  const bigIntSalt = BigInt(salt).toString(16) as `0x${string}`
+  const saltHex = pad(bigIntSalt, { size: 32 })
 
   return getContractAddress({
     bytecode: code,

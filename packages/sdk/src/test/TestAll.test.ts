@@ -110,6 +110,7 @@ function runTxTests({
   version?: 'v2' | 'v3'
 }) {
   const isV3 = version === 'v3'
+  const isV2 = version === 'v2'
   const testInViemOnly = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
   const v3OnlyIt = isV3 ? it : it.skip
 
@@ -124,7 +125,7 @@ function runTxTests({
     let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
 
-    const ERC6551_DEPLOYMENT = version === 'v2' ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
+    const ERC6551_DEPLOYMENT = isV2 ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
 
     // Spin up a fresh anvil instance each time we run the test suite against a different signer
     beforeAll(async () => {
@@ -419,7 +420,7 @@ function runTxTests({
 
     // Execute a basic call with no value with the TBA to see if it works.
     it(
-      `can ${version === 'v2' ? 'executeCall' : 'execute'} with the TBA`,
+      `can ${isV2 ? 'executeCall' : 'execute'} with the TBA`,
       async () => {
         const execution = {
           account: ZORA721_TBA_ADDRESS,

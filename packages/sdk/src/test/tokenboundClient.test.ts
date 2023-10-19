@@ -56,8 +56,8 @@ function runTests({
     })
   }
   if (testName === 'v3') {
-    test(`tokenboundClient.prepareExecute ${testName}`, async () => {
-      const preparedCall = await tokenboundClient.prepareExecute({
+    test(`tokenboundClient.prepareExecution ${testName}`, async () => {
+      const preparedCall = await tokenboundClient.prepareExecution({
         account: TEST_CONFIG.TB_ACCOUNT,
         to: TEST_CONFIG.RECIPIENT_ADDRESS,
         value: 0n,

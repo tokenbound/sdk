@@ -46,7 +46,6 @@ function runTests({
       implementationAddress,
       registryAddress
     )
-    // expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
     expect(result).toEqual(expectedTestResults['TB_ACCOUNT'])
   })
 
@@ -58,7 +57,6 @@ function runTests({
       implementationAddress,
       registryAddress
     )
-    // expect(result).toEqual(TEST_CONFIG.TB_ACCOUNT)
     expect(result).toEqual(expectedTestResults['TB_ACCOUNT'])
   })
 
@@ -66,7 +64,6 @@ function runTests({
 
   test(`.prepareExecuteCall ${testName}`, async () => {
     const preparedCall = await prepareExecuteCall(
-      // TEST_CONFIG.TB_ACCOUNT,
       expectedTestResults['TB_ACCOUNT'],
       TEST_CONFIG.RECIPIENT_ADDRESS,
       TEST_CONFIG.EXAMPLE_AMOUNT,

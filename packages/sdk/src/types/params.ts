@@ -10,8 +10,8 @@ export const NFTTokenType = {
 } as const
 
 export const TBVersion = {
-  V2: 'V2',
-  V3: 'V3',
+  V2: 2,
+  V3: 3,
 } as const
 
 export type TBImplementationVersion = (typeof TBVersion)[keyof typeof TBVersion]
@@ -75,6 +75,7 @@ export type TokenboundClientOptions = Prettify<{
 type Custom6551Implementation = Prettify<{
   implementationAddress: `0x${string}`
   registryAddress?: `0x${string}`
+  salt?: number
 }>
 
 export type TBAccountParams = NFTParams
@@ -98,7 +99,7 @@ export type ExecuteCallParams = Prettify<{
 export type PrepareExecuteCallParams = ExecuteCallParams
 
 export type ExecuteParams = Prettify<ExecuteCallParams & { operation?: CallOperation }>
-export type PrepareExecuteParams = ExecuteParams
+export type PrepareExecutionParams = ExecuteParams
 
 export type ValidSignerParams = Prettify<{
   //   walletAddress: `0x${string}`

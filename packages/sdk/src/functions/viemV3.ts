@@ -2,12 +2,10 @@ import {
   getContract,
   getContractAddress,
   concat,
-  // PublicClient,
   WalletClient,
   encodeFunctionData,
   encodeAbiParameters,
   pad,
-  // isAddressEqual,
   parseAbiParameters,
   numberToHex,
   getAddress,
@@ -18,8 +16,6 @@ import { addressToUint8Array } from '../utils'
 import { ERC_6551_DEFAULT, STANDARD_EIP_1167_IMPLEMENTATION } from '../constants'
 export { erc6551AccountAbiV3, erc6551RegistryAbiV3 }
 
-// const zeroBytes32: string = '0x' + '0'.repeat(64)
-
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
  * @internal
@@ -29,12 +25,14 @@ export async function prepareCreateTokenboundV3Account(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): Promise<{
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
 }> {
+  salt = salt ?? 0
   const erc6551implementation =
     implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
   const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
@@ -48,8 +46,7 @@ export async function prepareCreateTokenboundV3Account(
       args: [
         getAddress(erc6551implementation),
         encodeAbiParameters(parseAbiParameters(['bytes32']), [
-          // salt of 0
-          numberToHex(0, { size: 32 }),
+          numberToHex(salt, { size: 32 }),
         ]),
         chainId,
         tokenContract,
@@ -68,8 +65,10 @@ export async function createTokenboundV3Account(
   tokenId: string,
   client: WalletClient,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): Promise<`0x${string}`> {
+  salt = salt ?? 0
   const erc6551implementation =
     implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
   const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
@@ -85,7 +84,7 @@ export async function createTokenboundV3Account(
   return registry.write.createAccount([
     erc6551implementation,
     encodeAbiParameters(parseAbiParameters(['bytes32']), [
-      numberToHex(0, { size: 32 }), // salt of 0
+      numberToHex(salt, { size: 32 }),
     ]),
     chainId,
     tokenContract,
@@ -148,27 +147,13 @@ export function getTokenboundV3Account(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): `0x${string}` {
+  salt = salt ?? 0
   const erc6551implementation =
     implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
   const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
-
-  console.log(
-    'computeAccount impl',
-    implementationAddress,
-    ' > ',
-    ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
-  )
-
-  // computeAccount test 0x2D25602551487C3f3354dD80D76D54383A243358 0x002c0c13181038780F552f0eC1B72e8C720147E6
-
-  // const types = [
-  //   { type: 'uint256' }, // salt
-  //   { type: 'uint256' }, // chainId
-  //   { type: 'address' }, // tokenContract
-  //   { type: 'uint256' }, // tokenId
-  // ]
   const types = [
     { type: 'uint256' }, // salt
     { type: 'uint256' }, // chainId
@@ -176,19 +161,12 @@ export function getTokenboundV3Account(
     { type: 'uint256' }, // tokenId
   ]
 
-  // args: [
-  //   getAddress(erc6551implementation),
-  //   encodeAbiParameters(parseAbiParameters(['bytes32']), [
-  //     // salt of 0
-  //     numberToHex(0, { size: 32 }),
-  //   ]),
-  //   chainId,
-  //   tokenContract,
-  //   tokenId,
-  // ],
-
-  const salt = '0'
-  const values: (string | bigint)[] = [salt, BigInt(chainId), tokenContract, tokenId]
+  const values: (string | bigint)[] = [
+    salt.toString(),
+    BigInt(chainId),
+    tokenContract,
+    tokenId,
+  ]
   const encodedABI = encodeAbiParameters(types, values)
 
   const hexCreationCode = concat([
@@ -199,8 +177,8 @@ export function getTokenboundV3Account(
   ])
 
   const creationCode = addressToUint8Array(hexCreationCode)
-  const bigIntZero = BigInt('0').toString(16) as `0x${string}`
-  const saltHex = pad(bigIntZero, { size: 32 })
+  const bigIntSalt = BigInt(salt).toString(16) as `0x${string}`
+  const saltHex = pad(bigIntSalt, { size: 32 })
 
   return getContractAddress({
     bytecode: creationCode,

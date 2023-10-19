@@ -54,7 +54,7 @@ import {
   ExecuteParams,
   CALL_OPERATIONS,
   CallOperation,
-  PrepareExecuteParams,
+  PrepareExecutionParams,
   ValidSignerParams,
 } from './types'
 import {
@@ -227,11 +227,17 @@ class TokenboundClient {
    * @returns The tokenbound account address.
    */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const { tokenContract, tokenId, implementationAddress, registryAddress } = params
+    const {
+      tokenContract,
+      tokenId,
+      implementationAddress,
+      registryAddress,
+      salt = 0,
+    } = params
     const implementation = implementationAddress ?? this.implementationAddress
     const registry = registryAddress ?? this.registryAddress
 
-    // TODO @BJ : this might be problematic because this.initialize() is meant to be async
+    // TODO @BJ
     this.initialize()
 
     try {
@@ -241,7 +247,8 @@ class TokenboundClient {
           tokenId,
           this.chainId,
           implementation,
-          registry
+          registry,
+          salt
         )
       } else {
         // Here we call computeAccount rather than getAccount to avoid
@@ -251,7 +258,8 @@ class TokenboundClient {
           tokenId,
           this.chainId,
           implementation,
-          registry
+          registry,
+          salt
         )
       }
     } catch (error) {
@@ -272,7 +280,13 @@ class TokenboundClient {
     value: bigint
     data: `0x${string}`
   }> {
-    const { tokenContract, tokenId, implementationAddress, registryAddress } = params
+    const {
+      tokenContract,
+      tokenId,
+      implementationAddress,
+      registryAddress,
+      salt = 0,
+    } = params
     const implementation = implementationAddress ?? this.implementationAddress
     const registry = registryAddress ?? this.registryAddress
 
@@ -284,7 +298,8 @@ class TokenboundClient {
         tokenId,
         this.chainId,
         implementation,
-        registry
+        registry,
+        salt
       )
     }
 
@@ -293,7 +308,8 @@ class TokenboundClient {
       tokenId,
       this.chainId,
       implementation,
-      registry
+      registry,
+      salt
     )
   }
 
@@ -306,7 +322,13 @@ class TokenboundClient {
    * @returns a Promise that resolves to the account address of the created token bound account.
    */
   public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
-    const { tokenContract, tokenId, implementationAddress, registryAddress } = params
+    const {
+      tokenContract,
+      tokenId,
+      implementationAddress,
+      registryAddress,
+      salt = 0,
+    } = params
     const implementation = implementationAddress ?? this.implementationAddress
     const registry = registryAddress ?? this.registryAddress
 
@@ -322,6 +344,7 @@ class TokenboundClient {
           tokenId,
           implementationAddress: implementation,
           registryAddress: registry,
+          salt,
         })
 
         txHash = (await this.signer
@@ -329,8 +352,22 @@ class TokenboundClient {
           .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
       } else if (this.walletClient) {
         txHash = this.supportsV3
-          ? await createTokenboundV3Account(tokenContract, tokenId, this.walletClient)
-          : await createAccount(tokenContract, tokenId, this.walletClient)
+          ? await createTokenboundV3Account(
+              tokenContract,
+              tokenId,
+              this.walletClient,
+              implementation,
+              registry,
+              salt
+            )
+          : await createAccount(
+              tokenContract,
+              tokenId,
+              this.walletClient,
+              implementation,
+              registry,
+              salt
+            )
       }
 
       if (txHash) {
@@ -340,9 +377,17 @@ class TokenboundClient {
               tokenId,
               this.chainId,
               implementation,
-              registry
+              registry,
+              salt
             )
-          : computeAccount(tokenContract, tokenId, this.chainId, implementation, registry)
+          : computeAccount(
+              tokenContract,
+              tokenId,
+              this.chainId,
+              implementation,
+              registry,
+              salt
+            )
       } else {
         throw new Error('No wallet client or signer available.')
       }
@@ -358,6 +403,7 @@ class TokenboundClient {
    * @param {bigint} params.value The value to send, in wei
    * @param {string} params.data The data to send
    * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+   * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecute() instead.
    */
   public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<{
     to: `0x${string}`
@@ -382,6 +428,7 @@ class TokenboundClient {
    * @param {bigint} params.value The value to send, in wei
    * @param {string} params.data The data to send
    * @returns a Promise that resolves to the transaction hash of the executed call
+   * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use execute() instead.
    */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
     const preparedExecuteCall = await this.prepareExecuteCall(params)
@@ -414,15 +461,15 @@ class TokenboundClient {
   }
 
   /**
-   * Returns prepared transaction to execute a call on a tokenbound account
+   * Returns prepared transaction to execute on a tokenbound account
    * @param {string} params.account The tokenbound account address
    * @param {string} params.to The recipient address
    * @param {bigint} params.value The value to send, in wei
    * @param {string} params.data The encoded operation calldata to send
    * @param {string} params.operation The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
-   * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+   * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    */
-  public async prepareExecute(params: PrepareExecuteParams): Promise<{
+  public async prepareExecution(params: PrepareExecutionParams): Promise<{
     to: `0x${string}`
     value: bigint
     data: `0x${string}`
@@ -471,18 +518,18 @@ class TokenboundClient {
    */
   public async execute(params: ExecuteParams): Promise<`0x${string}`> {
     await this.initialize()
-    if (!this.supportsV3) {
-      throw new Error(
-        'execute() is not supported on V2 implementation deployments, use executeCall() instead.'
-      )
-    }
+    // if (!this.supportsV3) {
+    //   throw new Error(
+    //     'execute() is not supported on V2 implementation deployments, use executeCall() instead.'
+    //   )
+    // }
     try {
-      // if (!this.supportsV3) {
-      //   const { operation, ...rest } = params
-      //   return await this.executeCall(rest)
-      // }
+      if (!this.supportsV3) {
+        const { operation, ...rest } = params
+        return await this.executeCall(rest)
+      }
 
-      const preparedExecution = await this.prepareExecute(params)
+      const preparedExecution = await this.prepareExecution(params)
 
       if (this.signer) {
         // Ethers
