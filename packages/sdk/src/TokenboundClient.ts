@@ -15,7 +15,6 @@ import {
 } from 'viem'
 import { erc1155Abi, erc721Abi, erc20Abi } from '../abis'
 import {
-  // V2 functions
   getAccount,
   computeAccount,
   createAccount,
@@ -23,7 +22,6 @@ import {
   prepareExecuteCall,
   executeCall,
   prepareCreateAccount,
-  // V3 functions
   getTokenboundV3Account,
   prepareCreateTokenboundV3Account,
 } from './functions'
