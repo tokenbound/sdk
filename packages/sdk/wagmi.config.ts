@@ -1,7 +1,7 @@
 import { defineConfig } from '@wagmi/cli'
-import { etherscan, react } from '@wagmi/cli/plugins'
+import { etherscan } from '@wagmi/cli/plugins'
 import { mainnet, goerli } from 'viem/chains'
-import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2, MULTICALL_ADDRESS } from './src/constants'
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from './src/constants'
 
 export default defineConfig({
   out: 'src/test/wagmi-cli-hooks/generated.ts',

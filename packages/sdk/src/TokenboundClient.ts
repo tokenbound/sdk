@@ -734,6 +734,7 @@ class TokenboundClient {
 const erc6551AccountAbiV2 = ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI
 const erc6551RegistryAbiV2 = ERC_6551_LEGACY_V2.REGISTRY.ABI
 const erc6551AccountAbiV3 = ERC_6551_DEFAULT.IMPLEMENTATION.ABI
+const erc6551AccountProxyAbiV3 = ERC_6551_DEFAULT.ACCOUNT_PROXY!.ABI
 const erc6551RegistryAbiV3 = ERC_6551_DEFAULT.REGISTRY.ABI
 
 export {
@@ -741,6 +742,7 @@ export {
   erc6551AccountAbiV2,
   erc6551RegistryAbiV2,
   erc6551AccountAbiV3,
+  erc6551AccountProxyAbiV3,
   erc6551RegistryAbiV3,
   getAccount,
   createAccount,

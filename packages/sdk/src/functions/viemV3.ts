@@ -13,10 +13,15 @@ import {
   bytesToHex,
 } from 'viem'
 
-import { erc6551AccountAbiV3, erc6551RegistryAbiV3 } from '../../abis'
+import {
+  erc6551AccountProxyV3ABI,
+  erc6551AccountV3ABI,
+  erc6551RegistryV3ABI,
+} from '../../src/test/wagmi-cli-hooks/generated'
 import { addressToUint8Array } from '../utils'
+
 import { ERC_6551_DEFAULT, STANDARD_EIP_1167_IMPLEMENTATION } from '../constants'
-export { erc6551AccountAbiV3, erc6551RegistryAbiV3 }
+export { erc6551AccountProxyV3ABI, erc6551AccountV3ABI, erc6551RegistryV3ABI }
 
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
