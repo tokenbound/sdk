@@ -9,6 +9,8 @@ import {
   parseAbiParameters,
   numberToHex,
   getAddress,
+  numberToBytes,
+  bytesToHex,
 } from 'viem'
 
 import { erc6551AccountAbiV3, erc6551RegistryAbiV3 } from '../../abis'
@@ -45,9 +47,7 @@ export async function prepareCreateTokenboundV3Account(
       functionName: 'createAccount',
       args: [
         getAddress(erc6551implementation),
-        encodeAbiParameters(parseAbiParameters(['bytes32']), [
-          numberToHex(salt, { size: 32 }),
-        ]),
+        bytesToHex(numberToBytes(salt, { size: 32 })),
         chainId,
         tokenContract,
         tokenId,
@@ -81,7 +81,7 @@ export async function createTokenboundV3Account(
 
   const chainId = await client.getChainId()
 
-  return registry.write.createAccount([
+  return await registry.write.createAccount([
     erc6551implementation,
     encodeAbiParameters(parseAbiParameters(['bytes32']), [
       numberToHex(salt, { size: 32 }),
@@ -134,7 +134,7 @@ export async function tokenboundV3Execute(
     walletClient: client,
   })
 
-  return registry.write.execute([to as `0x${string}`, value, data as `0x${string}`])
+  return await registry.write.execute([to as `0x${string}`, value, data as `0x${string}`])
 }
 
 /**

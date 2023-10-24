@@ -1,7 +1,7 @@
 import { defineConfig } from '@wagmi/cli'
 import { etherscan, react } from '@wagmi/cli/plugins'
 import { mainnet, goerli } from 'viem/chains'
-import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from './src/constants'
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2, MULTICALL_ADDRESS } from './src/constants'
 
 export default defineConfig({
   out: 'src/test/wagmi-cli-hooks/generated.ts',
@@ -30,8 +30,15 @@ export default defineConfig({
         {
           name: 'ERC6551Account_V3_',
           address: {
-            // [mainnet.id]: ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
+            [mainnet.id]: ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
             [goerli.id]: ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
+          },
+        },
+        {
+          name: 'ERC6551AccountProxy_V3_',
+          address: {
+            [mainnet.id]: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS!,
+            [goerli.id]: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS!,
           },
         },
         {
@@ -64,16 +71,16 @@ export default defineConfig({
         },
       ],
     }),
-    react({
-      // useContract: false,
-      // useContractEvent: false,
-      // useContractItemEvent: false,
-      // useContractRead: false,
-      // useContractFunctionWrite: true,
-      // usePrepareContractFunctionWrite: true,
-      // useContractFunctionRead: false,
-      // useContractWrite: false,
-      // usePrepareContractWrite: false,
-    }),
+    // react({
+    // useContract: false,
+    // useContractEvent: false,
+    // useContractItemEvent: false,
+    // useContractRead: false,
+    // useContractFunctionWrite: true,
+    // usePrepareContractFunctionWrite: true,
+    // useContractFunctionRead: false,
+    // useContractWrite: false,
+    // usePrepareContractWrite: false,
+    // }),
   ],
 })

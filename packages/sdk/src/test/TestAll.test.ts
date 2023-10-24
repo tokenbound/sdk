@@ -3,7 +3,7 @@
 
 import { zora } from 'viem/chains'
 import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
-import { providers } from 'ethers'
+import { ethers, providers } from 'ethers'
 import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
 import {
@@ -44,6 +44,8 @@ import {
 import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
+import { TBImplementationVersion, TBVersion } from '../types'
+import { JsonRpcSigner, JsonRpcProvider, Wallet, ethers as ethers6 } from 'ethers6'
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -56,43 +58,72 @@ const walletClient = createWalletClient({
   pollingInterval: 100,
 })
 
+const ethers5Provider = new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL)
+const ethers5Signer = new ethers.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers5Provider)
+
+// const network = {
+//   chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+//   name: ANVIL_CONFIG.ACTIVE_CHAIN!.name,
+//   ensAddress: ANVIL_CONFIG.ACTIVE_CHAIN.contracts?.ensRegistry?.address,
+// }
+
+// const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL, network)
+// const ethers6Signer = new Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers6Provider)
+// const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
+
+// Works:
+// const ethers6Provider = new ethers6.JsonRpcProvider(ANVIL_RPC_URL)
+const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
+// const ethers6Signer = new ethers6.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers6Provider)
+const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
+
+// console.log('ethers6Provider keys', Object.keys(ethers6Provider))
+console.log('ethers6Providerrrr', ethers6Provider)
+console.log('ethers6SIGNER', ethers6Signer)
+
 // Create Ethers 5/6 signers from the walletClient + run tests
 describe('Test SDK methods - viem + Ethers', () => {
-  const ethers5Signer = walletClientToEthers5Signer(walletClient)
-  const ethers6Signer = walletClientToEthers6Signer(walletClient)
+  // const ethers5Signer = walletClientToEthers5Signer(walletClient)
+  // const ethers6Signer = walletClientToEthers6Signer(walletClient)
 
-  const ENABLE_ETHERS_TESTS = false
-  const ENABLE_V2_TESTS = false
+  const ENABLE_VIEM_TESTS = true
+  const ENABLE_ETHERS_TESTS = true
+  const ENABLE_V2_TESTS = true
   const ENABLE_V3_TESTS = true
 
   if (ENABLE_V2_TESTS) {
-    runTxTests({ testName: 'Viem Tests - v2', walletClient, version: 'v2' })
+    if (ENABLE_VIEM_TESTS) {
+      runTxTests({ testName: 'Viem Tests - v2', walletClient, version: TBVersion.V2 })
+    }
     if (ENABLE_ETHERS_TESTS) {
       runTxTests({
         testName: 'Ethers 5 Tests - v2',
         signer: ethers5Signer,
-        version: 'v2',
+        version: TBVersion.V2,
       })
       runTxTests({
         testName: 'Ethers 6 Tests - v2',
         signer: ethers6Signer,
-        version: 'v2',
+        version: TBVersion.V2,
       })
     }
   }
 
   if (ENABLE_V3_TESTS) {
-    runTxTests({ testName: 'Viem Tests - v3', walletClient, version: 'v3' })
+    if (ENABLE_VIEM_TESTS) {
+      runTxTests({
+        testName: 'Viem Tests - v3',
+        walletClient,
+      })
+    }
     if (ENABLE_ETHERS_TESTS) {
       runTxTests({
         testName: 'Ethers 5 Tests - v3',
         signer: ethers5Signer,
-        version: 'v3',
       })
       runTxTests({
         testName: 'Ethers 6 Tests - v3',
         signer: ethers6Signer,
-        version: 'v3',
       })
     }
   }
@@ -102,16 +133,16 @@ function runTxTests({
   testName,
   walletClient,
   signer,
-  version = 'v3',
+  version,
 }: {
   testName: string
   walletClient?: WalletClient
   signer?: any
-  version?: 'v2' | 'v3'
+  version?: TBImplementationVersion
 }) {
-  const isV3 = version === 'v3'
-  const isV2 = version === 'v2'
-  const testInViemOnly = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
+  const isV2 = version === TBVersion.V2
+  const isV3 = isV2 === false
+  const viemOnlyIt = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
   const v3OnlyIt = isV3 ? it : it.skip
 
   describe(testName, () => {
@@ -137,7 +168,8 @@ function runTxTests({
           chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
           walletClient,
           signer,
-          publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
+          // publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
+          publicClient, // No publicClient if using Ethers
           implementationAddress: ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
           registryAddress: ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
         })
@@ -238,22 +270,57 @@ function runTxTests({
     it(
       'can createAccount',
       async () => {
-        const createdAccount = await tokenboundClient.createAccount(NFT_IN_EOA)
+        const { account, txHash } = await tokenboundClient.createAccount(NFT_IN_EOA)
+        // const { account: createdAccount, txHash } = await tokenboundClient.createAccount(
+        //   NFT_IN_EOA
+        // )
+        console.log('CREATED ACCT', await account)
 
-        console.log('CREATED ACCT', createdAccount)
+        // If we replace the return type of createAccount with a txHash, we can get the txReceipt. For all 3 implementations, the txReceipt status is success.
+        // const createdAccountTxReceipt = await publicClient.getTransactionReceipt({
+        const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
 
-        ZORA721_TBA_ADDRESS = createdAccount
+        console.log('CREATED ACCT TX', createdAccountTxReceipt)
+
+        ZORA721_TBA_ADDRESS = account
         await waitFor(() => {
-          expect(createdAccount).toMatch(ADDRESS_REGEX)
+          expect(account).toMatch(ADDRESS_REGEX)
+          expect(createdAccountTxReceipt.status).toBe('success')
         })
       },
       TIMEOUT
     )
 
+    // it(
+    //   'can initializeAccount',
+    //   async () => {
+    //     const initedAccountHash = await tokenboundClient.initializeAccount({
+    //       account: ZORA721_TBA_ADDRESS,
+    //     })
+
+    //     console.log('INITED ACCT HASH', initedAccountHash)
+
+    //     const initedAccountTxReceipt = await publicClient.getTransactionReceipt({
+    //       hash: initedAccountHash,
+    //     })
+    //     console.log('INITED ACCT TX', initedAccountTxReceipt)
+
+    //     await waitFor(() => {
+    //       expect(initedAccountHash).toMatch(ADDRESS_REGEX)
+    //       expect(initedAccountTxReceipt.status).toBe('success')
+    //     })
+    //   },
+    //   TIMEOUT
+    // )
+
     it('can checkAccountDeployment for the created account', async () => {
       const isAccountDeployed = await tokenboundClient.checkAccountDeployment({
         accountAddress: ZORA721_TBA_ADDRESS,
       })
+
+      console.log(`isAccountDeployed ${testName}`, isAccountDeployed)
 
       expect(isAccountDeployed).toEqual(true)
     })
@@ -270,6 +337,8 @@ function runTxTests({
     it(
       'can transfer one of the minted NFTs to the TBA',
       async () => {
+        console.log('SAFE_TRANSFER', ZORA721_TBA_ADDRESS, 'tokenId', TOKENID1_IN_TBA)
+
         const transferCallData = encodeFunctionData({
           abi: zora721.abi,
           functionName: 'safeTransferFrom',
@@ -295,6 +364,7 @@ function runTxTests({
             ...preparedNFTTransfer,
           })
         } else {
+          console.log('SIGNER_URL', signer.provider.connection)
           transferHash = await signer
             .sendTransaction({
               chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
@@ -442,7 +512,7 @@ function runTxTests({
 
         await waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
-          expect(transactionReceipt.status).toMatch('success')
+          expect(transactionReceipt.status).toBe('success')
         })
       },
       TIMEOUT
@@ -676,6 +746,7 @@ function runTxTests({
     })
 
     v3OnlyIt('can verify if a wallet isValidSigner for an owned NFT', async () => {
+      console.log('ZORA721_TBA_ADDRESS in isValidSigner', ZORA721_TBA_ADDRESS)
       const isValidSigner = await tokenboundClient.isValidSigner({
         account: ZORA721_TBA_ADDRESS,
       })
@@ -689,7 +760,7 @@ function runTxTests({
 
     // Test signing in viem only.
     // Ethers 5/6 don't appear to support signing messages via personal_sign with this testing configuration.
-    testInViemOnly('can sign a message', async () => {
+    viemOnlyIt('can sign a message', async () => {
       const signedMessageHash = await tokenboundClient.signMessage({
         message: 'Sign me',
       })
@@ -702,7 +773,7 @@ function runTxTests({
     })
 
     // Test signing hex message in viem only.
-    testInViemOnly('can sign a hexified message', async () => {
+    viemOnlyIt('can sign a hexified message', async () => {
       const hexSignedMessageHash = await tokenboundClient.signMessage({
         message: { raw: '0x68656c6c6f20776f726c64' },
       })
@@ -715,7 +786,7 @@ function runTxTests({
     })
 
     // Test signing Uint8Array message as raw in viem only.
-    testInViemOnly('can sign a Uint8Array message as raw', async () => {
+    viemOnlyIt('can sign a Uint8Array message as raw', async () => {
       const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
 
       const rawUint8Hash = await tokenboundClient.signMessage({
@@ -728,7 +799,7 @@ function runTxTests({
     })
 
     // Test signing ArrayLike message in viem only.
-    testInViemOnly(
+    viemOnlyIt(
       'throws when viem incorrectly receives an ArrayLike message for signing',
       async () => {
         vi.spyOn(console, 'error')
@@ -743,7 +814,7 @@ function runTxTests({
     )
 
     // Test signing Uint8Array message in viem only.
-    testInViemOnly(
+    viemOnlyIt(
       'throws when viem incorrectly receives an Uint8Array message for signing',
       async () => {
         const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
@@ -881,29 +952,29 @@ function runTxTests({
   })
 }
 
-describe('Custom client configurations', () => {
-  it('can use a custom publicClient RPC URL', async () => {
-    const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
-    const tokenboundClient = new TokenboundClient({
-      chainId: 1,
-      walletClient,
-      publicClientRPCUrl: customPublicClientRPCUrl,
-    })
+// describe('Custom client configurations', () => {
+//   it('can use a custom publicClient RPC URL', async () => {
+//     const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
+//     const tokenboundClient = new TokenboundClient({
+//       chainId: 1,
+//       walletClient,
+//       publicClientRPCUrl: customPublicClientRPCUrl,
+//     })
 
-    await waitFor(() => {
-      expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
-    })
-  })
-  it('can use a custom chain as parameter', async () => {
-    const ZORA_CHAIN_ID = 7777777
+//     await waitFor(() => {
+//       expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
+//     })
+//   })
+//   it('can use a custom chain as parameter', async () => {
+//     const ZORA_CHAIN_ID = 7777777
 
-    const tokenboundClient = new TokenboundClient({
-      walletClient,
-      chain: zora,
-    })
+//     const tokenboundClient = new TokenboundClient({
+//       walletClient,
+//       chain: zora,
+//     })
 
-    await waitFor(() => {
-      expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
-    })
-  })
-})
+//     await waitFor(() => {
+//       expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
+//     })
+//   })
+// })

@@ -3,6 +3,7 @@ import { isHex, isAddress } from 'viem'
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG, TEST_RESULTS } from './config'
 import { ERC_6551_LEGACY_V2 } from '../constants'
+import { TBVersion } from '../types'
 
 describe('Test SDK write methods across standard implementations', () => {
   runTests({
@@ -27,6 +28,7 @@ function runTests({
 }) {
   const tokenboundClient = new TokenboundClient({
     chainId: TEST_CONFIG.CHAIN_ID,
+    version: testName === 'v2' ? TBVersion.V2 : TBVersion.V3,
     implementationAddress,
     registryAddress,
   })

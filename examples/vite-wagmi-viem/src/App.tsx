@@ -10,6 +10,12 @@ import {
   WalletClient,
   parseUnits,
   getAddress,
+  numberToHex,
+  numberToBytes,
+  stringToBytes,
+  encodeAbiParameters,
+  parseAbiParameters,
+  stringToHex,
 } from 'viem'
 import { goerli } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
@@ -27,10 +33,14 @@ declare global {
 // const ethAmount = 0.1
 // const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 
-const sendingTBA = '0x047A2F5c8C97948675786e9a1A12EB172CF802a1'
+// const sendingTBA = '0x047A2F5c8C97948675786e9a1A12EB172CF802a1'  // Sapienz #5 on Goerli w/ V2 contract: https://tokenbound.org/assets/goerli/0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2/5
+const sendingTBA = '0xa2221cc0f5012D60d0bF91B840A4Ef990D44Ae39' // Sapienz #5 on Goerli w/ V3 contract // It's deployed
 const recipientAddress = getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4')
-const ethAmount = 0.05
+const ethAmount = 0.005
 const ethAmountWei = parseUnits(`${ethAmount}`, 18)
+
+const TOKEN_CONTRACT = `0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2`
+const TOKEN_ID = '5'
 
 export function App() {
   const { isConnected, address } = useAccount()
@@ -51,12 +61,14 @@ export function App() {
     async function testTokenboundClass() {
       if (!tokenboundClient) return
 
-      const isV3Supported = await tokenboundClient.isV3Supported()
+      // const isV3Supported = await tokenboundClient.isV3Supported()
       // alert(`isV3Supported: ${isV3Supported}`)
 
       const tokenboundAccount = tokenboundClient.getAccount({
-        tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-        tokenId: '9',
+        tokenContract: TOKEN_CONTRACT,
+        tokenId: TOKEN_ID,
+        // tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+        // tokenId: '9',
       })
 
       // const preparedExecuteCall = await tokenboundClient.prepareExecuteCall({
@@ -67,15 +79,39 @@ export function App() {
       // })
 
       const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
-        tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-        tokenId: '1',
+        // tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+        // tokenId: '1',
+        tokenContract: TOKEN_CONTRACT,
+        tokenId: TOKEN_ID,
       })
 
-      console.log(`isV3Supported: ${isV3Supported}`)
+      // console.log(`isV3Supported: ${isV3Supported}`)
       console.log('getAccount', tokenboundAccount)
       // console.log('preparedExecuteCall', preparedExecuteCall)
       console.log('preparedAccount', preparedCreateAccount)
 
+      const isDeployed = await tokenboundClient.checkAccountDeployment({
+        accountAddress: tokenboundAccount,
+      })
+      console.log('isDeployed', isDeployed)
+
+      const isValid = await tokenboundClient.isValidSigner({
+        account: tokenboundAccount,
+        // data: '0x',
+        // data: numberToHex(0, { size: 32 }),
+        //data: numberToBytes(0, { size: 32 }), // This fails with TypeError: x.replace is not a function
+        // data: numberToBytes(0),
+        // data: stringToBytes('0'),
+        // data: stringToBytes('0', { size: 32 }),
+        // data: stringToHex('0', { size: 32 }),
+        // data: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        // data: encodeAbiParameters(parseAbiParameters(['bytes32']), [
+        //   // numberToHex(0, { size: 32 }),
+        //   // stringToHex('0', { size: 32 }),
+        // ]),
+      })
+
+      console.log('isValidSigner?', isValid)
       // if (address) {
       //   walletClient?.sendTransaction(preparedCreateAccount)
       //   walletClient?.sendTransaction(preparedExecuteCall)
@@ -88,22 +124,35 @@ export function App() {
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const createdAccount = await tokenboundClient.createAccount({
-      tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-      tokenId: '1',
+      // tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
+      // tokenId: '1',
+      tokenContract: TOKEN_CONTRACT,
+      tokenId: TOKEN_ID,
     })
+    console.log(`new account: ${createdAccount}`) // 0xba0292aBcCAF72D8904D6cD01E67D00D6E702275
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
-  // const executeCall = useCallback(async () => {
-  //   if (!tokenboundClient || !address) return
-  //   const executedCall = await tokenboundClient.executeCall({
-  //     account: sendingTBA,
-  //     to: recipientAddress,
-  //     value: ethAmountWei,
-  //     data: '0x',
-  //   })
-  //   executedCall && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
-  // }, [tokenboundClient])
+  const execute = useCallback(async () => {
+    if (!tokenboundClient || !address) return
+    const executedCall = await tokenboundClient.execute({
+      account: sendingTBA,
+      to: recipientAddress,
+      value: ethAmountWei,
+      data: '0x',
+    })
+    executedCall && alert(`Executed: ${executedCall}`)
+  }, [tokenboundClient])
+
+  const transferETH = useCallback(async () => {
+    if (!tokenboundClient || !address) return
+    const executedTransfer = await tokenboundClient.transferETH({
+      account: sendingTBA,
+      recipientAddress,
+      amount: ethAmount, // BEFORE: 0.3994 AFTER: 0.8024
+    })
+    executedTransfer && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
+  }, [tokenboundClient])
 
   return (
     <>
@@ -120,7 +169,9 @@ export function App() {
             maxWidth: '320px',
           }}
         >
+          <button onClick={() => execute()}>EXECUTE</button>
           <button onClick={() => createAccount()}>CREATE ACCOUNT</button>
+          <button onClick={() => transferETH()}>TRANSFER ETH</button>
         </div>
       )}
     </>

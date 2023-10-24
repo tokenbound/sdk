@@ -73,8 +73,6 @@ export type TokenboundClientOptions = Prettify<{
 }>
 
 type Custom6551Implementation = Prettify<{
-  implementationAddress: `0x${string}`
-  registryAddress?: `0x${string}`
   salt?: number
 }>
 
@@ -83,6 +81,7 @@ export type TBAccountParams = NFTParams
 export type GetAccountParams = Prettify<
   TBAccountParams & Partial<Custom6551Implementation>
 >
+
 export type PrepareCreateAccountParams = Prettify<
   TBAccountParams & Partial<Custom6551Implementation>
 >

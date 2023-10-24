@@ -9,10 +9,11 @@ import {
   encodeFunctionData,
   parseUnits,
   SignableMessage,
-  getContract,
   isAddressEqual,
-  parseAbi,
+  // getContract,
+  // parseAbi,
   numberToHex,
+  multicall3Abi,
 } from 'viem'
 import { erc1155Abi, erc721Abi, erc20Abi } from '../abis'
 import {
@@ -26,7 +27,7 @@ import {
   prepareCreateAccount,
   // V3 functions
   getTokenboundV3Account,
-  createTokenboundV3Account,
+  // createTokenboundV3Account, // @bj handle this for v3
   prepareCreateTokenboundV3Account,
   // isValidSigner,
   // prepareTokenboundV3Execute,
@@ -68,9 +69,10 @@ import {
   getImplementationName,
 } from './utils'
 import {
-  IERC_6551_ACCOUNT_INTERFACE,
+  // IERC_6551_ACCOUNT_INTERFACE,
   ERC_6551_DEFAULT,
   ERC_6551_LEGACY_V2,
+  MULTICALL_ADDRESS,
 } from './constants'
 import { version as TB_SDK_VERSION } from '../package.json'
 
@@ -84,8 +86,7 @@ class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
   public publicClient: PublicClient
-  // private supportsV3: boolean = true // Default to V3 implementation
-  private supportsV3: boolean | undefined = undefined
+  private supportsV3: boolean = true // Default to V3 implementation
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
   private implementationAddress?: `0x${string}`
@@ -102,7 +103,6 @@ class TokenboundClient {
       registryAddress,
       publicClientRPCUrl,
       version,
-      // version = TBVersion.V3,
     } = options
 
     if (!chainId && !chain) {
@@ -117,10 +117,6 @@ class TokenboundClient {
       throw new Error(
         'Only one of `publicClient` or `publicClientRPCUrl` should be provided.'
       )
-    }
-
-    if (signer && publicClient) {
-      throw new Error('`publicClient` cannot be provided when using Ethers `signer`.')
     }
 
     this.chainId = chainId ?? chain!.id
@@ -140,54 +136,33 @@ class TokenboundClient {
         transport: http(publicClientRPCUrl ?? undefined),
       })
 
-    if (!implementationAddress) {
-      this.supportsV3 = true
-      this.isInitialized = true
-    } else {
+    if (registryAddress) {
+      this.registryAddress = registryAddress
+    }
+
+    if (implementationAddress) {
       this.implementationAddress = implementationAddress
 
       // If legacy V2 implementation is in use, use V2 registry (unless custom registry is provided)
       const isV2 =
         (version && version === TBVersion.V2) ||
         (implementationAddress &&
-          !registryAddress &&
           isAddressEqual(
             implementationAddress,
             ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
           ))
 
       if (isV2) {
-        {
-          this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
-          this.supportsV3 = false
-          this.isInitialized = true
-        }
+        this.supportsV3 = false
+        if (!registryAddress) this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
       }
+    }
 
-      // Probably extra, but uncovered in testing: if implementationAddress is the default V3 implementation, we should initialize
-      const isV3 =
-        implementationAddress &&
-        isAddressEqual(implementationAddress, ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS)
-      if (isV3) {
-        this.registryAddress = ERC_6551_DEFAULT.REGISTRY.ADDRESS
-        this.supportsV3 = true
-        this.isInitialized = true
-      }
-    }
-    if (registryAddress) {
-      this.registryAddress = registryAddress
-    }
+    this.isInitialized = true
 
     if (typeof window !== 'undefined') {
       const implementationName = getImplementationName(implementationAddress)
       window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} - ${implementationName}`
-    }
-  }
-
-  private async initialize() {
-    if (!this.isInitialized) {
-      await this.isV3Supported()
-      this.isInitialized = true
     }
   }
 
@@ -197,71 +172,42 @@ class TokenboundClient {
    * see: https://github.com/erc6551/reference/blob/main/src/interfaces/IERC6551Account.sol
    */
   // private async isV3Supported(): Promise<boolean> {
-  public async isV3Supported(): Promise<boolean> {
-    try {
-      const accountContract = getContract({
-        address: this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
-        abi: parseAbi([
-          'function supportsInterface(bytes4 interfaceId) view returns (bool)',
-        ]),
-        publicClient: this.publicClient,
-      })
+  // public async isV3Supported(): Promise<boolean> {
+  //   try {
+  //     const accountContract = getContract({
+  //       address: this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
+  //       abi: parseAbi([
+  //         'function supportsInterface(bytes4 interfaceId) view returns (bool)',
+  //       ]),
+  //       publicClient: this.publicClient,
+  //     })
 
-      this.supportsV3 = (await accountContract.read.supportsInterface([
-        IERC_6551_ACCOUNT_INTERFACE,
-      ])) as boolean
+  //     this.supportsV3 = (await accountContract.read.supportsInterface([
+  //       IERC_6551_ACCOUNT_INTERFACE,
+  //     ])) as boolean
 
-      return this.supportsV3
-    } catch (error) {
-      this.supportsV3 = false
-      return false
-    }
-  }
+  //     return this.supportsV3
+  //   } catch (error) {
+  //     this.supportsV3 = false
+  //     return false
+  //   }
+  // }
 
   /**
    * Returns the tokenbound account address for a given token contract and token ID.
    * @param {`0x${string}`} params.tokenContract The address of the token contract.
    * @param {string} params.tokenId The token ID.
-   * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
-   * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
    * @returns The tokenbound account address.
    */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const {
-      tokenContract,
-      tokenId,
-      implementationAddress,
-      registryAddress,
-      salt = 0,
-    } = params
-    const implementation = implementationAddress ?? this.implementationAddress
-    const registry = registryAddress ?? this.registryAddress
-
-    // TODO @BJ
-    this.initialize()
+    const { tokenContract, tokenId, salt = 0 } = params
+    const implementation =
+      this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+    const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
     try {
-      if (this.supportsV3) {
-        return getTokenboundV3Account(
-          tokenContract,
-          tokenId,
-          this.chainId,
-          implementation,
-          registry,
-          salt
-        )
-      } else {
-        // Here we call computeAccount rather than getAccount to avoid
-        // making an async contract call via publicClient
-        return computeAccount(
-          tokenContract,
-          tokenId,
-          this.chainId,
-          implementation,
-          registry,
-          salt
-        )
-      }
+      const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
+      return getAcct(tokenContract, tokenId, this.chainId, implementation, registry, salt)
     } catch (error) {
       throw error
     }
@@ -271,8 +217,6 @@ class TokenboundClient {
    * Returns the prepared transaction to create a tokenbound account for a given token contract and token ID.
    * @param {`0x${string}`} params.tokenContract The address of the token contract.
    * @param {string} params.tokenId The token ID.
-   * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
-   * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
    * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
    */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
@@ -280,30 +224,16 @@ class TokenboundClient {
     value: bigint
     data: `0x${string}`
   }> {
-    const {
-      tokenContract,
-      tokenId,
-      implementationAddress,
-      registryAddress,
-      salt = 0,
-    } = params
-    const implementation = implementationAddress ?? this.implementationAddress
-    const registry = registryAddress ?? this.registryAddress
+    const { tokenContract, tokenId, salt = 0 } = params
+    const implementation =
+      this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+    const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
-    await this.initialize()
+    const prepareCreation = this.supportsV3
+      ? prepareCreateTokenboundV3Account
+      : prepareCreateAccount
 
-    if (this.supportsV3) {
-      return prepareCreateTokenboundV3Account(
-        tokenContract,
-        tokenId,
-        this.chainId,
-        implementation,
-        registry,
-        salt
-      )
-    }
-
-    return prepareCreateAccount(
+    return prepareCreation(
       tokenContract,
       tokenId,
       this.chainId,
@@ -321,45 +251,69 @@ class TokenboundClient {
    * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
    * @returns a Promise that resolves to the account address of the created token bound account.
    */
-  public async createAccount(params: CreateAccountParams): Promise<`0x${string}`> {
-    const {
-      tokenContract,
-      tokenId,
-      implementationAddress,
-      registryAddress,
-      salt = 0,
-    } = params
-    const implementation = implementationAddress ?? this.implementationAddress
-    const registry = registryAddress ?? this.registryAddress
-
-    await this.initialize()
+  public async createAccount(
+    params: CreateAccountParams
+  ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
+    const { tokenContract, tokenId, salt = 0 } = params
+    const implementation =
+      this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+    const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
     try {
       let txHash: `0x${string}` | undefined
 
-      if (this.signer) {
-        // Ethers
-        const prepareCreateAccount = await this.prepareCreateAccount({
-          tokenContract,
-          tokenId,
-          implementationAddress: implementation,
-          registryAddress: registry,
-          salt,
-        })
+      const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
+      const computedAcct = getAcct(
+        tokenContract,
+        tokenId,
+        this.chainId,
+        implementation,
+        registry,
+        salt
+      )
+
+      const prepareCreateAccount = await this.prepareCreateAccount({
+        tokenContract,
+        tokenId,
+        salt,
+      })
+
+      const prepareMultiCall: any = {
+        to: MULTICALL_ADDRESS,
+        value: BigInt(0),
+        data: encodeFunctionData({
+          abi: multicall3Abi,
+          functionName: 'aggregate3',
+          args: [
+            [
+              {
+                target: registry,
+                allowFailure: false,
+                callData: prepareCreateAccount.data,
+              },
+              {
+                target: computedAcct,
+                allowFailure: false,
+                callData: encodeFunctionData({
+                  abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI!,
+                  functionName: 'initialize',
+                  args: [implementation],
+                }),
+              },
+            ],
+          ],
+        }),
+      }
+
+      if (this.signer) {
         txHash = (await this.signer
-          .sendTransaction(prepareCreateAccount)
+          .sendTransaction(this.supportsV3 ? prepareMultiCall : prepareCreateAccount)
           .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
       } else if (this.walletClient) {
+        // const createAcct = this.supportsV3 ? createTokenboundV3Account : createAccount // @ BJ TODO: see how we can still use createTokenboundV3Account
         txHash = this.supportsV3
-          ? await createTokenboundV3Account(
-              tokenContract,
-              tokenId,
-              this.walletClient,
-              implementation,
-              registry,
-              salt
-            )
+          ? await this.walletClient.sendTransaction(prepareMultiCall)
           : await createAccount(
               tokenContract,
               tokenId,
@@ -371,23 +325,10 @@ class TokenboundClient {
       }
 
       if (txHash) {
-        return this.supportsV3
-          ? getTokenboundV3Account(
-              tokenContract,
-              tokenId,
-              this.chainId,
-              implementation,
-              registry,
-              salt
-            )
-          : computeAccount(
-              tokenContract,
-              tokenId,
-              this.chainId,
-              implementation,
-              registry,
-              salt
-            )
+        return {
+          account: computedAcct,
+          txHash,
+        }
       } else {
         throw new Error('No wallet client or signer available.')
       }
@@ -410,7 +351,6 @@ class TokenboundClient {
     value: bigint
     data: `0x${string}`
   }> {
-    await this.initialize()
     if (this.supportsV3) {
       throw new Error(
         'prepareExecuteCall() is not supported on V3 implementation deployments, use prepareExecute() instead.'
@@ -432,7 +372,7 @@ class TokenboundClient {
    */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
     const preparedExecuteCall = await this.prepareExecuteCall(params)
-    await this.initialize()
+
     if (this.supportsV3) {
       throw new Error(
         'executeCall() is not supported on V3 implementation deployments, use execute() instead.'
@@ -475,26 +415,11 @@ class TokenboundClient {
     data: `0x${string}`
     operation?: CallOperation
   }> {
-    await this.initialize()
-    if (!this.supportsV3) {
-      throw new Error(
-        'prepareExecute() is not supported on V2 implementation deployments, use prepareExecuteCall() instead.'
-      )
-    }
     const { account, to, value, data, operation = CALL_OPERATIONS.CALL } = params
-
-    // {
-    //   stateMutability: 'payable',
-    //   type: 'function',
-    //   inputs: [
-    //     { name: 'to', internalType: 'address', type: 'address' },
-    //     { name: 'value', internalType: 'uint256', type: 'uint256' },
-    //     { name: 'data', internalType: 'bytes', type: 'bytes' }, // @TODO BJ: should data be encoded differently?
-    //     { name: 'operation', internalType: 'uint8', type: 'uint8' },
-    //   ],
-    //   name: 'execute',
-    //   outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
-    // },
+    if (!this.supportsV3) {
+      const { operation, ...rest } = params
+      return await this.prepareExecuteCall(rest)
+    }
 
     return {
       to: account as `0x${string}`,
@@ -517,7 +442,6 @@ class TokenboundClient {
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async execute(params: ExecuteParams): Promise<`0x${string}`> {
-    await this.initialize()
     // if (!this.supportsV3) {
     //   throw new Error(
     //     'execute() is not supported on V2 implementation deployments, use executeCall() instead.'
@@ -563,18 +487,31 @@ class TokenboundClient {
     data = numberToHex(0, { size: 32 }), // @ BJ TODO: determine how this is used / whether it's needed
   }: ValidSignerParams): Promise<boolean> {
     const { signer, walletClient } = this
+
+    // console.log(this.signer, this.walletClient)
+
     const VALID_SIGNER_MAGIC_VALUE = '0x523e3260' // isValidSigner MUST return this bytes4 magic value if the given signer is valid
-    if (!signer && !walletClient) {
-      throw new Error('No signer or wallet client available.')
-    }
 
-    if (!this.supportsV3) {
-      throw new Error('isValidSigner is not supported using the V2 implementation')
-    }
+    // const walletAddress = walletClient?.account?.address ?? (await signer?.address)
+    const walletAddress: `0x${string}` = walletClient?.account?.address ?? signer?.address
 
-    const walletAddress = walletClient?.account?.address ?? (await signer?.getAddress())
-
+    console.log(
+      'isValidSigner:',
+      walletAddress,
+      'SIGNER: ',
+      signer?.address,
+      'ACCOUNT: ',
+      account
+    )
     try {
+      if (!signer && !walletClient) {
+        throw new Error('No signer or wallet client available.')
+      }
+
+      if (!this.supportsV3) {
+        throw new Error('isValidSigner is not supported using the V2 implementation')
+      }
+
       const validityCheck = await this.publicClient.readContract({
         address: account,
         abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
@@ -598,12 +535,20 @@ class TokenboundClient {
   public async checkAccountDeployment({
     accountAddress,
   }: BytecodeParams): Promise<boolean> {
+    console.log('account address', accountAddress)
+
     try {
+      // if (this.signer) {
+      //   const bytes = this.signer?.getCode(accountAddress)
+      //   console.log('bytes', bytes)
+      // }
+
       return await this.publicClient
         .getBytecode({ address: accountAddress })
-        .then((bytecode: GetBytecodeReturnType) =>
-          bytecode ? bytecode.length > 2 : false
-        )
+        .then((bytecode: GetBytecodeReturnType) => {
+          console.log('BYTECODE', bytecode)
+          return bytecode ? bytecode.length > 2 : false
+        })
     } catch (error) {
       throw error
     }
@@ -703,7 +648,6 @@ class TokenboundClient {
       recipientAddress,
     } = params
 
-    await this.initialize()
     const is1155: boolean = tokenType === NFTTokenType.ERC1155
 
     if (!is1155 && amount !== 1) {
@@ -753,7 +697,6 @@ class TokenboundClient {
   public async transferETH(params: ETHTransferParams): Promise<`0x${string}`> {
     const { account: tbAccountAddress, amount, recipientAddress } = params
     const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
-    await this.initialize()
 
     try {
       const recipient = await resolvePossibleENS(this.publicClient, recipientAddress)
@@ -795,8 +738,6 @@ class TokenboundClient {
 
     if (erc20tokenDecimals < 0 || erc20tokenDecimals > 18)
       throw new Error('Decimal value out of range. Should be between 0 and 18.')
-
-    await this.initialize()
 
     const amountBaseUnit = parseUnits(`${amount}`, erc20tokenDecimals)
 
