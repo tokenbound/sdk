@@ -125,6 +125,7 @@ function runTxTests({
   describe(testName, () => {
     // Set up Anvil instance + clients
     const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
+    const CUSTOM_SALT = 6551
     let tokenboundClient: TokenboundClient
     let publicClient: PublicClient
     let NFT_IN_EOA: CreateAccountParams
@@ -132,6 +133,7 @@ function runTxTests({
     let TOKENID1_IN_TBA: string
     let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
+    let ZORA721_TBA_ADDRESS_CUSTOM_SALT: `0x${string}`
 
     const ERC6551_DEPLOYMENT = isV2 ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
 
@@ -247,13 +249,8 @@ function runTxTests({
       'can createAccount',
       async () => {
         const { account, txHash } = await tokenboundClient.createAccount(NFT_IN_EOA)
-        // const { account: createdAccount, txHash } = await tokenboundClient.createAccount(
-        //   NFT_IN_EOA
-        // )
-        console.log('CREATED ACCT', await account)
+        console.log('CREATED ACCT', account)
 
-        // If we replace the return type of createAccount with a txHash, we can get the txReceipt. For all 3 implementations, the txReceipt status is success.
-        // const createdAccountTxReceipt = await publicClient.getTransactionReceipt({
         const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
           hash: txHash,
         })
@@ -261,6 +258,30 @@ function runTxTests({
         console.log('CREATED ACCT TX', createdAccountTxReceipt)
 
         ZORA721_TBA_ADDRESS = account
+        await waitFor(() => {
+          expect(account).toMatch(ADDRESS_REGEX)
+          expect(createdAccountTxReceipt.status).toBe('success')
+        })
+      },
+      TIMEOUT
+    )
+
+    it(
+      'can createAccount with a custom salt',
+      async () => {
+        const { account, txHash } = await tokenboundClient.createAccount({
+          ...NFT_IN_EOA,
+          salt: CUSTOM_SALT,
+        })
+        console.log('CREATED ACCT WITH CUSTOM SALT', account)
+
+        const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
+
+        console.log('CREATED ACCT TX', createdAccountTxReceipt)
+
+        ZORA721_TBA_ADDRESS_CUSTOM_SALT = account
         await waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
@@ -284,6 +305,14 @@ function runTxTests({
       await waitFor(() => {
         expect(getAccount).toMatch(ADDRESS_REGEX)
         expect(getAccount).toEqual(ZORA721_TBA_ADDRESS)
+      })
+    })
+
+    it('can getAccount with a custom salt', async () => {
+      const getAccount = tokenboundClient.getAccount({ ...NFT_IN_EOA, salt: CUSTOM_SALT })
+      await waitFor(() => {
+        expect(getAccount).toMatch(ADDRESS_REGEX)
+        expect(getAccount).toEqual(ZORA721_TBA_ADDRESS_CUSTOM_SALT)
       })
     })
 
