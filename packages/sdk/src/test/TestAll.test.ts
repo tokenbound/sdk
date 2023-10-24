@@ -255,8 +255,6 @@ function runTxTests({
           hash: txHash,
         })
 
-        console.log('CREATED ACCT TX', createdAccountTxReceipt)
-
         ZORA721_TBA_ADDRESS = account
         await waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
@@ -278,8 +276,6 @@ function runTxTests({
         const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
           hash: txHash,
         })
-
-        console.log('CREATED ACCT TX', createdAccountTxReceipt)
 
         ZORA721_TBA_ADDRESS_CUSTOM_SALT = account
         await waitFor(() => {
