@@ -28,11 +28,7 @@ import {
   ANVIL_RPC_URL,
   WETH_CONTRACT_ADDRESS,
 } from './constants'
-import {
-  resolvePossibleENS,
-  walletClientToEthers5Signer,
-  walletClientToEthers6Signer,
-} from '../utils'
+import { resolvePossibleENS } from '../utils'
 import {
   ethToWei,
   getPublicClient,
@@ -45,7 +41,7 @@ import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { TBImplementationVersion, TBVersion } from '../types'
-import { JsonRpcSigner, JsonRpcProvider, Wallet, ethers as ethers6 } from 'ethers6'
+import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -61,31 +57,12 @@ const walletClient = createWalletClient({
 const ethers5Provider = new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL)
 const ethers5Signer = new ethers.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers5Provider)
 
-// const network = {
-//   chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-//   name: ANVIL_CONFIG.ACTIVE_CHAIN!.name,
-//   ensAddress: ANVIL_CONFIG.ACTIVE_CHAIN.contracts?.ensRegistry?.address,
-// }
-
-// const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL, network)
-// const ethers6Signer = new Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers6Provider)
-// const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
-
-// Works:
-// const ethers6Provider = new ethers6.JsonRpcProvider(ANVIL_RPC_URL)
 const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
 // const ethers6Signer = new ethers6.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers6Provider)
 const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
 
-// console.log('ethers6Provider keys', Object.keys(ethers6Provider))
-console.log('ethers6Providerrrr', ethers6Provider)
-console.log('ethers6SIGNER', ethers6Signer)
-
 // Create Ethers 5/6 signers from the walletClient + run tests
 describe('Test SDK methods - viem + Ethers', () => {
-  // const ethers5Signer = walletClientToEthers5Signer(walletClient)
-  // const ethers6Signer = walletClientToEthers6Signer(walletClient)
-
   const ENABLE_VIEM_TESTS = true
   const ENABLE_ETHERS_TESTS = true
   const ENABLE_V2_TESTS = true
@@ -168,8 +145,7 @@ function runTxTests({
           chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
           walletClient,
           signer,
-          // publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
-          publicClient, // No publicClient if using Ethers
+          publicClient,
           implementationAddress: ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
           registryAddress: ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
         })
@@ -293,28 +269,6 @@ function runTxTests({
       TIMEOUT
     )
 
-    // it(
-    //   'can initializeAccount',
-    //   async () => {
-    //     const initedAccountHash = await tokenboundClient.initializeAccount({
-    //       account: ZORA721_TBA_ADDRESS,
-    //     })
-
-    //     console.log('INITED ACCT HASH', initedAccountHash)
-
-    //     const initedAccountTxReceipt = await publicClient.getTransactionReceipt({
-    //       hash: initedAccountHash,
-    //     })
-    //     console.log('INITED ACCT TX', initedAccountTxReceipt)
-
-    //     await waitFor(() => {
-    //       expect(initedAccountHash).toMatch(ADDRESS_REGEX)
-    //       expect(initedAccountTxReceipt.status).toBe('success')
-    //     })
-    //   },
-    //   TIMEOUT
-    // )
-
     it('can checkAccountDeployment for the created account', async () => {
       const isAccountDeployed = await tokenboundClient.checkAccountDeployment({
         accountAddress: ZORA721_TBA_ADDRESS,
@@ -364,7 +318,6 @@ function runTxTests({
             ...preparedNFTTransfer,
           })
         } else {
-          console.log('SIGNER_URL', signer.provider.connection)
           transferHash = await signer
             .sendTransaction({
               chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
@@ -490,7 +443,7 @@ function runTxTests({
 
     // Execute a basic call with no value with the TBA to see if it works.
     it(
-      `can ${isV2 ? 'executeCall' : 'execute'} with the TBA`,
+      isV2 ? `can executeCall with the TBA` : `can execute with the TBA`,
       async () => {
         const execution = {
           account: ZORA721_TBA_ADDRESS,
@@ -507,8 +460,29 @@ function runTxTests({
           hash: executedCallTxHash,
         })
 
-        console.log('EXECUTED CALL TX HASH: ', executedCallTxHash)
-        console.log('EXECUTED CALL TX RECEIPT: ', transactionReceipt)
+        await waitFor(() => {
+          expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
+          expect(transactionReceipt.status).toBe('success')
+        })
+      },
+      TIMEOUT
+    )
+
+    it(
+      `can fall back to executeCall from execute for V2`,
+      async () => {
+        const execution = {
+          account: ZORA721_TBA_ADDRESS,
+          to: zora721.proxyContractAddress,
+          value: 0n,
+          data: '',
+        }
+
+        const executedCallTxHash = await tokenboundClient.execute(execution)
+
+        const transactionReceipt = await publicClient.getTransactionReceipt({
+          hash: executedCallTxHash,
+        })
 
         await waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
@@ -536,9 +510,6 @@ function runTxTests({
       const transactionReceipt = await publicClient.getTransactionReceipt({
         hash: ethTransferHash,
       })
-
-      console.log('transferETH TX HASH: ', ethTransferHash)
-      console.log('transferETH TX RECEIPT: ', transactionReceipt)
 
       const balanceAfter = await publicClient.getBalance({
         address: ZORA721_TBA_ADDRESS,
@@ -952,29 +923,29 @@ function runTxTests({
   })
 }
 
-// describe('Custom client configurations', () => {
-//   it('can use a custom publicClient RPC URL', async () => {
-//     const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
-//     const tokenboundClient = new TokenboundClient({
-//       chainId: 1,
-//       walletClient,
-//       publicClientRPCUrl: customPublicClientRPCUrl,
-//     })
+describe('Custom client configurations', () => {
+  it('can use a custom publicClient RPC URL', async () => {
+    const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
+    const tokenboundClient = new TokenboundClient({
+      chainId: 1,
+      walletClient,
+      publicClientRPCUrl: customPublicClientRPCUrl,
+    })
 
-//     await waitFor(() => {
-//       expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
-//     })
-//   })
-//   it('can use a custom chain as parameter', async () => {
-//     const ZORA_CHAIN_ID = 7777777
+    await waitFor(() => {
+      expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
+    })
+  })
+  it('can use a custom chain as parameter', async () => {
+    const ZORA_CHAIN_ID = 7777777
 
-//     const tokenboundClient = new TokenboundClient({
-//       walletClient,
-//       chain: zora,
-//     })
+    const tokenboundClient = new TokenboundClient({
+      walletClient,
+      chain: zora,
+    })
 
-//     await waitFor(() => {
-//       expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
-//     })
-//   })
-// })
+    await waitFor(() => {
+      expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
+    })
+  })
+})

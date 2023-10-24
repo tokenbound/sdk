@@ -101,7 +101,6 @@ export type ExecuteParams = Prettify<ExecuteCallParams & { operation?: CallOpera
 export type PrepareExecutionParams = ExecuteParams
 
 export type ValidSignerParams = Prettify<{
-  //   walletAddress: `0x${string}`
   account: `0x${string}`
   data?: string
 }>
