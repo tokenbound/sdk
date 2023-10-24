@@ -9,10 +9,13 @@ import {
   arbitrum,
   optimismGoerli,
   base,
+  baseGoerli,
+  lineaTestnet,
+  linea,
   gnosis,
 } from 'viem/chains'
 
-const allChains = {
+const enabledChains = {
   mainnet,
   goerli,
   optimismGoerli,
@@ -23,6 +26,9 @@ const allChains = {
   arbitrum,
   base,
   gnosis,
+  baseGoerli,
+  lineaTestnet,
+  linea,
 }
 
 /**
@@ -32,7 +38,7 @@ const allChains = {
  */
 
 export function chainIdToChain(chainId: number): Chain {
-  for (const chain of Object.values(allChains)) {
+  for (const chain of Object.values(enabledChains)) {
     if (chain.id === chainId) {
       return chain
     }
