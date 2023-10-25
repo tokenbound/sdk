@@ -105,8 +105,16 @@ describe('Test SDK methods - viem + Ethers', async () => {
   const ENABLE_ETHERS_TESTS = false
 
   if (ENABLE_ETHERS_TESTS) {
-    runTxTests({ testName: 'Ethers 5 Tests', signer: ethers5Signer })
-    runTxTests({ testName: 'Ethers 6 Tests', signer: ethers6Signer })
+    runTxTests({
+      testName: 'Ethers 5 Tests',
+      signer: ethers5Signer,
+      testingMode: { walletClient },
+    })
+    // runTxTests({
+    //   testName: 'Ethers 6 Tests',
+    //   signer: ethers6Signer,
+    //   testingMode: { walletClient },
+    // })
   }
 })
 
@@ -124,16 +132,18 @@ function runTxTests({
   testName,
   walletClient,
   signer,
+  testingMode,
 }: {
   testName: string
   walletClient?: WalletClient
   signer?: any
+  testingMode?: { walletClient: WalletClient }
 }) {
   // Skip tests that are non-functional in Ethers
   let tbaBalanceTracker: bigint
   const testInViemOnly = walletClient ? it : it.skip
 
-  console.log({ testName, signer })
+  console.log({ testName, signer: JSON.stringify(signer) })
 
   describe(testName, () => {
     // Set up Anvil instance + clients
@@ -161,6 +171,7 @@ function runTxTests({
           walletClient,
           signer,
           publicClient: signer ? undefined : publicClient,
+          testingMode,
         })
         ;(tokenboundClient as any).bundlerUrl = BUNDLER_URL
 

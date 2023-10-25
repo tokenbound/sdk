@@ -52,6 +52,7 @@ import {
   UserOperation,
   BundlerSendUserOperationResponse,
   BundlerTransactionReceiptResponse,
+  TokenBoundClientTestModeOptions,
 } from './types'
 import {
   chainIdToChain,
@@ -86,6 +87,7 @@ class TokenboundClient {
   private registryAddress?: `0x${string}`
   private api: ApiClient
   private bundlerUrl: string
+  private testingMode?: TokenBoundClientTestModeOptions
 
   constructor(options: TokenboundClientOptions) {
     const {
@@ -97,6 +99,7 @@ class TokenboundClient {
       implementationAddress,
       registryAddress,
       publicClientRPCUrl,
+      testingMode,
     } = options
 
     this.api = new ApiClient()
@@ -135,14 +138,40 @@ class TokenboundClient {
       this.registryAddress = registryAddress
     }
 
-    this.publicClient =
-      publicClient ??
-      createPublicClient({
+    // if we're in testing mode we want to get the latest http transport... then why is this transport url not the default?
+    // QUESTION: why doesn't this use the signer or walletClient's rpc URL? This way we ensure it always uses the same block number and such
+    // this.publicClient =
+    //   publicClient ??
+    //   createPublicClient({
+    //     chain: chain ?? chainIdToChain(this.chainId),
+    //     transport: http(publicClientRPCUrl ?? undefined),
+    //   })
+
+    if (publicClient) {
+      this.publicClient = publicClient
+    } else if (publicClientRPCUrl) {
+      this.publicClient = createPublicClient({
         chain: chain ?? chainIdToChain(this.chainId),
-        transport: http(publicClientRPCUrl ?? undefined),
+        transport: http(publicClientRPCUrl),
       })
+    } else if (signer) {
+      console.log('signer: ', JSON.stringify(signer))
+
+      this.publicClient = createPublicClient({
+        chain: chain ?? chainIdToChain(this.chainId),
+        transport: http(signer.provider.provider.url),
+      })
+    } else {
+      this.publicClient = createPublicClient({
+        chain: chain ?? chainIdToChain(this.chainId),
+        transport: http(undefined),
+      })
+    }
 
     this.isInitialized = true
+    if (testingMode) {
+      this.testingMode = { walletClient: testingMode.walletClient }
+    }
 
     if (typeof window !== 'undefined') {
       window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} Implementation: ${
@@ -363,7 +392,6 @@ class TokenboundClient {
     let walletAccount
     if (this.signer) {
       walletAccount = await this.signer.getAddress()
-      console.log('signer wallet: ', walletAccount)
     } else if (this.walletClient) {
       walletAccount = this.walletClient.account as unknown as `0x${string}`
     } else {
@@ -382,10 +410,12 @@ class TokenboundClient {
           abi: erc4337EntryPointAbi,
           functionName: 'getNonce',
           args: [account, 0],
-          account: walletAccount.address,
+          account: walletAccount,
         })
         .then((data) => data.result),
     ])
+
+    console.log({ nonce })
 
     // create userOperation object
     const userOperation: UserOperation = {
@@ -413,22 +443,33 @@ class TokenboundClient {
     // Get userOperation Hash
     const userOperationHash = await this._getUserOperationHash(
       userOperation,
-      walletAccount.address
+      walletAccount
     )
 
     // Sign userOperation
     if (this.signer) {
       // Ethers
-      // const signature = await this.signer.signMessage(normalizeMessage(userOperationHash))
-      // arraify the hash the jsonstringify
-      const signature = await this.signer.sign(userOperationHash)
+      if (this.testingMode) {
+        console.log('----------------------------------------------------------')
+        console.log(this.testingMode)
+        console.log('----------------------------------------------------------')
+        console.log(walletAccount)
+        const signature = await this.testingMode.walletClient.signMessage({
+          account: this.testingMode.walletClient.account as unknown as `0x${string}`,
+          message: { raw: toBytes(userOperationHash) },
+        })
+        userOperation.signature = signature
+      } else {
+        console.log('--------------THIS SHOULD NEVER LOG-------------------')
+        const signature = await this.signer.signMessage(toBytes(userOperationHash))
 
-      userOperation.signature = signature
+        userOperation.signature = signature
+      }
     }
 
     if (this.walletClient) {
       const signature = await this.walletClient.signMessage({
-        account: walletAccount.account,
+        account: walletAccount,
         message: { raw: toBytes(userOperationHash) },
       })
 

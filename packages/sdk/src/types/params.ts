@@ -57,6 +57,11 @@ export type TokenboundClientOptions = Prettify<{
   publicClientRPCUrl?: string
   implementationAddress?: `0x${string}`
   registryAddress?: `0x${string}`
+  testingMode?: TokenBoundClientTestModeOptions
+}>
+
+export type TokenBoundClientTestModeOptions = Prettify<{
+  walletClient: WalletClient
 }>
 
 type Custom6551Implementation = Prettify<{

@@ -24,6 +24,8 @@ export function walletClientToEthers6Signer(walletClient: WalletClient) {
     ensAddress: chain!.contracts?.ensRegistry?.address,
   }
   const provider = new BrowserProvider(transport, network)
+
+  console.log({ provider, transport: transport.url })
   const signer = new JsonRpcSigner(provider, account!.address)
   return signer
 }
