@@ -41,6 +41,7 @@ import {
 import { resolvePossibleENS } from '../utils'
 import {
   ethToWei,
+  getAnvilLogs,
   getPublicClient,
   getWETHBalance,
   // debugTransaction,
@@ -54,17 +55,6 @@ import { TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
-
-export async function getAnvilLogs(url: string, id: number): Promise<string[]> {
-  const response = await fetch(new URL(`${id}/logs`, url), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  return response.json()
-}
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
