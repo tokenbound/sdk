@@ -21,6 +21,11 @@ export const ANVIL_ACCOUNTS: AnvilAccount[] = [
     address: getAddress('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc'),
     privateKey: '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
   },
+  {
+    name: 'Bundler',
+    address: getAddress('0x90f79bf6eb2c4f870365e785982e1f101e93b906'),
+    privateKey: '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6',
+  },
 
   // Available Accounts
   // ==================

@@ -4,7 +4,10 @@
   "description": "",
   "scripts": {
     "clean": "rm -rf node_modules",
+    "pretest": "rm -rf packages/sdk/src/test/bundler && git clone git@github.com:tokenbound/erc4337-bundler.git packages/sdk/src/test/bundler && cd packages/sdk/src/test/bundler && pnpm install && pnpm build",
     "test": "cd packages/sdk && pnpm test",
+    "test:all": "pnpm pretest && cd packages/sdk && pnpm test && pnpm posttest",
+    "posttest": "rm -rf packages/sdk/src/test/bundler",
     "prepare": "husky install"
   },
   "keywords": [],

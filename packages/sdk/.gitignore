@@ -26,3 +26,5 @@ dist-ssr
 # Environment variables
 .env
 .env.test
+
+./test/bundler/**

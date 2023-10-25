@@ -9,6 +9,8 @@ import {
   encodeFunctionData,
   parseUnits,
   SignableMessage,
+  toHex,
+  toBytes,
 } from 'viem'
 import {
   erc6551AccountAbi,
@@ -16,6 +18,7 @@ import {
   erc1155Abi,
   erc721Abi,
   erc20Abi,
+  erc4337EntryPointAbi,
 } from '../abis'
 import {
   getAccount,
@@ -44,6 +47,11 @@ import {
   TokenboundAccountNFT,
   TokenboundClientOptions,
   EthersSignableMessage,
+  BundlerGasPriceResponse,
+  BundlerEstimateUserOperationGasResponse,
+  UserOperation,
+  BundlerSendUserOperationResponse,
+  BundlerTransactionReceiptResponse,
 } from './types'
 import {
   chainIdToChain,
@@ -53,14 +61,21 @@ import {
   isEthers6SignableMessage,
   isViemSignableMessage,
   resolvePossibleENS,
+  BUNDLER_METHODS,
+  entryPointAddress,
 } from './utils'
 import { version as TB_SDK_VERSION } from '../package.json'
+import ApiClient from './ApiClient'
 
 declare global {
   interface Window {
     tokenboundSDK?: string
   }
 }
+
+// question now is how do we set the bundler url?
+// if it's hardcoded into the SDK then we can't spin up a local bundler for api calls
+
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
@@ -69,6 +84,8 @@ class TokenboundClient {
   private walletClient?: WalletClient
   private implementationAddress?: `0x${string}`
   private registryAddress?: `0x${string}`
+  private api: ApiClient
+  private bundlerUrl: string
 
   constructor(options: TokenboundClientOptions) {
     const {
@@ -81,6 +98,9 @@ class TokenboundClient {
       registryAddress,
       publicClientRPCUrl,
     } = options
+
+    this.api = new ApiClient()
+    this.bundlerUrl = `https://prod--bundler--8tcv7c8xmscv.code.run`
 
     if (!chainId && !chain) {
       throw new Error('chain or chainId required.')
@@ -250,6 +270,205 @@ class TokenboundClient {
     return prepareExecuteCall(account, to, value, data)
   }
 
+  private async _getCurrentGasPrice(id: number): Promise<{
+    maxFeePerGas: string
+    maxPriorityFeePerGas: string
+  }> {
+    const { data } = await this.api.post<BundlerGasPriceResponse>(
+      `${this.bundlerUrl}/${this.chainId}`,
+      {
+        id,
+        jsonrpc: '2.0',
+        method: BUNDLER_METHODS.estimateGas,
+        params: [],
+      }
+    )
+
+    if (data.error) {
+      throw new Error(
+        `Failed to get gas price id: ${id}, message: ${data.error.message} `
+      )
+    }
+
+    if (!data.result) {
+      throw new Error(`Failed to get gas price, id: ${id}`)
+    }
+
+    return {
+      maxFeePerGas: data.result.maxFeePerGas,
+      maxPriorityFeePerGas: data.result.maxPriorityFeePerGas,
+    }
+  }
+
+  private async _estimateUserOperationGas(
+    userOperation: UserOperation,
+    id: number
+  ): Promise<{
+    preVerificationGas: string
+    verificationGasLimit: string
+    callGasLimit: string
+  }> {
+    const { data } = await this.api.post<BundlerEstimateUserOperationGasResponse>(
+      `${this.bundlerUrl}/${this.chainId}`,
+      {
+        id,
+        jsonrpc: '2.0',
+        method: BUNDLER_METHODS.estimateUserOperationGas,
+        params: [userOperation, entryPointAddress],
+      }
+    )
+
+    if (data.error) {
+      throw new Error(
+        `Failed to estimate gas for userOperation id: ${id}, message: ${data.error.message} `
+      )
+    }
+
+    if (!data.result) {
+      throw new Error(`Failed to estimate gas for userOperation id: ${id}`)
+    }
+
+    const { result } = data
+    const { preVerificationGas, verificationGasLimit, callGasLimit } = result
+
+    return {
+      preVerificationGas,
+      verificationGasLimit,
+      callGasLimit,
+    }
+  }
+
+  private async _getUserOperationHash(
+    userOperation: UserOperation,
+    account: `0x${string}`
+  ) {
+    const userOperationHash = await this.publicClient
+      .simulateContract({
+        address: entryPointAddress,
+        abi: erc4337EntryPointAbi,
+        functionName: 'getUserOpHash',
+        args: [userOperation],
+        account,
+      })
+      .then((data) => data.result as string)
+
+    return userOperationHash
+  }
+
+  private async _prepare4337Transaction(
+    params: PrepareExecuteCallParams,
+    id: number
+  ): Promise<any> {
+    const { account } = params
+    let walletAccount
+    if (this.signer) {
+      walletAccount = await this.signer.getAddress()
+      console.log('signer wallet: ', walletAccount)
+    } else if (this.walletClient) {
+      walletAccount = this.walletClient.account as unknown as `0x${string}`
+    } else {
+      throw new Error('No wallet client or signer available.')
+    }
+
+    if (!walletAccount) throw new Error('No account in signer or walletClient.')
+
+    // format callData, get current gas price, get sender nonce
+    const [callData, gasPrice, nonce] = await Promise.all([
+      this.prepareExecuteCall(params),
+      this._getCurrentGasPrice(id),
+      this.publicClient
+        .simulateContract({
+          address: entryPointAddress,
+          abi: erc4337EntryPointAbi,
+          functionName: 'getNonce',
+          args: [account, 0],
+          account: walletAccount.address,
+        })
+        .then((data) => data.result),
+    ])
+
+    // create userOperation object
+    const userOperation: UserOperation = {
+      sender: account,
+      nonce: toHex(nonce as bigint),
+      initCode: '0x',
+      callData: callData.data,
+      maxFeePerGas: BigInt(gasPrice.maxFeePerGas).toString(),
+      maxPriorityFeePerGas: BigInt(gasPrice.maxPriorityFeePerGas).toString(),
+      preVerificationGas: '0',
+      verificationGasLimit: '0',
+      callGasLimit: '0',
+      paymasterAndData: '0x',
+      signature: '0x',
+    }
+
+    // Estimate gas cost for userOperation
+    const { preVerificationGas, verificationGasLimit, callGasLimit } =
+      await this._estimateUserOperationGas(userOperation, id)
+
+    userOperation.preVerificationGas = BigInt(preVerificationGas).toString()
+    userOperation.verificationGasLimit = BigInt(verificationGasLimit).toString()
+    userOperation.callGasLimit = BigInt(callGasLimit).toString()
+
+    // Get userOperation Hash
+    const userOperationHash = await this._getUserOperationHash(
+      userOperation,
+      walletAccount.address
+    )
+
+    // Sign userOperation
+    if (this.signer) {
+      // Ethers
+      // const signature = await this.signer.signMessage(normalizeMessage(userOperationHash))
+      // arraify the hash the jsonstringify
+      const signature = await this.signer.sign(userOperationHash)
+
+      userOperation.signature = signature
+    }
+
+    if (this.walletClient) {
+      const signature = await this.walletClient.signMessage({
+        account: walletAccount.account,
+        message: { raw: toBytes(userOperationHash) },
+      })
+
+      userOperation.signature = signature
+    }
+
+    return userOperation
+  }
+
+  private async _getUserOperationByHash(
+    txHash: `0x${string}`,
+    id: number
+  ): Promise<`0x${string}` | null> {
+    const { data } = await this.api.post<BundlerTransactionReceiptResponse>(
+      `${this.bundlerUrl}/${this.chainId}`,
+      {
+        id,
+        jsonrpc: '2.0',
+        method: BUNDLER_METHODS.getUserOperationHash,
+        params: [txHash],
+      }
+    )
+
+    if (data.error) {
+      throw new Error(
+        `Failed to get userOperation by hash id: ${id}, message: ${data.error.message} `
+      )
+    }
+
+    if (data.result === undefined) {
+      throw new Error(`Failed to get userOperation by hash id: ${id}`)
+    }
+
+    if (data.result === null) {
+      return null
+    }
+
+    return data.result.transactionHash as `0x${string}`
+  }
+
   /**
    * Executes a transaction call on a tokenbound account
    * @param {string} params.account The tokenbound account address
@@ -259,28 +478,95 @@ class TokenboundClient {
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
-    const preparedExecuteCall = await this.prepareExecuteCall(params)
+    const id = +Date.now()
 
     try {
-      if (this.signer) {
-        // Ethers
-        return (await this.signer
-          .sendTransaction(preparedExecuteCall)
-          .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
-      } else if (this.walletClient) {
-        return await this.walletClient.sendTransaction({
-          // chain and account need to be added explicitly
-          // because they're optional when instantiating a WalletClient
-          chain: chainIdToChain(this.chainId),
-          account: this.walletClient.account!,
-          ...preparedExecuteCall,
-        })
-      } else {
-        throw new Error('No wallet client or signer available.')
+      // Prepare 4337 tx by getting gas price, nonce, and signing userOperation
+      const prepared4337Transaction = await this._prepare4337Transaction(params, id)
+
+      // Send userOperation to bundler
+      const { data: sendUserOperationResponseData } =
+        await this.api.post<BundlerSendUserOperationResponse>(
+          `${this.bundlerUrl}/${this.chainId}`,
+          {
+            id,
+            jsonrpc: '2.0',
+            method: BUNDLER_METHODS.sendUserOperation,
+            params: [prepared4337Transaction, entryPointAddress],
+          }
+        )
+
+      if (sendUserOperationResponseData.error) {
+        throw new Error(
+          `Failed to send userOperation id: ${id}, message: ${sendUserOperationResponseData.error.message} `
+        )
       }
+
+      if (!sendUserOperationResponseData.result) {
+        throw new Error(`Failed to send userOperation id: ${id}`)
+      }
+
+      let txReceipt = null
+      let tries = 0
+
+      // Get tx hash from bundler
+      while (txReceipt === null) {
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        const userOperationReceipt = await this._getUserOperationByHash(
+          sendUserOperationResponseData.result,
+          id
+        )
+
+        if (userOperationReceipt === null) {
+          tries += 1
+        }
+
+        if (tries > 10) {
+          throw new Error(`Failed to get userOperation receipt; tried 10, tx id: ${id}`)
+        }
+
+        txReceipt = userOperationReceipt
+      }
+
+      if (txReceipt === null) {
+        throw new Error(`Failed to get userOperation receipt, tx id: ${id}`)
+      }
+
+      return txReceipt
     } catch (error) {
       throw error
     }
+
+    // here we need to make a call to the bundler. If the bundler fails we still want the tx to go through
+    // problem: sending external dependency call, if it fails then run the following tx.
+    // assumptions: is this the behavior we want? Why or why not?
+    // pro: it doesn't disrupt the user experience; if the tx fails, then it will still go through
+    // con: if this is an 4337 account, then the following tx may fail.
+    // con: it can look convoluted
+    // con: do we want people not using the SDK because they see that there's a bundler fee?
+    // con: if the bundler fails, the user will still pay the gas fee for the tx --> they will be charged twice for the same tx: once for the bundler and once for the tx
+
+    // const preparedExecuteCall = await this.prepareExecuteCall(params)
+    // try {
+    //   if (this.signer) {
+    //     // Ethers
+    //     return (await this.signer
+    //       .sendTransaction(preparedExecuteCall)
+    //       .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
+    //   } else if (this.walletClient) {
+    //     return await this.walletClient.sendTransaction({
+    //       // chain and account need to be added explicitly
+    //       // because they're optional when instantiating a WalletClient
+    //       chain: chainIdToChain(this.chainId),
+    //       account: this.walletClient.account!,
+    //       ...preparedExecuteCall,
+    //     })
+    //   } else {
+    //     throw new Error('No wallet client or signer available.')
+    //   }
+    // } catch (error) {
+    //   throw error
+    // }
   }
 
   /**
