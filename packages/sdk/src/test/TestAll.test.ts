@@ -2,7 +2,17 @@
 // viem walletClient + publicClient and Ethers 5/6.
 
 import { zora } from 'viem/chains'
-import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
+import {
+  describe,
+  beforeAll,
+  afterAll,
+  test,
+  expect,
+  it,
+  vi,
+  afterEach,
+  TestContext,
+} from 'vitest'
 import { ethers, providers } from 'ethers'
 import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
@@ -42,6 +52,19 @@ import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
+
+export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
+
+export async function getAnvilLogs(url: string, id: number): Promise<string[]> {
+  const response = await fetch(new URL(`${id}/logs`, url), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  return response.json()
+}
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -158,6 +181,13 @@ function runTxTests({
         console.error('Error during setup:', err)
       }
     }, TIMEOUT)
+
+    afterEach((context: TestContext) => {
+      context.onTestFailed(async () => {
+        const logs = await getAnvilLogs(ANVIL_RPC_URL, pool)
+        console.log(logs.slice(-10))
+      })
+    })
 
     afterAll(async () => {
       await anvil.stop()
