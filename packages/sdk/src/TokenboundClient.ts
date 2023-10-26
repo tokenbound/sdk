@@ -240,43 +240,57 @@ class TokenboundClient {
         salt,
       })
 
-      // @BJ todo: don't do multicall for custom implementation (users may do their own initialization)
+      let prepareCreateV3Account:
+        | MultiCallTx
+        | {
+            to: `0x${string}`
+            value: bigint
+            data: `0x${string}`
+          }
 
-      const prepareMultiCall: MultiCallTx = {
-        to: MULTICALL_ADDRESS,
-        value: BigInt(0),
-        data: encodeFunctionData({
-          abi: multicall3Abi,
-          functionName: 'aggregate3',
-          args: [
-            [
-              {
-                target: registry,
-                allowFailure: false,
-                callData: prepareCreateAccount.data,
-              },
-              {
-                target: computedAcct,
-                allowFailure: false,
-                callData: encodeFunctionData({
-                  abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI!,
-                  functionName: 'initialize',
-                  args: [ERC_6551_DEFAULT.IMPLEMENTATION!.ADDRESS],
-                }),
-              },
+      if (this.implementationAddress) {
+        // Don't initalize for custom implementations. Allow third-party handling of initialization.
+        prepareCreateV3Account = prepareCreateAccount
+      } else {
+        // For standard implementations, use the multicall3 aggregate function to create the account and initialize it in one transaction
+        prepareCreateV3Account = {
+          to: MULTICALL_ADDRESS,
+          value: BigInt(0),
+          data: encodeFunctionData({
+            abi: multicall3Abi,
+            functionName: 'aggregate3',
+            args: [
+              [
+                {
+                  target: registry,
+                  allowFailure: false,
+                  callData: prepareCreateAccount.data,
+                },
+                {
+                  target: computedAcct,
+                  allowFailure: false,
+                  callData: encodeFunctionData({
+                    abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI!,
+                    functionName: 'initialize',
+                    args: [ERC_6551_DEFAULT.IMPLEMENTATION!.ADDRESS],
+                  }),
+                },
+              ],
             ],
-          ],
-        }),
+          }),
+        } as MultiCallTx
       }
 
       if (this.signer) {
         txHash = (await this.signer
-          .sendTransaction(this.supportsV3 ? prepareMultiCall : prepareCreateAccount)
+          .sendTransaction(
+            this.supportsV3 ? prepareCreateV3Account : prepareCreateAccount
+          )
           .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
       } else if (this.walletClient) {
         txHash = this.supportsV3
           ? await this.walletClient.sendTransaction({
-              ...prepareMultiCall,
+              ...prepareCreateV3Account,
               chain: chainIdToChain(this.chainId),
               account: this.walletClient?.account?.address!,
             }) // @BJ TODO: extract into viemV3?
