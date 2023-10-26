@@ -2,13 +2,13 @@
  * Splits a string into segments of specified lengths.
  *
  * @param input - The input string to split into segments.
- * @param lengths - The lengths of the segments to extract, in bytes. The sum of lengths should not exceed the input string's length.
+ * @param lengths - The lengths of the segments to extract, in bytes.
  * @returns An array containing the extracted segments in the order they were specified.
- * 
+ *
  * @example
  * const bytecode = "0x1234567890abcdef1234567890abcdef1234567890abcdef";
  * const segments = segmentBytecode(bytecode, 2, 4, 8);
- * console.log(segmetns); // ["0x", "1234", "567890ab"]
+ * console.log(segments); // ["0x", "1234", "567890ab"]
  */
 export function segmentBytecode(input: string, ...lengths: number[]): string[] {
   let position = 0

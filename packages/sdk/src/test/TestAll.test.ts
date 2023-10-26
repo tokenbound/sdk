@@ -3,7 +3,7 @@
 
 import { zora } from 'viem/chains'
 import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
-import { providers } from 'ethers'
+import { ethers, providers } from 'ethers'
 import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
 import {
@@ -28,11 +28,7 @@ import {
   ANVIL_RPC_URL,
   WETH_CONTRACT_ADDRESS,
 } from './constants'
-import {
-  resolvePossibleENS,
-  walletClientToEthers5Signer,
-  walletClientToEthers6Signer,
-} from '../utils'
+import { resolvePossibleENS } from '../utils'
 import {
   ethToWei,
   getPublicClient,
@@ -43,6 +39,11 @@ import {
 } from './utils'
 import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
+import { TBImplementationVersion, TBVersion } from '../types'
+import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
+
+export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -55,18 +56,54 @@ const walletClient = createWalletClient({
   pollingInterval: 100,
 })
 
+const ethers5Provider = new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL)
+const ethers5Signer = new ethers.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers5Provider)
+
+const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
+const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
+
 // Create Ethers 5/6 signers from the walletClient + run tests
 describe('Test SDK methods - viem + Ethers', () => {
-  const ethers5Signer = walletClientToEthers5Signer(walletClient)
-  const ethers6Signer = walletClientToEthers6Signer(walletClient)
-
-  runTxTests({ testName: 'Viem Tests', walletClient })
-
+  const ENABLE_VIEM_TESTS = true
   const ENABLE_ETHERS_TESTS = true
+  const ENABLE_V2_TESTS = true
+  const ENABLE_V3_TESTS = true
 
-  if (ENABLE_ETHERS_TESTS) {
-    runTxTests({ testName: 'Ethers 5 Tests', signer: ethers5Signer })
-    runTxTests({ testName: 'Ethers 6 Tests', signer: ethers6Signer })
+  if (ENABLE_V2_TESTS) {
+    if (ENABLE_VIEM_TESTS) {
+      runTxTests({ testName: 'Viem Tests - v2', walletClient, version: TBVersion.V2 })
+    }
+    if (ENABLE_ETHERS_TESTS) {
+      runTxTests({
+        testName: 'Ethers 5 Tests - v2',
+        signer: ethers5Signer,
+        version: TBVersion.V2,
+      })
+      runTxTests({
+        testName: 'Ethers 6 Tests - v2',
+        signer: ethers6Signer,
+        version: TBVersion.V2,
+      })
+    }
+  }
+
+  if (ENABLE_V3_TESTS) {
+    if (ENABLE_VIEM_TESTS) {
+      runTxTests({
+        testName: 'Viem Tests - v3',
+        walletClient,
+      })
+    }
+    if (ENABLE_ETHERS_TESTS) {
+      runTxTests({
+        testName: 'Ethers 5 Tests - v3',
+        signer: ethers5Signer,
+      })
+      runTxTests({
+        testName: 'Ethers 6 Tests - v3',
+        signer: ethers6Signer,
+      })
+    }
   }
 })
 
@@ -74,17 +111,22 @@ function runTxTests({
   testName,
   walletClient,
   signer,
+  version,
 }: {
   testName: string
   walletClient?: WalletClient
   signer?: any
+  version?: TBImplementationVersion
 }) {
-  // Skip tests that are non-functional in Ethers
-  const testInViemOnly = walletClient ? it : it.skip
+  const isV2 = version === TBVersion.V2
+  const isV3 = isV2 === false
+  const viemOnlyIt = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
+  const v3OnlyIt = isV3 ? it : it.skip
 
   describe(testName, () => {
     // Set up Anvil instance + clients
     const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
+    const CUSTOM_SALT = 6551
     let tokenboundClient: TokenboundClient
     let publicClient: PublicClient
     let NFT_IN_EOA: CreateAccountParams
@@ -92,6 +134,9 @@ function runTxTests({
     let TOKENID1_IN_TBA: string
     let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
+    let ZORA721_TBA_ADDRESS_CUSTOM_SALT: `0x${string}`
+
+    const ERC6551_DEPLOYMENT = isV2 ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
 
     // Spin up a fresh anvil instance each time we run the test suite against a different signer
     beforeAll(async () => {
@@ -103,7 +148,11 @@ function runTxTests({
           chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
           walletClient,
           signer,
-          publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
+          publicClient,
+          implementationAddress: isV3
+            ? undefined
+            : ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
+          registryAddress: isV3 ? undefined : ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
         })
 
         await anvil.start()
@@ -199,12 +248,55 @@ function runTxTests({
     )
 
     // We create the account using an NFT in the EOA wallet so we can test the EOA methods and use the TBA address for tests
-    it('can createAccount', async () => {
-      const createdAccount = await tokenboundClient.createAccount(NFT_IN_EOA)
-      ZORA721_TBA_ADDRESS = createdAccount
-      await waitFor(() => {
-        expect(createdAccount).toMatch(ADDRESS_REGEX)
+    it(
+      'can createAccount',
+      async () => {
+        const { account, txHash } = await tokenboundClient.createAccount(NFT_IN_EOA)
+        console.log('CREATED ACCT', account)
+
+        const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
+
+        ZORA721_TBA_ADDRESS = account
+        await waitFor(() => {
+          expect(account).toMatch(ADDRESS_REGEX)
+          expect(createdAccountTxReceipt.status).toBe('success')
+        })
+      },
+      TIMEOUT
+    )
+
+    it(
+      'can createAccount with a custom salt',
+      async () => {
+        const { account, txHash } = await tokenboundClient.createAccount({
+          ...NFT_IN_EOA,
+          salt: CUSTOM_SALT,
+        })
+        console.log('CREATED ACCT WITH CUSTOM SALT', account)
+
+        const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
+
+        ZORA721_TBA_ADDRESS_CUSTOM_SALT = account
+        await waitFor(() => {
+          expect(account).toMatch(ADDRESS_REGEX)
+          expect(createdAccountTxReceipt.status).toBe('success')
+        })
+      },
+      TIMEOUT
+    )
+
+    it('can checkAccountDeployment for the created account', async () => {
+      const isAccountDeployed = await tokenboundClient.checkAccountDeployment({
+        accountAddress: ZORA721_TBA_ADDRESS,
       })
+
+      console.log(`isAccountDeployed ${testName}`, isAccountDeployed)
+
+      expect(isAccountDeployed).toEqual(true)
     })
 
     it('can getAccount', async () => {
@@ -215,10 +307,20 @@ function runTxTests({
       })
     })
 
+    it('can getAccount with a custom salt', async () => {
+      const getAccount = tokenboundClient.getAccount({ ...NFT_IN_EOA, salt: CUSTOM_SALT })
+      await waitFor(() => {
+        expect(getAccount).toMatch(ADDRESS_REGEX)
+        expect(getAccount).toEqual(ZORA721_TBA_ADDRESS_CUSTOM_SALT)
+      })
+    })
+
     // We transfer an NFT to the TBA so that we can test the TBA methods.
     it(
       'can transfer one of the minted NFTs to the TBA',
       async () => {
+        console.log('SAFE_TRANSFER', ZORA721_TBA_ADDRESS, 'tokenId', TOKENID1_IN_TBA)
+
         const transferCallData = encodeFunctionData({
           abi: zora721.abi,
           functionName: 'safeTransferFrom',
@@ -369,14 +471,18 @@ function runTxTests({
 
     // Execute a basic call with no value with the TBA to see if it works.
     it(
-      'can executeCall with the TBA',
+      isV2 ? `can executeCall with the TBA` : `can execute with the TBA`,
       async () => {
-        const executedCallTxHash = await tokenboundClient.executeCall({
+        const execution = {
           account: ZORA721_TBA_ADDRESS,
           to: zora721.proxyContractAddress,
           value: 0n,
           data: '',
-        })
+        }
+
+        const executedCallTxHash = isV3
+          ? await tokenboundClient.execute(execution)
+          : await tokenboundClient.executeCall(execution)
 
         const transactionReceipt = await publicClient.getTransactionReceipt({
           hash: executedCallTxHash,
@@ -384,7 +490,31 @@ function runTxTests({
 
         await waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
-          expect(transactionReceipt.status).toMatch('success')
+          expect(transactionReceipt.status).toBe('success')
+        })
+      },
+      TIMEOUT
+    )
+
+    it(
+      `can fall back to executeCall from execute for V2`,
+      async () => {
+        const execution = {
+          account: ZORA721_TBA_ADDRESS,
+          to: zora721.proxyContractAddress,
+          value: 0n,
+          data: '',
+        }
+
+        const executedCallTxHash = await tokenboundClient.execute(execution)
+
+        const transactionReceipt = await publicClient.getTransactionReceipt({
+          hash: executedCallTxHash,
+        })
+
+        await waitFor(() => {
+          expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
+          expect(transactionReceipt.status).toBe('success')
         })
       },
       TIMEOUT
@@ -404,6 +534,11 @@ function runTxTests({
         amount: 0.25,
         recipientAddress: ANVIL_USER_1,
       })
+
+      const transactionReceipt = await publicClient.getTransactionReceipt({
+        hash: ethTransferHash,
+      })
+
       const balanceAfter = await publicClient.getBalance({
         address: ZORA721_TBA_ADDRESS,
       })
@@ -516,12 +651,16 @@ function runTxTests({
         args: [BigInt(zora721.quantity)],
       })
 
-      const mintToTBATxHash = await tokenboundClient.executeCall({
+      const execution = {
         account: ZORA721_TBA_ADDRESS,
         to: zora721.proxyContractAddress,
         value: zora721.mintPrice * BigInt(zora721.quantity),
         data: encodedMintFunctionData,
-      })
+      }
+
+      const mintToTBATxHash = isV3
+        ? await tokenboundClient.execute(execution)
+        : await tokenboundClient.executeCall(execution)
 
       const zoraBalanceInTBA = await getZora721Balance({
         publicClient,
@@ -556,12 +695,16 @@ function runTxTests({
         ],
       })
 
-      const mint1155TxHash = await tokenboundClient.executeCall({
+      const execution = {
         account: mintingAccount,
         to: zora1155.proxyContractAddress,
         value: zora1155.mintFee * zora1155.quantity,
         data,
-      })
+      }
+
+      const mint1155TxHash = isV3
+        ? await tokenboundClient.execute(execution)
+        : await tokenboundClient.executeCall(execution)
 
       const zora1155BalanceInTBA = await getZora1155Balance({
         publicClient,
@@ -601,9 +744,22 @@ function runTxTests({
       })
     })
 
+    v3OnlyIt('can verify if a wallet isValidSigner for an owned NFT', async () => {
+      console.log('ZORA721_TBA_ADDRESS in isValidSigner', ZORA721_TBA_ADDRESS)
+      const isValidSigner = await tokenboundClient.isValidSigner({
+        account: ZORA721_TBA_ADDRESS,
+      })
+
+      console.log('isValidSigner?', isValidSigner)
+
+      await waitFor(() => {
+        expect(isValidSigner).toBe(true)
+      })
+    })
+
     // Test signing in viem only.
     // Ethers 5/6 don't appear to support signing messages via personal_sign with this testing configuration.
-    testInViemOnly('can sign a message', async () => {
+    viemOnlyIt('can sign a message', async () => {
       const signedMessageHash = await tokenboundClient.signMessage({
         message: 'Sign me',
       })
@@ -616,7 +772,7 @@ function runTxTests({
     })
 
     // Test signing hex message in viem only.
-    testInViemOnly('can sign a hexified message', async () => {
+    viemOnlyIt('can sign a hexified message', async () => {
       const hexSignedMessageHash = await tokenboundClient.signMessage({
         message: { raw: '0x68656c6c6f20776f726c64' },
       })
@@ -629,7 +785,7 @@ function runTxTests({
     })
 
     // Test signing Uint8Array message as raw in viem only.
-    testInViemOnly('can sign a Uint8Array message as raw', async () => {
+    viemOnlyIt('can sign a Uint8Array message as raw', async () => {
       const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
 
       const rawUint8Hash = await tokenboundClient.signMessage({
@@ -642,7 +798,7 @@ function runTxTests({
     })
 
     // Test signing ArrayLike message in viem only.
-    testInViemOnly(
+    viemOnlyIt(
       'throws when viem incorrectly receives an ArrayLike message for signing',
       async () => {
         vi.spyOn(console, 'error')
@@ -657,7 +813,7 @@ function runTxTests({
     )
 
     // Test signing Uint8Array message in viem only.
-    testInViemOnly(
+    viemOnlyIt(
       'throws when viem incorrectly receives an Uint8Array message for signing',
       async () => {
         const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII

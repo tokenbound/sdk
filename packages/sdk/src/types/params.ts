@@ -1,12 +1,20 @@
 import { WalletClient, PublicClient, Chain } from 'viem'
 import { Prettify } from './prettify'
-import { UniversalSignableMessage } from './messages'
+import { UniversalSignableMessage, CallOperation } from '.'
 import { PossibleENSAddress } from './addresses'
+import { ERC_6551_LEGACY_V2 } from '../constants'
 
 export const NFTTokenType = {
   ERC721: 'ERC721',
   ERC1155: 'ERC1155',
 } as const
+
+export const TBVersion = {
+  V2: 2,
+  V3: 3,
+} as const
+
+export type TBImplementationVersion = (typeof TBVersion)[keyof typeof TBVersion]
 
 type TokenType = (typeof NFTTokenType)[keyof typeof NFTTokenType]
 
@@ -48,6 +56,10 @@ export type ERC20TransferParams = Prettify<{
   erc20tokenDecimals: number
 }>
 
+type ImplementationAddress =
+  | `0x${string}`
+  | typeof ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
+
 export type TokenboundClientOptions = Prettify<{
   chainId?: number
   chain?: Chain
@@ -55,13 +67,13 @@ export type TokenboundClientOptions = Prettify<{
   walletClient?: WalletClient
   publicClient?: PublicClient
   publicClientRPCUrl?: string
-  implementationAddress?: `0x${string}`
+  implementationAddress?: ImplementationAddress
   registryAddress?: `0x${string}`
+  version?: TBImplementationVersion
 }>
 
 type Custom6551Implementation = Prettify<{
-  implementationAddress: `0x${string}`
-  registryAddress?: `0x${string}`
+  salt?: number
 }>
 
 export type TBAccountParams = NFTParams
@@ -69,6 +81,7 @@ export type TBAccountParams = NFTParams
 export type GetAccountParams = Prettify<
   TBAccountParams & Partial<Custom6551Implementation>
 >
+
 export type PrepareCreateAccountParams = Prettify<
   TBAccountParams & Partial<Custom6551Implementation>
 >
@@ -82,8 +95,15 @@ export type ExecuteCallParams = Prettify<{
   value: bigint
   data: string
 }>
-
 export type PrepareExecuteCallParams = ExecuteCallParams
+
+export type ExecuteParams = Prettify<ExecuteCallParams & { operation?: CallOperation }>
+export type PrepareExecutionParams = ExecuteParams
+
+export type ValidSignerParams = Prettify<{
+  account: `0x${string}`
+  data?: string
+}>
 
 export type ComputeAccountParams = Prettify<
   TBAccountParams & {
