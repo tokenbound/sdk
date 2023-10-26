@@ -219,6 +219,9 @@ class TokenboundClient {
     const implementation =
       this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
     const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
+    const isCustomImplementation =
+      this.implementationAddress &&
+      !isAddressEqual(this.implementationAddress, ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS)
 
     try {
       let txHash: `0x${string}` | undefined
@@ -248,7 +251,7 @@ class TokenboundClient {
             data: `0x${string}`
           }
 
-      if (this.implementationAddress) {
+      if (isCustomImplementation) {
         // Don't initalize for custom implementations. Allow third-party handling of initialization.
         prepareCreateV3Account = prepareCreateAccount
       } else {
