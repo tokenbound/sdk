@@ -2,17 +2,7 @@
 // viem walletClient + publicClient and Ethers 5/6.
 
 import { zora } from 'viem/chains'
-import {
-  describe,
-  beforeAll,
-  afterAll,
-  test,
-  expect,
-  it,
-  vi,
-  afterEach,
-  TestContext,
-} from 'vitest'
+import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
 import { ethers, providers } from 'ethers'
 import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
@@ -41,7 +31,6 @@ import {
 import { resolvePossibleENS } from '../utils'
 import {
   ethToWei,
-  getAnvilLogs,
   getPublicClient,
   getWETHBalance,
   // debugTransaction,
@@ -71,7 +60,6 @@ const ethers5Provider = new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL)
 const ethers5Signer = new ethers.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers5Provider)
 
 const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
-// const ethers6Signer = new ethers6.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers6Provider)
 const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
 
 // Create Ethers 5/6 signers from the walletClient + run tests
@@ -161,8 +149,10 @@ function runTxTests({
           walletClient,
           signer,
           publicClient,
-          implementationAddress: ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
-          registryAddress: ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
+          implementationAddress: isV3
+            ? undefined
+            : ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
+          registryAddress: isV3 ? undefined : ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
         })
 
         await anvil.start()
@@ -171,13 +161,6 @@ function runTxTests({
         console.error('Error during setup:', err)
       }
     }, TIMEOUT)
-
-    afterEach((context: TestContext) => {
-      context.onTestFailed(async () => {
-        const logs = await getAnvilLogs(ANVIL_RPC_URL, pool)
-        console.log(logs.slice(-10))
-      })
-    })
 
     afterAll(async () => {
       await anvil.stop()

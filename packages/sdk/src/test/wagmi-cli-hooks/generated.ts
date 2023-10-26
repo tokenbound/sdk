@@ -3,8 +3,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
  */
 export const erc6551AccountProxyV3ABI = [
   {
@@ -52,17 +52,17 @@ export const erc6551AccountProxyV3ABI = [
 ] as const
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
  */
 export const erc6551AccountProxyV3Address = {
-  1: '0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f',
-  5: '0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f',
+  1: '0x55266d75D1a14E4572138116aF39863Ed6596E7F',
+  5: '0x55266d75D1a14E4572138116aF39863Ed6596E7F',
 } as const
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xABF81898FEA21aAa5EE27F6fA0398a217a29bE9f)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
  */
 export const erc6551AccountProxyV3Config = {
   address: erc6551AccountProxyV3Address,
@@ -142,8 +142,8 @@ export const erc6551AccountV2Config = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
  */
 export const erc6551AccountV3ABI = [
   {
@@ -552,17 +552,17 @@ export const erc6551AccountV3ABI = [
 ] as const
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
  */
 export const erc6551AccountV3Address = {
-  1: '0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a',
-  5: '0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a',
+  1: '0x41C8f39463A868d3A88af00cd0fe7102F30E44eC',
+  5: '0x41C8f39463A868d3A88af00cd0fe7102F30E44eC',
 } as const
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xBf7F4beb68b960AE198a15f4f50247f4Fd20E21a)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
  */
 export const erc6551AccountV3Config = {
   address: erc6551AccountV3Address,
@@ -649,8 +649,8 @@ export const erc6551RegistryV2Config = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x284be69BaC8C983a749956D7320729EB24bc75f9)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x284be69BaC8C983a749956D7320729EB24bc75f9)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
  */
 export const erc6551RegistryV3ABI = [
   { type: 'error', inputs: [], name: 'AccountCreationFailed' },
@@ -696,17 +696,17 @@ export const erc6551RegistryV3ABI = [
 ] as const
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x284be69BaC8C983a749956D7320729EB24bc75f9)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x284be69BaC8C983a749956D7320729EB24bc75f9)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
  */
 export const erc6551RegistryV3Address = {
-  1: '0x284be69BaC8C983a749956D7320729EB24bc75f9',
-  5: '0x284be69BaC8C983a749956D7320729EB24bc75f9',
+  1: '0x000000006551c19487814612e58FE06813775758',
+  5: '0x000000006551c19487814612e58FE06813775758',
 } as const
 
 /**
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x284be69BaC8C983a749956D7320729EB24bc75f9)
- * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x284be69BaC8C983a749956D7320729EB24bc75f9)
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
+ * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
  */
 export const erc6551RegistryV3Config = {
   address: erc6551RegistryV3Address,

@@ -26,6 +26,8 @@ import {
   ETHTransferParams,
   NFTTransferParams,
   BytecodeParams,
+  TBImplementationVersion,
+  TBVersion,
 } from './types'
 
 import {
@@ -37,6 +39,7 @@ import {
 
 export {
   TokenboundClient,
+  TBVersion,
   erc6551AccountAbiV2,
   erc6551RegistryAbiV2,
   erc6551AccountAbiV3,
@@ -67,4 +70,5 @@ export type {
   ERC20TransferParams,
   ETHTransferParams,
   NFTTransferParams,
+  TBImplementationVersion,
 }

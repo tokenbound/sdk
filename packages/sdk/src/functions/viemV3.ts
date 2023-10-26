@@ -41,7 +41,7 @@ export async function prepareCreateTokenboundV3Account(
 }> {
   salt = salt ?? 0
   const erc6551implementation =
-    implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+    implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
   const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
   return {
@@ -75,7 +75,7 @@ export async function createTokenboundV3Account(
 ): Promise<`0x${string}`> {
   salt = salt ?? 0
   const erc6551implementation =
-    implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+    implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
   const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
   const registry = getContract({
@@ -146,7 +146,6 @@ export async function tokenboundV3Execute(
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
  * @internal
  */
-// export function computeTokenboundAccount(
 export function getTokenboundV3Account(
   tokenContract: string,
   tokenId: string,
@@ -157,7 +156,7 @@ export function getTokenboundV3Account(
 ): `0x${string}` {
   salt = salt ?? 0
   const erc6551implementation =
-    implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+    implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
   const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
   const types = [
     { type: 'uint256' }, // salt

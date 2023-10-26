@@ -4,7 +4,7 @@ export function getImplementationName(implementationAddress?: `0x${string}`): st
   switch (implementationAddress) {
     case ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS:
       return 'Implementation: Default V1'
-    case ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS:
+    case ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS:
     case undefined:
       return 'Implementation: Default V3'
     default:

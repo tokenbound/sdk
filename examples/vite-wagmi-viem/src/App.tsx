@@ -86,7 +86,7 @@ export function App() {
       tokenContract: TOKEN_CONTRACT,
       tokenId: TOKEN_ID,
     })
-    console.log(`new account: ${createdAccount}`) // 0xba0292aBcCAF72D8904D6cD01E67D00D6E702275
+    console.log(`new account: ${createdAccount}`)
     alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 

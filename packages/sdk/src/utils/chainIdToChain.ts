@@ -13,6 +13,8 @@ import {
   lineaTestnet,
   linea,
   gnosis,
+  zora,
+  zoraTestnet,
 } from 'viem/chains'
 
 const enabledChains = {
@@ -29,6 +31,8 @@ const enabledChains = {
   baseGoerli,
   lineaTestnet,
   linea,
+  zora,
+  zoraTestnet,
 }
 
 /**

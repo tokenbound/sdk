@@ -88,6 +88,8 @@ The client is instantiated with an object containing two parameters:
 
 Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) *or* an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
 
+For instructions about using a **Custom Account Implementation** and/or a **Legacy V2 Tokenbound Account Implementation**, see the Advanced Usage section at the bottom of this document.
+
 ### Standard configuration
 
 If you're using one of the **standard ERC-6551 contract deployments** (see: [V2 →](https://docs.tokenbound.org/contracts/deployments-v2), [V3 →](https://docs.tokenbound.org/contracts/deployments-v3)), you can simply pass the`chainId`. This will set `Chain` internally using imports from [`viem/chains`](https://viem.sh/docs/clients/chains.html). To keep the bundle size to a minimum, only standard chains are included in the SDK package.
@@ -353,6 +355,8 @@ Checks if a tokenbound account has signing authorization. This determines whethe
 
 **Returns** a Promise that resolves to true if the account is a valid signer, otherwise false
 
+NOTE: This method is not available to V2-based implementations
+
 ```typescript
 const isValidSigner = await tokenboundClient.isValidSigner({
   account: ZORA721_TBA_ADDRESS,
@@ -527,6 +531,8 @@ console.log(signedUint8Message)
 
 If your team has deployed a custom [account implementation](/contracts/account) contract, you'll need to point the SDK to your custom implementation instead of the default implementation.
 
+If your custom implementation uses the legacy V2 account logic, you'll also need to supply a version parameter to instruct the TokenboundClient to make use of the V2 methods.
+
 ```javascript
 import { TokenboundClient } from "@tokenbound/sdk"
 
@@ -546,6 +552,17 @@ const tokenboundClientWithCustomRegistry = new TokenboundClient({
 ```
 
 Read more [here](/guides/custom-accounts)
+
+---
+
+### Legacy V2 Tokenbound Account Implementation
+
+If your application was created using the **standard legacy V2 account implementation** (see: [V2 →](https://docs.tokenbound.org/contracts/deployments-v2)), you'll need to instruct the `TokenboundClient` to use it by specifying the `TBVersion`
+
+```ts copy
+import { TokenboundClient, TBVersion } from '@tokenbound/sdk'
+const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1, version: TBVersion.V2 })
+```
 
 ---
 

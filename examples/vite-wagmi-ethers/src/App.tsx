@@ -67,8 +67,8 @@ export function App() {
       tokenContract: TOKEN_CONTRACT,
       tokenId: TOKEN_ID,
     })
-    console.log(`new account: ${createdAccount}`) // 0xba0292aBcCAF72D8904D6cD01E67D00D6E702275
-    alert(`new account: ${createdAccount}`) // 0x152c1b5fB79Ce6f8AdA983044DaBd229C18fcDc2
+    console.log(`new account: ${createdAccount}`)
+    alert(`new account: ${createdAccount}`)
   }, [tokenboundClient])
 
   const execute = useCallback(async () => {

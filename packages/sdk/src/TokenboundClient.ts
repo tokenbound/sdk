@@ -162,7 +162,7 @@ class TokenboundClient {
   public getAccount(params: GetAccountParams): `0x${string}` {
     const { tokenContract, tokenId, salt = 0 } = params
     const implementation =
-      this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+      this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
     const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
     try {
@@ -186,7 +186,7 @@ class TokenboundClient {
   }> {
     const { tokenContract, tokenId, salt = 0 } = params
     const implementation =
-      this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+      this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
     const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
     const prepareCreation = this.supportsV3
@@ -209,14 +209,15 @@ class TokenboundClient {
    * @param {string} params.tokenId The token ID.
    * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
    * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
-   * @returns a Promise that resolves to the account address of the created token bound account.
+   * @returns a Promise that resolves to the account address of the created tokenbound account.
    */
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
     const { tokenContract, tokenId, salt = 0 } = params
+
     const implementation =
-      this.implementationAddress ?? ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS
+      this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
     const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
     try {
@@ -239,6 +240,8 @@ class TokenboundClient {
         salt,
       })
 
+      // @BJ todo: don't do multicall for custom implementation (users may do their own initialization)
+
       const prepareMultiCall: MultiCallTx = {
         to: MULTICALL_ADDRESS,
         value: BigInt(0),
@@ -258,7 +261,7 @@ class TokenboundClient {
                 callData: encodeFunctionData({
                   abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI!,
                   functionName: 'initialize',
-                  args: [implementation],
+                  args: [ERC_6551_DEFAULT.IMPLEMENTATION!.ADDRESS],
                 }),
               },
             ],
