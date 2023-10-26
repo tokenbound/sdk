@@ -30,7 +30,7 @@ jobs:
         run: cd packages/sdk
 
       - name: Install dependencies
-        run: cd packages/sdk && npm install
+        run: npm install
 
       - name: Clean install and build 🔧
         run: cd packages/sdk && npm ci && npm run build
