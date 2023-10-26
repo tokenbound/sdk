@@ -29,14 +29,13 @@ jobs:
       - name: Change to package directory
         run: cd packages/sdk
 
-      - name: Install dependencies
-        run: npm install
-
+      # - name: Install dependencies
+      #   run: pnpm install
       - name: Clean install and build 🔧
-        run: cd packages/sdk && npm ci && npm run build
+        run: cd packages/sdk && pnpm i --force --frozen-lockfile && pnpm build
         # run: pnpm ci && pnpm build // pnpm ci not yet implemented: https://github.com/pnpm/pnpm/issues/6100
 
       - name: Publish package on NPM 📦
-        run: cd packages/sdk && npm publish
+        run: cd packages/sdk && pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
