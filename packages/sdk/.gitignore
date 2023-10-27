@@ -27,4 +27,4 @@ dist-ssr
 .env
 .env.test
 
-./test/bundler/**
+./test/bundler

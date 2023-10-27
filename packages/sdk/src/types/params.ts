@@ -62,6 +62,7 @@ export type TokenboundClientOptions = Prettify<{
 
 export type TokenBoundClientTestModeOptions = Prettify<{
   walletClient: WalletClient
+  rpcUrl: string
 }>
 
 type Custom6551Implementation = Prettify<{

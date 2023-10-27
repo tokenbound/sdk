@@ -102,19 +102,19 @@ describe('Test SDK methods - viem + Ethers', async () => {
 
   runTxTests({ testName: 'Viem Tests', walletClient })
 
-  const ENABLE_ETHERS_TESTS = false
+  const ENABLE_ETHERS_TESTS = true
 
   if (ENABLE_ETHERS_TESTS) {
     runTxTests({
       testName: 'Ethers 5 Tests',
       signer: ethers5Signer,
-      testingMode: { walletClient },
+      testingMode: { walletClient, rpcUrl: ANVIL_RPC_URL },
     })
-    // runTxTests({
-    //   testName: 'Ethers 6 Tests',
-    //   signer: ethers6Signer,
-    //   testingMode: { walletClient },
-    // })
+    runTxTests({
+      testName: 'Ethers 6 Tests',
+      signer: ethers6Signer,
+      testingMode: { walletClient, rpcUrl: ANVIL_RPC_URL },
+    })
   }
 })
 
@@ -137,13 +137,11 @@ function runTxTests({
   testName: string
   walletClient?: WalletClient
   signer?: any
-  testingMode?: { walletClient: WalletClient }
+  testingMode?: { walletClient: WalletClient; rpcUrl: string }
 }) {
   // Skip tests that are non-functional in Ethers
   let tbaBalanceTracker: bigint
   const testInViemOnly = walletClient ? it : it.skip
-
-  console.log({ testName, signer: JSON.stringify(signer) })
 
   describe(testName, () => {
     // Set up Anvil instance + clients
@@ -191,13 +189,14 @@ function runTxTests({
           { cwd: commandDirectory, env: { ...process.env, BENCHMARK: 'false' } }
         )
 
-        serverProcess.stdout.on('data', (data) => {
-          console.log(`Server stdout: ${data}`)
-        })
+        // uncomment for debugging output
+        // serverProcess.stdout.on('data', (data) => {
+        //   console.log(`Server stdout: ${data}`)
+        // })
 
-        serverProcess.stderr.on('data', (data) => {
-          console.error(`Server stderr: ${data}`)
-        })
+        // serverProcess.stderr.on('data', (data) => {
+        //   console.error(`Server stderr: ${data}`)
+        // })
 
         console.log('waiting 10s for server to startup....')
         await new Promise((resolve) => setTimeout(resolve, 10000))
@@ -216,78 +215,6 @@ function runTxTests({
 
       console.log(`END → \x1b[94m ${testName} \x1b[0m`)
     }, TIMEOUT + TIMEOUT)
-
-    // // Spin up a fresh anvil instance each time we run the test suite against a different signer
-    // beforeAll(async () => {
-    //   try {
-    //     publicClient = getPublicClient({ chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id })
-
-    //     // Pass in the Anvil test walletClient + publicClient
-    //     tokenboundClient = new TokenboundClient({
-    //       chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-    //       walletClient,
-    //       signer,
-    //       publicClient: signer ? undefined : publicClient, // No publicClient if using Ethers
-    //     })
-    //     ;(tokenboundClient as any).bundlerUrl = BUNDLER_URL
-
-    //     await anvil.start()
-
-    //     // prettier-ignore
-    //     // const command = 'BENCHMARK=false node --experimental-specifier-resolution=node ./packages/cli/bin/skandha.js standalone --unsafeMode --testingMode'
-    //     // const commandDirectory = path.resolve(__dirname, './bundler')
-
-    //     // // Run the command
-    //     // // Set the current working directory to ./test/bundler
-    //     // console.log('running command to start node server')
-    //     // await exec(command, { cwd: commandDirectory }, (error, stdout, stderr) => {
-    //     //   if (error) {
-    //     //     console.error(`exec error: ${error}`)
-    //     //     return
-    //     //   }
-    //     //   console.log(`stdout: ${stdout}`)
-    //     //   console.error(`stderr: ${stderr}`)
-    //     // })
-
-    //     // console.log('waiting 10s for server to startup....')
-    //     // await new Promise((resolve) => setTimeout(resolve, 10000))
-
-    //     console.log(`START → \x1b[94m ${testName} \x1b[0m`)
-    //   } catch (err) {
-    //     console.error('Error during setup:', err)
-    //   }
-    // }, TIMEOUT)
-
-    // afterAll(async () => {
-    //   await anvil.stop()
-
-    //   // const killCommand = 'lsof -ti tcp:14337 | xargs kill -9'
-    //   // console.log('running command to kill node server')
-    //   // await exec(killCommand, (killError) => {
-    //   //   if (killError) {
-    //   //     console.error(`Failed to kill process on port 14337: ${killError}`)
-    //   //   } else {
-    //   //     console.log('Successfully killed process on port 14337.')
-    //   //   }
-    //   // })
-
-    //   // const execPromise = util.promisify(exec)
-
-    //   // console.log('running command to kill node server')
-    //   // try {
-    //   //   const { stdout, stderr, ...rest } = await execPromise(
-    //   //     'lsof -ti tcp:14337 | xargs kill -9'
-    //   //   )
-    //   //   console.log({ ...rest })
-    //   //   if (stdout) console.log(`printing stdout: ${stdout}`)
-    //   //   if (stderr) console.error(`printing stderr ${stderr}`)
-    //   //   console.log('Successfully killed process on port 14337.')
-    //   // } catch (error) {
-    //   //   console.error(`Failed to kill process on port 14337: ${error}`)
-    //   // }
-
-    //   console.log(`END → \x1b[94m ${testName} \x1b[0m`)
-    // }, TIMEOUT)
 
     // To test the SDK methods, we need to mint some NFTs into the Anvil wallet
     // so that we can transfer them to the TBA and test the TBA methods.
@@ -609,439 +536,436 @@ function runTxTests({
       { timeout: TIMEOUT }
     )
 
-    // it(
-    //   'can transferETH to an ENS with the TBA',
-    //   async () => {
-    //     // we need to increase the margin for error here as there is a new expected balance for before and after
-    //     const EXPECTED_BALANCE_BEFORE = tbaBalanceTracker
-    //     // prettier-ignore
-    //     const balanceInEth = +formatEther(tbaBalanceTracker)
-    //     const EXPECTED_BALANCE_AFTER = subtractFromBalanceToWei(balanceInEth, 0.25)
+    it(
+      'can transferETH to an ENS with the TBA',
+      async () => {
+        // we need to increase the margin for error here as there is a new expected balance for before and after
+        const EXPECTED_BALANCE_BEFORE = tbaBalanceTracker
+        // prettier-ignore
+        const balanceInEth = +formatEther(tbaBalanceTracker)
+        const EXPECTED_BALANCE_AFTER = subtractFromBalanceToWei(balanceInEth, 0.25)
 
-    //     const balanceBefore = await publicClient.getBalance({
-    //       address: ZORA721_TBA_ADDRESS,
-    //     })
+        const balanceBefore = await publicClient.getBalance({
+          address: ZORA721_TBA_ADDRESS,
+        })
 
-    //     console.log(`balance before transferTH to an ENS: ${balanceBefore}`)
-    //     const ethTransferHash = await tokenboundClient.transferETH({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       amount: 0.25,
-    //       recipientAddress: 'jeebay.eth',
-    //     })
-    //     const balanceAfter = await publicClient.getBalance({
-    //       address: ZORA721_TBA_ADDRESS,
-    //     })
+        const ethTransferHash = await tokenboundClient.transferETH({
+          account: ZORA721_TBA_ADDRESS,
+          amount: 0.25,
+          recipientAddress: 'jeebay.eth',
+        })
+        const balanceAfter = await publicClient.getBalance({
+          address: ZORA721_TBA_ADDRESS,
+        })
 
-    //     console.log(
-    //       'BEFORE: ',
-    //       formatEther(balanceBefore),
-    //       'AFTER: ',
-    //       formatEther(balanceAfter)
-    //     )
+        console.log(
+          'BEFORE: ',
+          formatEther(balanceBefore),
+          'AFTER: ',
+          formatEther(balanceAfter)
+        )
 
-    //     // prettier-ignore
-    //     await waitFor(() => {
-    //       expect(ethTransferHash).toMatch(ADDRESS_REGEX)
-    //       expect(balanceBefore).toEqual(EXPECTED_BALANCE_BEFORE)
-    //       expect(balanceAfter).toBeGreaterThanOrEqual(EXPECTED_BALANCE_AFTER - parseUnits('0.0025', 18))
-    //       expect(balanceAfter).toBeLessThanOrEqual(EXPECTED_BALANCE_AFTER + parseUnits('0.0025', 18))
-    //     })
+        // prettier-ignore
+        await waitFor(() => {
+          expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+          expect(balanceBefore).toEqual(EXPECTED_BALANCE_BEFORE)
+          expect(balanceAfter).toBeGreaterThanOrEqual(EXPECTED_BALANCE_AFTER - parseUnits('0.0025', 18))
+          expect(balanceAfter).toBeLessThanOrEqual(EXPECTED_BALANCE_AFTER + parseUnits('0.0025', 18))
+        })
 
-    //     tbaBalanceTracker = balanceAfter
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+        tbaBalanceTracker = balanceAfter
+      },
+      { timeout: TIMEOUT }
+    )
 
-    // it('will not allow transferNFT 721 with an amount other than 1', async () => {
-    //   vi.spyOn(console, 'error')
+    it('will not allow transferNFT 721 with an amount other than 1', async () => {
+      vi.spyOn(console, 'error')
 
-    //   await expect(() =>
-    //     tokenboundClient.transferNFT({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       tokenType: 'ERC721',
-    //       tokenContract: zora721.proxyContractAddress,
-    //       tokenId: TOKENID1_IN_TBA,
-    //       recipientAddress: ANVIL_USER_1,
-    //       amount: 2,
-    //     })
-    //   ).rejects.toThrowError()
-    // })
+      await expect(() =>
+        tokenboundClient.transferNFT({
+          account: ZORA721_TBA_ADDRESS,
+          tokenType: 'ERC721',
+          tokenContract: zora721.proxyContractAddress,
+          tokenId: TOKENID1_IN_TBA,
+          recipientAddress: ANVIL_USER_1,
+          amount: 2,
+        })
+      ).rejects.toThrowError()
+    })
 
-    // it(
-    //   'can transferNFT a 721 with the TBA',
-    //   async () => {
-    //     const transferNFTHash = await tokenboundClient.transferNFT({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       tokenType: 'ERC721',
-    //       tokenContract: zora721.proxyContractAddress,
-    //       tokenId: TOKENID1_IN_TBA,
-    //       recipientAddress: ANVIL_USER_1,
-    //     })
+    it(
+      'can transferNFT a 721 with the TBA',
+      async () => {
+        const transferNFTHash = await tokenboundClient.transferNFT({
+          account: ZORA721_TBA_ADDRESS,
+          tokenType: 'ERC721',
+          tokenContract: zora721.proxyContractAddress,
+          tokenId: TOKENID1_IN_TBA,
+          recipientAddress: ANVIL_USER_1,
+        })
 
-    //     const anvilAccount1NFTBalance = await getZora721Balance({
-    //       publicClient,
-    //       walletAddress: ANVIL_USER_1,
-    //     })
+        const anvilAccount1NFTBalance = await getZora721Balance({
+          publicClient,
+          walletAddress: ANVIL_USER_1,
+        })
 
-    //     await waitFor(() => {
-    //       expect(transferNFTHash).toMatch(ADDRESS_REGEX)
-    //       expect(anvilAccount1NFTBalance).toBe(1n)
-    //     })
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+        await waitFor(() => {
+          expect(transferNFTHash).toMatch(ADDRESS_REGEX)
+          expect(anvilAccount1NFTBalance).toBe(1n)
+        })
+      },
+      { timeout: TIMEOUT }
+    )
 
-    // it(
-    //   'can transferNFT to an ENS with the TBA',
-    //   async () => {
-    //     const transferNFTHash = await tokenboundClient.transferNFT({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       tokenType: 'ERC721',
-    //       tokenContract: zora721.proxyContractAddress,
-    //       tokenId: TOKENID2_IN_TBA,
-    //       recipientAddress: 'jeebay.eth',
-    //     })
+    it(
+      'can transferNFT to an ENS with the TBA',
+      async () => {
+        const transferNFTHash = await tokenboundClient.transferNFT({
+          account: ZORA721_TBA_ADDRESS,
+          tokenType: 'ERC721',
+          tokenContract: zora721.proxyContractAddress,
+          tokenId: TOKENID2_IN_TBA,
+          recipientAddress: 'jeebay.eth',
+        })
 
-    //     const addr = await resolvePossibleENS(publicClient, 'jeebay.eth')
+        const addr = await resolvePossibleENS(publicClient, 'jeebay.eth')
 
-    //     const anvilAccount1NFTBalance = await getZora721Balance({
-    //       publicClient,
-    //       walletAddress: addr,
-    //     })
+        const anvilAccount1NFTBalance = await getZora721Balance({
+          publicClient,
+          walletAddress: addr,
+        })
 
-    //     await waitFor(() => {
-    //       expect(transferNFTHash).toMatch(ADDRESS_REGEX)
-    //       expect(anvilAccount1NFTBalance).toBe(1n)
-    //     })
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+        await waitFor(() => {
+          expect(transferNFTHash).toMatch(ADDRESS_REGEX)
+          expect(anvilAccount1NFTBalance).toBe(1n)
+        })
+      },
+      { timeout: TIMEOUT }
+    )
 
-    // it(
-    //   'can mint 3 Zora 721 NFTs with the TBA',
-    //   async () => {
-    //     const encodedMintFunctionData = encodeFunctionData({
-    //       abi: zora721.abi,
-    //       functionName: 'purchase',
-    //       args: [BigInt(zora721.quantity)],
-    //     })
+    it(
+      'can mint 3 Zora 721 NFTs with the TBA',
+      async () => {
+        const encodedMintFunctionData = encodeFunctionData({
+          abi: zora721.abi,
+          functionName: 'purchase',
+          args: [BigInt(zora721.quantity)],
+        })
 
-    //     const mintToTBATxHash = await tokenboundClient.executeCall({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       to: zora721.proxyContractAddress,
-    //       value: zora721.mintPrice * BigInt(zora721.quantity),
-    //       data: encodedMintFunctionData,
-    //     })
+        const mintToTBATxHash = await tokenboundClient.executeCall({
+          account: ZORA721_TBA_ADDRESS,
+          to: zora721.proxyContractAddress,
+          value: zora721.mintPrice * BigInt(zora721.quantity),
+          data: encodedMintFunctionData,
+        })
 
-    //     const zoraBalanceInTBA = await getZora721Balance({
-    //       publicClient,
-    //       walletAddress: ZORA721_TBA_ADDRESS,
-    //     })
+        const zoraBalanceInTBA = await getZora721Balance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-    //     console.log('721s MINTED TO TBA: ', zoraBalanceInTBA.toString())
+        await waitFor(() => {
+          expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
+          expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
+          expect(zoraBalanceInTBA).toBe(3n)
+        })
+      },
+      { timeout: TIMEOUT }
+    )
 
-    //     await waitFor(() => {
-    //       expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
-    //       expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
-    //       expect(zoraBalanceInTBA).toBe(3n)
-    //     })
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+    it(
+      'can mint an 1155 with the TBA',
+      async () => {
+        const mintingAccount: `0x${string}` = ZORA721_TBA_ADDRESS
 
-    // it(
-    //   'can mint an 1155 with the TBA',
-    //   async () => {
-    //     const mintingAccount: `0x${string}` = ZORA721_TBA_ADDRESS
+        const minterArguments: `0x${string}` = encodeAbiParameters(
+          parseAbiParameters('address'),
+          [mintingAccount]
+        )
 
-    //     const minterArguments: `0x${string}` = encodeAbiParameters(
-    //       parseAbiParameters('address'),
-    //       [mintingAccount]
-    //     )
+        const data = encodeFunctionData({
+          abi: zora1155.abi,
+          functionName: 'mint',
+          args: [
+            zora1155.fixedPriceSalesStrategy, // IMinter1155
+            zora1155.tokenId, // uint256
+            zora1155.quantity, // uint256
+            minterArguments, // bytes
+          ],
+        })
 
-    //     const data = encodeFunctionData({
-    //       abi: zora1155.abi,
-    //       functionName: 'mint',
-    //       args: [
-    //         zora1155.fixedPriceSalesStrategy, // IMinter1155
-    //         zora1155.tokenId, // uint256
-    //         zora1155.quantity, // uint256
-    //         minterArguments, // bytes
-    //       ],
-    //     })
+        const mint1155TxHash = await tokenboundClient.executeCall({
+          account: mintingAccount,
+          to: zora1155.proxyContractAddress,
+          value: zora1155.mintFee * zora1155.quantity,
+          data,
+        })
 
-    //     const mint1155TxHash = await tokenboundClient.executeCall({
-    //       account: mintingAccount,
-    //       to: zora1155.proxyContractAddress,
-    //       value: zora1155.mintFee * zora1155.quantity,
-    //       data,
-    //     })
+        const zora1155BalanceInTBA = await getZora1155Balance({
+          publicClient,
+          walletAddress: mintingAccount,
+        })
 
-    //     const zora1155BalanceInTBA = await getZora1155Balance({
-    //       publicClient,
-    //       walletAddress: mintingAccount,
-    //     })
+        console.log('1155 Balance', zora1155BalanceInTBA)
 
-    //     console.log('1155 Balance', zora1155BalanceInTBA)
+        await waitFor(() => {
+          expect(mint1155TxHash).toMatch(ADDRESS_REGEX)
+          expect(zora1155BalanceInTBA).toBe(5n)
+        })
+      },
+      { timeout: TIMEOUT }
+    )
 
-    //     await waitFor(() => {
-    //       expect(mint1155TxHash).toMatch(ADDRESS_REGEX)
-    //       expect(zora1155BalanceInTBA).toBe(5n)
-    //     })
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+    it(
+      'can transferNFT an 1155 with the TBA',
+      async () => {
+        const transferAmount = 2
 
-    // it(
-    //   'can transferNFT an 1155 with the TBA',
-    //   async () => {
-    //     const transferAmount = 2
+        const transferNFTHash = await tokenboundClient.transferNFT({
+          account: ZORA721_TBA_ADDRESS,
+          tokenType: 'ERC1155',
+          tokenContract: zora1155.proxyContractAddress,
+          tokenId: zora1155.tokenId.toString(),
+          recipientAddress: ANVIL_USER_1,
+          amount: transferAmount,
+        })
 
-    //     const transferNFTHash = await tokenboundClient.transferNFT({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       tokenType: 'ERC1155',
-    //       tokenContract: zora1155.proxyContractAddress,
-    //       tokenId: zora1155.tokenId.toString(),
-    //       recipientAddress: ANVIL_USER_1,
-    //       amount: transferAmount,
-    //     })
+        const anvilAccount1_1155Balance = await getZora1155Balance({
+          publicClient,
+          walletAddress: ANVIL_USER_1,
+        })
 
-    //     const anvilAccount1_1155Balance = await getZora1155Balance({
-    //       publicClient,
-    //       walletAddress: ANVIL_USER_1,
-    //     })
+        console.log('1155 Balance', anvilAccount1_1155Balance)
 
-    //     console.log('1155 Balance', anvilAccount1_1155Balance)
-
-    //     await waitFor(() => {
-    //       expect(transferNFTHash).toMatch(ADDRESS_REGEX)
-    //       expect(anvilAccount1_1155Balance).toBe(BigInt(transferAmount))
-    //     })
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+        await waitFor(() => {
+          expect(transferNFTHash).toMatch(ADDRESS_REGEX)
+          expect(anvilAccount1_1155Balance).toBe(BigInt(transferAmount))
+        })
+      },
+      { timeout: TIMEOUT }
+    )
 
     // Test signing in viem only.
     // Ethers 5/6 don't appear to support signing messages via personal_sign with this testing configuration.
-    // testInViemOnly('can sign a message', async () => {
-    //   const signedMessageHash = await tokenboundClient.signMessage({
-    //     message: 'Sign me',
-    //   })
+    testInViemOnly('can sign a message', async () => {
+      const signedMessageHash = await tokenboundClient.signMessage({
+        message: 'Sign me',
+      })
 
-    //   console.log('SIGNED MESSAGE: ', signedMessageHash)
+      console.log('SIGNED MESSAGE: ', signedMessageHash)
 
-    //   await waitFor(() => {
-    //     expect(signedMessageHash).toMatch(ADDRESS_REGEX)
-    //   })
-    // })
+      await waitFor(() => {
+        expect(signedMessageHash).toMatch(ADDRESS_REGEX)
+      })
+    })
 
-    // // Test signing hex message in viem only.
-    // testInViemOnly('can sign a hexified message', async () => {
-    //   const hexSignedMessageHash = await tokenboundClient.signMessage({
-    //     message: { raw: '0x68656c6c6f20776f726c64' },
-    //   })
+    // Test signing hex message in viem only.
+    testInViemOnly('can sign a hexified message', async () => {
+      const hexSignedMessageHash = await tokenboundClient.signMessage({
+        message: { raw: '0x68656c6c6f20776f726c64' },
+      })
 
-    //   console.log('HEX SIGNED MESSAGE: ', hexSignedMessageHash)
+      console.log('HEX SIGNED MESSAGE: ', hexSignedMessageHash)
 
-    //   await waitFor(() => {
-    //     expect(hexSignedMessageHash).toMatch(ADDRESS_REGEX)
-    //   })
-    // })
+      await waitFor(() => {
+        expect(hexSignedMessageHash).toMatch(ADDRESS_REGEX)
+      })
+    })
 
-    // // Test signing Uint8Array message as raw in viem only.
-    // testInViemOnly('can sign a Uint8Array message as raw', async () => {
-    //   const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
+    // Test signing Uint8Array message as raw in viem only.
+    testInViemOnly('can sign a Uint8Array message as raw', async () => {
+      const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
 
-    //   const rawUint8Hash = await tokenboundClient.signMessage({
-    //     message: { raw: uint8ArrayMessage },
-    //   })
+      const rawUint8Hash = await tokenboundClient.signMessage({
+        message: { raw: uint8ArrayMessage },
+      })
 
-    //   await waitFor(() => {
-    //     expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
-    //   })
-    // })
+      await waitFor(() => {
+        expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
+      })
+    })
 
-    // // Test signing ArrayLike message in viem only.
-    // testInViemOnly(
-    //   'throws when viem incorrectly receives an ArrayLike message for signing',
-    //   async () => {
-    //     vi.spyOn(console, 'error')
-    //     const arrayMessage: ArrayLike<number> = [72, 101, 108, 108, 111] // "Hello" in ASCII
+    // Test signing ArrayLike message in viem only.
+    testInViemOnly(
+      'throws when viem incorrectly receives an ArrayLike message for signing',
+      async () => {
+        vi.spyOn(console, 'error')
+        const arrayMessage: ArrayLike<number> = [72, 101, 108, 108, 111] // "Hello" in ASCII
 
-    //     await expect(() =>
-    //       tokenboundClient.signMessage({
-    //         message: arrayMessage,
-    //       })
-    //     ).rejects.toThrowError()
-    //   }
-    // )
+        await expect(() =>
+          tokenboundClient.signMessage({
+            message: arrayMessage,
+          })
+        ).rejects.toThrowError()
+      }
+    )
 
-    // // Test signing Uint8Array message in viem only.
-    // testInViemOnly(
-    //   'throws when viem incorrectly receives an Uint8Array message for signing',
-    //   async () => {
-    //     const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
+    // Test signing Uint8Array message in viem only.
+    testInViemOnly(
+      'throws when viem incorrectly receives an Uint8Array message for signing',
+      async () => {
+        const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
 
-    //     await expect(() =>
-    //       tokenboundClient.signMessage({
-    //         message: uint8ArrayMessage,
-    //       })
-    //     ).rejects.toThrowError()
-    //   }
-    // )
+        await expect(() =>
+          tokenboundClient.signMessage({
+            message: uint8ArrayMessage,
+          })
+        ).rejects.toThrowError()
+      }
+    )
 
-    // it(
-    //   'can transferERC20 with the TBA',
-    //   async () => {
-    //     const depositEthValue = 0.2
-    //     const depositWeiValue = ethToWei(depositEthValue)
-    //     const transferEthValue = 0.1
-    //     const transferWeiValue = ethToWei(transferEthValue)
-    //     let wethDepositHash: `0x${string}`
-    //     let wethTransferHash: `0x${string}`
+    it(
+      'can transferERC20 with the TBA',
+      async () => {
+        const depositEthValue = 0.2
+        const depositWeiValue = ethToWei(depositEthValue)
+        const transferEthValue = 0.1
+        const transferWeiValue = ethToWei(transferEthValue)
+        let wethDepositHash: `0x${string}`
+        let wethTransferHash: `0x${string}`
 
-    //     const tbaWETHInitial = await getWETHBalance({
-    //       publicClient,
-    //       walletAddress: ZORA721_TBA_ADDRESS,
-    //     })
+        const tbaWETHInitial = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-    //     // Prepare encoded WETH transfer to TBA
-    //     const wethTransferCallData = encodeFunctionData({
-    //       abi: wethABI,
-    //       functionName: 'transfer',
-    //       args: [ZORA721_TBA_ADDRESS, depositWeiValue],
-    //     })
+        // Prepare encoded WETH transfer to TBA
+        const wethTransferCallData = encodeFunctionData({
+          abi: wethABI,
+          functionName: 'transfer',
+          args: [ZORA721_TBA_ADDRESS, depositWeiValue],
+        })
 
-    //     if (walletClient) {
-    //       const wethContract = getContract({
-    //         address: WETH_CONTRACT_ADDRESS,
-    //         abi: wethABI,
-    //         walletClient,
-    //       })
+        if (walletClient) {
+          const wethContract = getContract({
+            address: WETH_CONTRACT_ADDRESS,
+            abi: wethABI,
+            walletClient,
+          })
 
-    //       // Convert ETH to WETH in ANVIL_USER_0 wallet
-    //       wethDepositHash = await wethContract.write.deposit({
-    //         account: ANVIL_USER_0,
-    //         chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-    //         value: depositWeiValue,
-    //       })
+          // Convert ETH to WETH in ANVIL_USER_0 wallet
+          wethDepositHash = await wethContract.write.deposit({
+            account: ANVIL_USER_0,
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+            value: depositWeiValue,
+          })
 
-    //       // Transfer WETH from ANVIL_USER_0 to TBA
-    //       wethTransferHash = await walletClient.sendTransaction({
-    //         account: walletClient.account!,
-    //         chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-    //         to: WETH_CONTRACT_ADDRESS,
-    //         value: 0n,
-    //         data: wethTransferCallData,
-    //       })
-    //     } else if (signer) {
-    //       // Convert ETH to WETH in ANVIL_USER_0 wallet
-    //       wethDepositHash = await signer
-    //         .sendTransaction({
-    //           to: WETH_CONTRACT_ADDRESS,
-    //           value: depositWeiValue,
-    //         })
-    //         .then((tx: providers.TransactionResponse) => tx.hash)
+          // Transfer WETH from ANVIL_USER_0 to TBA
+          wethTransferHash = await walletClient.sendTransaction({
+            account: walletClient.account!,
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+            to: WETH_CONTRACT_ADDRESS,
+            value: 0n,
+            data: wethTransferCallData,
+          })
+        } else if (signer) {
+          // Convert ETH to WETH in ANVIL_USER_0 wallet
+          wethDepositHash = await signer
+            .sendTransaction({
+              to: WETH_CONTRACT_ADDRESS,
+              value: depositWeiValue,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
 
-    //       // Transfer WETH from ANVIL_USER_0 to TBA
-    //       wethTransferHash = await signer
-    //         .sendTransaction({
-    //           to: WETH_CONTRACT_ADDRESS,
-    //           value: BigInt(0),
-    //           data: wethTransferCallData,
-    //         })
-    //         .then((tx: providers.TransactionResponse) => tx.hash)
-    //     }
+          // Transfer WETH from ANVIL_USER_0 to TBA
+          wethTransferHash = await signer
+            .sendTransaction({
+              to: WETH_CONTRACT_ADDRESS,
+              value: BigInt(0),
+              data: wethTransferCallData,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
+        }
 
-    //     const tbaWETHReceived = await getWETHBalance({
-    //       publicClient,
-    //       walletAddress: ZORA721_TBA_ADDRESS,
-    //     })
+        const tbaWETHReceived = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-    //     // Transfer WETH from TBA to ANVIL_USER_1
-    //     const transferredERC20Hash = await tokenboundClient.transferERC20({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       amount: transferEthValue,
-    //       recipientAddress: ANVIL_USER_1,
-    //       erc20tokenAddress: WETH_CONTRACT_ADDRESS,
-    //       erc20tokenDecimals: 18,
-    //     })
+        // Transfer WETH from TBA to ANVIL_USER_1
+        const transferredERC20Hash = await tokenboundClient.transferERC20({
+          account: ZORA721_TBA_ADDRESS,
+          amount: transferEthValue,
+          recipientAddress: ANVIL_USER_1,
+          erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+          erc20tokenDecimals: 18,
+        })
 
-    //     // Transfer WETH from TBA to jeebay.eth
-    //     const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
-    //       account: ZORA721_TBA_ADDRESS,
-    //       amount: transferEthValue,
-    //       recipientAddress: 'jeebay.eth',
-    //       erc20tokenAddress: WETH_CONTRACT_ADDRESS,
-    //       erc20tokenDecimals: 18,
-    //     })
+        // Transfer WETH from TBA to jeebay.eth
+        const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
+          account: ZORA721_TBA_ADDRESS,
+          amount: transferEthValue,
+          recipientAddress: 'jeebay.eth',
+          erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+          erc20tokenDecimals: 18,
+        })
 
-    //     const tbaWETHFinal = await getWETHBalance({
-    //       publicClient,
-    //       walletAddress: ZORA721_TBA_ADDRESS,
-    //     })
+        const tbaWETHFinal = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-    //     const anvilUser1WETHBalance = await getWETHBalance({
-    //       publicClient,
-    //       walletAddress: ANVIL_USER_1,
-    //     })
+        const anvilUser1WETHBalance = await getWETHBalance({
+          publicClient,
+          walletAddress: ANVIL_USER_1,
+        })
 
-    //     const ensWETHBalance = await getWETHBalance({
-    //       publicClient,
-    //       walletAddress: 'jeebay.eth',
-    //     })
+        const ensWETHBalance = await getWETHBalance({
+          publicClient,
+          walletAddress: 'jeebay.eth',
+        })
 
-    //     console.log(
-    //       'TBA WETH INITIAL: ',
-    //       formatEther(tbaWETHInitial),
-    //       'TBA RECEIVED: ',
-    //       formatEther(tbaWETHReceived),
-    //       'AFTER: ',
-    //       formatEther(tbaWETHFinal),
-    //       'ANVIL USER 1 BALANCE: ',
-    //       formatEther(anvilUser1WETHBalance),
-    //       'ENS BALANCE: ',
-    //       formatEther(ensWETHBalance)
-    //     )
+        console.log(
+          'TBA WETH INITIAL: ',
+          formatEther(tbaWETHInitial),
+          'TBA RECEIVED: ',
+          formatEther(tbaWETHReceived),
+          'AFTER: ',
+          formatEther(tbaWETHFinal),
+          'ANVIL USER 1 BALANCE: ',
+          formatEther(anvilUser1WETHBalance),
+          'ENS BALANCE: ',
+          formatEther(ensWETHBalance)
+        )
 
-    //     await waitFor(() => {
-    //       expect(wethDepositHash).toMatch(ADDRESS_REGEX)
-    //       expect(wethTransferHash).toMatch(ADDRESS_REGEX)
-    //       expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
-    //       expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
-    //       expect(tbaWETHReceived).toBe(depositWeiValue)
-    //       expect(anvilUser1WETHBalance).toBe(transferWeiValue)
-    //       expect(ensWETHBalance).toBe(transferWeiValue)
-    //     })
-    //   },
-    //   { timeout: TIMEOUT }
-    // )
+        await waitFor(() => {
+          expect(wethDepositHash).toMatch(ADDRESS_REGEX)
+          expect(wethTransferHash).toMatch(ADDRESS_REGEX)
+          expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
+          expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
+          expect(tbaWETHReceived).toBe(depositWeiValue)
+          expect(anvilUser1WETHBalance).toBe(transferWeiValue)
+          expect(ensWETHBalance).toBe(transferWeiValue)
+        })
+      },
+      { timeout: TIMEOUT }
+    )
   })
 }
 
-// describe('Custom client configurations', () => {
-//   it('can use a custom publicClient RPC URL', async () => {
-//     const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
-//     const tokenboundClient = new TokenboundClient({
-//       chainId: 1,
-//       walletClient,
-//       publicClientRPCUrl: customPublicClientRPCUrl,
-//     })
+describe('Custom client configurations', () => {
+  it('can use a custom publicClient RPC URL', async () => {
+    const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
+    const tokenboundClient = new TokenboundClient({
+      chainId: 1,
+      walletClient,
+      publicClientRPCUrl: customPublicClientRPCUrl,
+    })
 
-//     await waitFor(() => {
-//       expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
-//     })
-//   })
-//   it('can use a custom chain as parameter', async () => {
-//     const ZORA_CHAIN_ID = 7777777
+    await waitFor(() => {
+      expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
+    })
+  })
+  it('can use a custom chain as parameter', async () => {
+    const ZORA_CHAIN_ID = 7777777
 
-//     const tokenboundClient = new TokenboundClient({
-//       walletClient,
-//       chain: zora,
-//     })
+    const tokenboundClient = new TokenboundClient({
+      walletClient,
+      chain: zora,
+    })
 
-//     await waitFor(() => {
-//       expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
-//     })
-//   })
-// })
+    await waitFor(() => {
+      expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
+    })
+  })
+})

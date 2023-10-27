@@ -138,15 +138,6 @@ class TokenboundClient {
       this.registryAddress = registryAddress
     }
 
-    // if we're in testing mode we want to get the latest http transport... then why is this transport url not the default?
-    // QUESTION: why doesn't this use the signer or walletClient's rpc URL? This way we ensure it always uses the same block number and such
-    // this.publicClient =
-    //   publicClient ??
-    //   createPublicClient({
-    //     chain: chain ?? chainIdToChain(this.chainId),
-    //     transport: http(publicClientRPCUrl ?? undefined),
-    //   })
-
     if (publicClient) {
       this.publicClient = publicClient
     } else if (publicClientRPCUrl) {
@@ -155,11 +146,9 @@ class TokenboundClient {
         transport: http(publicClientRPCUrl),
       })
     } else if (signer) {
-      console.log('signer: ', JSON.stringify(signer))
-
       this.publicClient = createPublicClient({
         chain: chain ?? chainIdToChain(this.chainId),
-        transport: http(signer.provider.provider.url),
+        transport: http(signer.provider.provider.url || testingMode?.rpcUrl),
       })
     } else {
       this.publicClient = createPublicClient({
@@ -170,7 +159,10 @@ class TokenboundClient {
 
     this.isInitialized = true
     if (testingMode) {
-      this.testingMode = { walletClient: testingMode.walletClient }
+      this.testingMode = {
+        walletClient: testingMode.walletClient,
+        rpcUrl: testingMode.rpcUrl,
+      }
     }
 
     if (typeof window !== 'undefined') {
@@ -415,8 +407,6 @@ class TokenboundClient {
         .then((data) => data.result),
     ])
 
-    console.log({ nonce })
-
     // create userOperation object
     const userOperation: UserOperation = {
       sender: account,
@@ -450,17 +440,12 @@ class TokenboundClient {
     if (this.signer) {
       // Ethers
       if (this.testingMode) {
-        console.log('----------------------------------------------------------')
-        console.log(this.testingMode)
-        console.log('----------------------------------------------------------')
-        console.log(walletAccount)
         const signature = await this.testingMode.walletClient.signMessage({
           account: this.testingMode.walletClient.account as unknown as `0x${string}`,
           message: { raw: toBytes(userOperationHash) },
         })
         userOperation.signature = signature
       } else {
-        console.log('--------------THIS SHOULD NEVER LOG-------------------')
         const signature = await this.signer.signMessage(toBytes(userOperationHash))
 
         userOperation.signature = signature
