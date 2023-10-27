@@ -182,7 +182,7 @@ function runTxTests({
           'node',
           [
             '--experimental-specifier-resolution=node',
-            './packages/cli/bin/skandha.js',
+            './packages/cli/bin/bundler.js',
             'standalone',
             '--unsafeMode',
           ],
@@ -194,9 +194,9 @@ function runTxTests({
         //   console.log(`Server stdout: ${data}`)
         // })
 
-        // serverProcess.stderr.on('data', (data) => {
-        //   console.error(`Server stderr: ${data}`)
-        // })
+        serverProcess.stderr.on('data', (data) => {
+          console.error(`Server stderr: ${data}`)
+        })
 
         console.log('waiting 10s for server to startup....')
         await new Promise((resolve) => setTimeout(resolve, 10000))
