@@ -67,6 +67,7 @@ import {
 } from './utils'
 import { version as TB_SDK_VERSION } from '../package.json'
 import ApiClient from './ApiClient'
+import { bundlerChains } from './constants'
 
 declare global {
   interface Window {
@@ -495,17 +496,8 @@ class TokenboundClient {
     return data.result.transactionHash as `0x${string}`
   }
 
-  /**
-   * Executes a transaction call on a tokenbound account
-   * @param {string} params.account The tokenbound account address
-   * @param {string} params.to The recipient contract address
-   * @param {bigint} params.value The value to send, in wei
-   * @param {string} params.data The data to send
-   * @returns a Promise that resolves to the transaction hash of the executed call
-   */
-  public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
+  private async executeCall4337(params: ExecuteCallParams): Promise<`0x${string}`> {
     const id = +Date.now()
-
     try {
       // Prepare 4337 tx by getting gas price, nonce, and signing userOperation
       const prepared4337Transaction = await this._prepare4337Transaction(params, id)
@@ -562,37 +554,42 @@ class TokenboundClient {
     } catch (error) {
       throw error
     }
+  }
 
-    // here we need to make a call to the bundler. If the bundler fails we still want the tx to go through
-    // problem: sending external dependency call, if it fails then run the following tx.
-    // assumptions: is this the behavior we want? Why or why not?
-    // pro: it doesn't disrupt the user experience; if the tx fails, then it will still go through
-    // con: if this is an 4337 account, then the following tx may fail.
-    // con: it can look convoluted
-    // con: do we want people not using the SDK because they see that there's a bundler fee?
-    // con: if the bundler fails, the user will still pay the gas fee for the tx --> they will be charged twice for the same tx: once for the bundler and once for the tx
+  /**
+   * Executes a transaction call on a tokenbound account
+   * @param {string} params.account The tokenbound account address
+   * @param {string} params.to The recipient contract address
+   * @param {bigint} params.value The value to send, in wei
+   * @param {string} params.data The data to send
+   * @returns a Promise that resolves to the transaction hash of the executed call
+   */
+  public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
+    if (bundlerChains[this.chainId]) {
+      return await this.executeCall4337(params)
+    }
 
-    // const preparedExecuteCall = await this.prepareExecuteCall(params)
-    // try {
-    //   if (this.signer) {
-    //     // Ethers
-    //     return (await this.signer
-    //       .sendTransaction(preparedExecuteCall)
-    //       .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
-    //   } else if (this.walletClient) {
-    //     return await this.walletClient.sendTransaction({
-    //       // chain and account need to be added explicitly
-    //       // because they're optional when instantiating a WalletClient
-    //       chain: chainIdToChain(this.chainId),
-    //       account: this.walletClient.account!,
-    //       ...preparedExecuteCall,
-    //     })
-    //   } else {
-    //     throw new Error('No wallet client or signer available.')
-    //   }
-    // } catch (error) {
-    //   throw error
-    // }
+    const preparedExecuteCall = await this.prepareExecuteCall(params)
+    try {
+      if (this.signer) {
+        // Ethers
+        return (await this.signer
+          .sendTransaction(preparedExecuteCall)
+          .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
+      } else if (this.walletClient) {
+        return await this.walletClient.sendTransaction({
+          // chain and account need to be added explicitly
+          // because they're optional when instantiating a WalletClient
+          chain: chainIdToChain(this.chainId),
+          account: this.walletClient.account!,
+          ...preparedExecuteCall,
+        })
+      } else {
+        throw new Error('No wallet client or signer available.')
+      }
+    } catch (error) {
+      throw error
+    }
   }
 
   /**
