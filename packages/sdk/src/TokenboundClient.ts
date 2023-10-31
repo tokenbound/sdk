@@ -124,25 +124,18 @@ class TokenboundClient {
       })
 
     this.registryAddress = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
+    this.implementationAddress =
+      implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
 
-    if (implementationAddress) {
-      this.implementationAddress = implementationAddress
+    // If legacy V2 implementation is in use, use V2 registry (unless custom registry is provided)
+    const isV2 =
+      (version && version === TBVersion.V2) ||
+      (implementationAddress &&
+        isAddressEqual(implementationAddress, ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS))
 
-      // If legacy V2 implementation is in use, use V2 registry (unless custom registry is provided)
-      const isV2 =
-        (version && version === TBVersion.V2) ||
-        (implementationAddress &&
-          isAddressEqual(
-            implementationAddress,
-            ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
-          ))
-
-      if (isV2) {
-        this.supportsV3 = false
-        if (!registryAddress) this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
-      }
-    } else {
-      this.implementationAddress = ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
+    if (isV2) {
+      this.supportsV3 = false
+      if (!registryAddress) this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
     }
 
     this.isInitialized = true
