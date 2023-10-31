@@ -77,6 +77,23 @@ function writeConfigToFile(jsonData: any) {
   fs.writeFileSync(outputPath, data, 'utf-8')
 }
 
+function writeEnvToFile() {
+  const outputPath = path.join(__dirname, 'bundler', '.env')
+  try {
+    fs.unlinkSync(outputPath)
+  } catch (err) {
+    console.log('No env file found.')
+  }
+
+  const data = `
+SERVER_RATE_LIMIT_MAX=1000
+SERVER_RATE_LIMIT_TIME_WINDOW=1000
+`
+
+  // Write the data to the .env file
+  fs.writeFileSync(outputPath, data, 'utf-8')
+}
+
 // Create Ethers 5/6 signers from the walletClient + run tests
 describe('Test SDK methods - viem + Ethers', async () => {
   const bundlerConfig = {
@@ -96,11 +113,13 @@ describe('Test SDK methods - viem + Ethers', async () => {
   }
 
   writeConfigToFile(bundlerConfig)
+  writeEnvToFile()
 
   const ethers5Signer = walletClientToEthers5Signer(walletClient)
   const ethers6Signer = walletClientToEthers6Signer(walletClient)
 
   runTxTests({ testName: 'Viem Tests', walletClient })
+  runTxTests({ testName: 'Viem Tests Direct', walletClient, enable4337: false })
 
   const ENABLE_ETHERS_TESTS = true
 
@@ -132,11 +151,13 @@ function runTxTests({
   testName,
   walletClient,
   signer,
+  enable4337,
   testingMode,
 }: {
   testName: string
   walletClient?: WalletClient
   signer?: any
+  enable4337?: boolean
   testingMode?: { walletClient: WalletClient; rpcUrl: string }
 }) {
   // Skip tests that are non-functional in Ethers
@@ -170,6 +191,7 @@ function runTxTests({
           signer,
           publicClient: signer ? undefined : publicClient,
           testingMode,
+          enable4337,
         })
         ;(tokenboundClient as any).bundlerUrl = BUNDLER_URL
 

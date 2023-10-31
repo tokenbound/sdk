@@ -75,9 +75,6 @@ declare global {
   }
 }
 
-// question now is how do we set the bundler url?
-// if it's hardcoded into the SDK then we can't spin up a local bundler for api calls
-
 class TokenboundClient {
   private chainId: number
   public isInitialized: boolean = false
@@ -88,6 +85,7 @@ class TokenboundClient {
   private registryAddress?: `0x${string}`
   private api: ApiClient
   private bundlerUrl: string
+  private enable4337?: boolean
   private testingMode?: TokenBoundClientTestModeOptions
 
   constructor(options: TokenboundClientOptions) {
@@ -101,6 +99,7 @@ class TokenboundClient {
       registryAddress,
       publicClientRPCUrl,
       testingMode,
+      enable4337,
     } = options
 
     this.api = new ApiClient()
@@ -165,6 +164,9 @@ class TokenboundClient {
         rpcUrl: testingMode.rpcUrl,
       }
     }
+
+    this.enable4337 = true
+    if (enable4337 !== undefined) this.enable4337 = enable4337
 
     if (typeof window !== 'undefined') {
       window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} Implementation: ${
@@ -565,7 +567,7 @@ class TokenboundClient {
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
-    if (bundlerChains[this.chainId]) {
+    if (this.enable4337 && bundlerChains[this.chainId]) {
       return await this.executeCall4337(params)
     }
 

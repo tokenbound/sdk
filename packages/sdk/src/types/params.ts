@@ -58,6 +58,7 @@ export type TokenboundClientOptions = Prettify<{
   implementationAddress?: `0x${string}`
   registryAddress?: `0x${string}`
   testingMode?: TokenBoundClientTestModeOptions
+  enable4337?: boolean
 }>
 
 export type TokenBoundClientTestModeOptions = Prettify<{
