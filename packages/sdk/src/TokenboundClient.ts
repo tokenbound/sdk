@@ -255,8 +255,6 @@ class TokenboundClient {
         }),
       } as MultiCallTx
     }
-
-    // return preparedCreateAccount
   }
 
   /**
