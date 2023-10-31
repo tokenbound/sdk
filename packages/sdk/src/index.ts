@@ -28,6 +28,7 @@ import {
   BytecodeParams,
   TBImplementationVersion,
   TBVersion,
+  MultiCallTx,
 } from './types'
 
 import {
@@ -71,4 +72,5 @@ export type {
   ETHTransferParams,
   NFTTransferParams,
   TBImplementationVersion,
+  MultiCallTx,
 }

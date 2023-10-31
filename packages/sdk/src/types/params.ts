@@ -79,14 +79,14 @@ type Custom6551Implementation = Prettify<{
 export type TBAccountParams = NFTParams
 
 export type GetAccountParams = Prettify<
-  TBAccountParams & { chainId?: number } & Partial<Custom6551Implementation>
+  TBAccountParams & Partial<Custom6551Implementation>
 >
 
 export type PrepareCreateAccountParams = Prettify<
-  TBAccountParams & { chainId?: number } & Partial<Custom6551Implementation>
+  TBAccountParams & Partial<Custom6551Implementation>
 >
 export type CreateAccountParams = Prettify<
-  TBAccountParams & { chainId?: number } & Partial<Custom6551Implementation>
+  TBAccountParams & Partial<Custom6551Implementation>
 >
 
 export type ExecuteCallParams = Prettify<{

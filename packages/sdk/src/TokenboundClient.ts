@@ -168,16 +168,14 @@ class TokenboundClient {
    * @returns The tokenbound account address.
    */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const { tokenContract, tokenId, chainId, salt = 0 } = params
-
-    const chainIdForGetAcct = chainId && this.supportsV3 ? chainId : this.chainId
+    const { tokenContract, tokenId, salt = 0 } = params
 
     try {
       const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
       return getAcct(
         tokenContract,
         tokenId,
-        chainIdForGetAcct,
+        this.chainId,
         this.implementationAddress,
         this.registryAddress,
         salt
@@ -201,7 +199,8 @@ class TokenboundClient {
         data: `0x${string}`
       }
   > {
-    const { tokenContract, tokenId, chainId, salt = 0 } = params
+    const { tokenContract, tokenId, salt = 0 } = params
+
     const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
     const computedAcct = getAcct(
@@ -222,23 +221,20 @@ class TokenboundClient {
       ? prepareCreateTokenboundV3Account
       : prepareCreateAccount
 
-    // Enable cross-chain account deployment for V3 implementations
-    const chainIdForCreation = chainId && this.supportsV3 ? chainId : this.chainId
-
     const preparedBasicCreateAccount = await prepareBasicCreateAccount(
       tokenContract,
       tokenId,
-      chainIdForCreation,
+      this.chainId,
       this.implementationAddress,
       this.registryAddress,
       salt
     )
 
     if (isCustomImplementation) {
-      // Don't initalize for custom implementations. Allow third-party handling of initialization.
+      // Don't initialize for custom implementations. Allow third-party handling of initialization.
       return preparedBasicCreateAccount
     } else {
-      // For standard implementations, use the multicall3 aggregate function to create the account and initialize it in one transaction
+      // For standard implementations, use the multicall3 aggregate function to create and initialize the account in one transaction
       return {
         to: MULTICALL_ADDRESS,
         value: BigInt(0),
