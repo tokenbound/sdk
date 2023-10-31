@@ -167,6 +167,11 @@ function runTxTests({
       console.log(`END → \x1b[94m ${testName} \x1b[0m`)
     })
 
+    it('can get the SDK version', () => {
+      const sdkVersion: string = tokenboundClient.getSDKVersion()
+      expect(sdkVersion).toBeDefined()
+    })
+
     // To test the SDK methods, we need to mint some NFTs into the Anvil wallet
     // so that we can transfer them to the TBA and test the TBA methods.
     it(

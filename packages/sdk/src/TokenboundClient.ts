@@ -76,8 +76,8 @@ class TokenboundClient {
   private supportsV3: boolean = true // Default to V3 implementation
   private signer?: AbstractEthersSigner
   private walletClient?: WalletClient
-  private implementationAddress?: `0x${string}`
-  private registryAddress?: `0x${string}`
+  private implementationAddress: `0x${string}`
+  private registryAddress: `0x${string}`
 
   constructor(options: TokenboundClientOptions) {
     const {
@@ -123,26 +123,19 @@ class TokenboundClient {
         transport: http(publicClientRPCUrl ?? undefined),
       })
 
-    if (registryAddress) {
-      this.registryAddress = registryAddress
-    }
+    this.registryAddress = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
+    this.implementationAddress =
+      implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
 
-    if (implementationAddress) {
-      this.implementationAddress = implementationAddress
+    // If legacy V2 implementation is in use, use V2 registry (unless custom registry is provided)
+    const isV2 =
+      (version && version === TBVersion.V2) ||
+      (implementationAddress &&
+        isAddressEqual(implementationAddress, ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS))
 
-      // If legacy V2 implementation is in use, use V2 registry (unless custom registry is provided)
-      const isV2 =
-        (version && version === TBVersion.V2) ||
-        (implementationAddress &&
-          isAddressEqual(
-            implementationAddress,
-            ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
-          ))
-
-      if (isV2) {
-        this.supportsV3 = false
-        if (!registryAddress) this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
-      }
+    if (isV2) {
+      this.supportsV3 = false
+      if (!registryAddress) this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
     }
 
     this.isInitialized = true
@@ -154,6 +147,14 @@ class TokenboundClient {
   }
 
   /**
+   * Returns the SDK's package version.
+   * @returns The version of the SDK.
+   */
+  public getSDKVersion(): string {
+    return TB_SDK_VERSION
+  }
+
+  /**
    * Returns the tokenbound account address for a given token contract and token ID.
    * @param {`0x${string}`} params.tokenContract The address of the token contract.
    * @param {string} params.tokenId The token ID.
@@ -161,13 +162,17 @@ class TokenboundClient {
    */
   public getAccount(params: GetAccountParams): `0x${string}` {
     const { tokenContract, tokenId, salt = 0 } = params
-    const implementation =
-      this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
-    const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
     try {
       const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
-      return getAcct(tokenContract, tokenId, this.chainId, implementation, registry, salt)
+      return getAcct(
+        tokenContract,
+        tokenId,
+        this.chainId,
+        this.implementationAddress,
+        this.registryAddress,
+        salt
+      )
     } catch (error) {
       throw error
     }
@@ -179,49 +184,89 @@ class TokenboundClient {
    * @param {string} params.tokenId The token ID.
    * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
    */
-  public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<{
-    to: `0x${string}`
-    value: bigint
-    data: `0x${string}`
-  }> {
+  public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<
+    | MultiCallTx
+    | {
+        to: `0x${string}`
+        value: bigint
+        data: `0x${string}`
+      }
+  > {
     const { tokenContract, tokenId, salt = 0 } = params
-    const implementation =
-      this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
-    const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
-    const prepareCreation = this.supportsV3
-      ? prepareCreateTokenboundV3Account
-      : prepareCreateAccount
+    const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
-    return prepareCreation(
+    const computedAcct = getAcct(
       tokenContract,
       tokenId,
       this.chainId,
-      implementation,
-      registry,
+      this.implementationAddress,
+      this.registryAddress,
       salt
     )
+
+    const isCustomImplementation = ![
+      ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS,
+      ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
+    ].includes(getAddress(this.implementationAddress))
+
+    const prepareBasicCreateAccount = this.supportsV3
+      ? prepareCreateTokenboundV3Account
+      : prepareCreateAccount
+
+    const preparedBasicCreateAccount = await prepareBasicCreateAccount(
+      tokenContract,
+      tokenId,
+      this.chainId,
+      this.implementationAddress,
+      this.registryAddress,
+      salt
+    )
+
+    if (isCustomImplementation) {
+      // Don't initialize for custom implementations. Allow third-party handling of initialization.
+      return preparedBasicCreateAccount
+    } else {
+      // For standard implementations, use the multicall3 aggregate function to create and initialize the account in one transaction
+      return {
+        to: MULTICALL_ADDRESS,
+        value: BigInt(0),
+        data: encodeFunctionData({
+          abi: multicall3Abi,
+          functionName: 'aggregate3',
+          args: [
+            [
+              {
+                target: this.registryAddress,
+                allowFailure: false,
+                callData: preparedBasicCreateAccount.data,
+              },
+              {
+                target: computedAcct,
+                allowFailure: false,
+                callData: encodeFunctionData({
+                  abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI!,
+                  functionName: 'initialize',
+                  args: [ERC_6551_DEFAULT.IMPLEMENTATION!.ADDRESS],
+                }),
+              },
+            ],
+          ],
+        }),
+      } as MultiCallTx
+    }
   }
 
   /**
    * Returns the transaction hash of the transaction that created the tokenbound account for a given token contract and token ID.
    * @param {`0x${string}`} params.tokenContract The address of the token contract.
    * @param {string} params.tokenId The token ID.
-   * @param {`0x${string}`} [params.implementationAddress] The address of the implementation contract.
-   * @param {`0x${string}`} [params.registryAddress] The address of the registry contract.
    * @returns a Promise that resolves to the account address of the created tokenbound account.
    */
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
     const { tokenContract, tokenId, salt = 0 } = params
-
-    const implementation =
-      this.implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
-    const registry = this.registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
-    const isCustomImplementation =
-      this.implementationAddress &&
-      !isAddressEqual(this.implementationAddress, ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS)
 
     try {
       let txHash: `0x${string}` | undefined
@@ -232,68 +277,25 @@ class TokenboundClient {
         tokenContract,
         tokenId,
         this.chainId,
-        implementation,
-        registry,
+        this.implementationAddress,
+        this.registryAddress,
         salt
       )
 
-      const prepareCreateAccount = await this.prepareCreateAccount({
+      const preparedCreateAccount = await this.prepareCreateAccount({
         tokenContract,
         tokenId,
         salt,
       })
 
-      let prepareCreateV3Account:
-        | MultiCallTx
-        | {
-            to: `0x${string}`
-            value: bigint
-            data: `0x${string}`
-          }
-
-      if (isCustomImplementation) {
-        // Don't initalize for custom implementations. Allow third-party handling of initialization.
-        prepareCreateV3Account = prepareCreateAccount
-      } else {
-        // For standard implementations, use the multicall3 aggregate function to create the account and initialize it in one transaction
-        prepareCreateV3Account = {
-          to: MULTICALL_ADDRESS,
-          value: BigInt(0),
-          data: encodeFunctionData({
-            abi: multicall3Abi,
-            functionName: 'aggregate3',
-            args: [
-              [
-                {
-                  target: registry,
-                  allowFailure: false,
-                  callData: prepareCreateAccount.data,
-                },
-                {
-                  target: computedAcct,
-                  allowFailure: false,
-                  callData: encodeFunctionData({
-                    abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI!,
-                    functionName: 'initialize',
-                    args: [ERC_6551_DEFAULT.IMPLEMENTATION!.ADDRESS],
-                  }),
-                },
-              ],
-            ],
-          }),
-        } as MultiCallTx
-      }
-
       if (this.signer) {
         txHash = (await this.signer
-          .sendTransaction(
-            this.supportsV3 ? prepareCreateV3Account : prepareCreateAccount
-          )
+          .sendTransaction(preparedCreateAccount)
           .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
       } else if (this.walletClient) {
         txHash = this.supportsV3
           ? await this.walletClient.sendTransaction({
-              ...prepareCreateV3Account,
+              ...preparedCreateAccount,
               chain: chainIdToChain(this.chainId),
               account: this.walletClient?.account?.address!,
             }) // @BJ TODO: extract into viemV3?
@@ -301,8 +303,8 @@ class TokenboundClient {
               tokenContract,
               tokenId,
               this.walletClient,
-              implementation,
-              registry,
+              this.implementationAddress,
+              this.registryAddress,
               salt
             )
       }
