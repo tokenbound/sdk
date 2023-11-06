@@ -36,6 +36,6 @@ jobs:
         # run: pnpm ci && pnpm build // pnpm ci not yet implemented: https://github.com/pnpm/pnpm/issues/6100
 
       - name: Publish package on NPM 📦
-        run: cd packages/sdk && pnpm publish
+        run: cd packages/sdk && pnpm publish --publish-branch main --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
