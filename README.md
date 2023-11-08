@@ -88,7 +88,7 @@ The client is instantiated with an object containing two parameters:
 
 Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) *or* an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
 
-The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default. It also allows for
+The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default.
 
 For instructions about using a **Custom Account Implementation** and/or a **Legacy V2 Tokenbound Account Implementation**, see the [Advanced Usage](#advanced-usage) section at the bottom of this document.
 
