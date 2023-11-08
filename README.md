@@ -1,6 +1,6 @@
 # Tokenbound SDK
 
-This repo houses the Tokenbound SDK, a front-end library for interacting with [ERC-6551 accounts](https://eips.ethereum.org/EIPS/eip-6551).
+This repo houses the Tokenbound SDK, a front-end library for interacting with [ERC-6551 accounts](https://eips.ethereum.org/EIPS/eip-6551). The SDK provides an interface for interacting with tokenbound accounts, enabling operations like account creation, transaction execution, token transfers (including ERC-721, ERC-1155, and ERC-20 tokens), and message signing. Any onchain action you can perform with your EOA wallet can be done with your NFT's Tokenbound account.
 
 ### Packages
 
@@ -88,11 +88,13 @@ The client is instantiated with an object containing two parameters:
 
 Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) *or* an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
 
-For instructions about using a **Custom Account Implementation** and/or a **Legacy V2 Tokenbound Account Implementation**, see the Advanced Usage section at the bottom of this document.
+The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default. It also allows for
+
+For instructions about using a **Custom Account Implementation** and/or a **Legacy V2 Tokenbound Account Implementation**, see the [Advanced Usage](#advanced-usage) section at the bottom of this document.
 
 ### Standard configuration
 
-If you're using one of the **standard ERC-6551 contract deployments** (see: [V2 →](https://docs.tokenbound.org/contracts/deployments-v2), [V3 →](https://docs.tokenbound.org/contracts/deployments-v3)), you can simply pass the`chainId`. This will set `Chain` internally using imports from [`viem/chains`](https://viem.sh/docs/clients/chains.html). To keep the bundle size to a minimum, only standard chains are included in the SDK package.
+If you're using one of the [standard V2/V3 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments), you can simply pass the`chainId`. This will set `Chain` internally using imports from [`viem/chains`](https://viem.sh/docs/clients/chains.html). To keep the bundle size to a minimum, only standard chains are included in the SDK package.
 
 ```ts copy
 import { useAccount, WalletClient } from 'wagmi'
@@ -110,7 +112,7 @@ const tokenboundClient = new TokenboundClient({ walletClient, chainId: 5 })
 
 ### Custom chain
 
-If your chain isn't listed on the deployments page (see: [V2 →](https://docs.tokenbound.org/contracts/deployments-v2), [V3 →](https://docs.tokenbound.org/contracts/deployments-v3)), you'll need to pass the full `Chain` object from the [`viem/chains`](https://viem.sh/docs/clients/chains.html) package using the `chain` parameter.
+If your chain isn't listed on the [deployments page →](https://docs.tokenbound.org/contracts/deployments), you'll need to pass the full `Chain` object from the [`viem/chains`](https://viem.sh/docs/clients/chains.html) package using the `chain` parameter.
 
 ```ts copy
 import { zora } from 'viem/chains'
@@ -150,7 +152,11 @@ The TokenboundClient enables creation of and interaction with Tokenbound account
 
 Prepares an account creation transaction to be submitted via `sendTransaction`
 
-**Returns** the prepared transaction to create a Tokenbound account for a given token contract and token ID.
+**Returns** a promise resolving to a prepared transaction that can be used to create a Tokenbound account for a given token contract and token ID.
+
+When using the standard V3 implementation, this will be a `MultiCallTx` that will create and initialize the account in one pass. If using a custom account implementation with V3, a basic prepared transaction will be returned in the form `{to, value, data}`, and the created account will need to be initialized in a second step.
+
+If using the legacy V2 implementation, the return will be a standard object of the form `{to, value, data}`, and account initialization is handled for you.
 
 ```typescript
 const preparedAccount = await tokenboundClient.prepareCreateAccount({
@@ -216,7 +222,7 @@ console.log(tokenboundAccount) //0x1a2...3b4cd
 
 ### checkAccountDeployment
 
-Check if the tokenbound account address has been activated using createAddress.
+Check if the tokenbound account address has been activated using createAccount.
 
 **Returns** a boolean indicating if a tokenbound account has been deployed (created) at the accountAddress
 
@@ -551,13 +557,11 @@ const tokenboundClientWithCustomRegistry = new TokenboundClient({
 })
 ```
 
-Read more [here](/guides/custom-accounts)
-
 ---
 
 ### Legacy V2 Tokenbound Account Implementation
 
-If your application was created using the **standard legacy V2 account implementation** (see: [V2 →](https://docs.tokenbound.org/contracts/deployments-v2)), you'll need to instruct the `TokenboundClient` to use it by specifying the `TBVersion`
+If your application was created using the **standard legacy V2 account implementation** ([see 0.2.0 →](https://docs.tokenbound.org/contracts/deployments)), you'll need to instruct the `TokenboundClient` to use it by specifying the `TBVersion`
 
 ```ts copy
 import { TokenboundClient, TBVersion } from '@tokenbound/sdk'
