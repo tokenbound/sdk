@@ -12,6 +12,7 @@ import {
   isAddressEqual,
   numberToHex,
   multicall3Abi,
+  custom,
 } from 'viem'
 import { erc1155Abi, erc721Abi, erc20Abi } from '../abis'
 import {
@@ -115,12 +116,16 @@ class TokenboundClient {
     }
 
     // Use a custom publicClient if provided
+    // If a walletClient is provided, use its transport so publicClient can share the connection
     // Otherwise create a new one, specifying a custom RPC URL if provided but defaulting to the default viem http() RPC URL
     this.publicClient =
       publicClient ??
       createPublicClient({
         chain: chain ?? chainIdToChain(this.chainId),
-        transport: http(publicClientRPCUrl ?? undefined),
+        transport:
+          walletClient && !publicClientRPCUrl
+            ? custom(walletClient.transport)
+            : http(publicClientRPCUrl ?? undefined),
       })
 
     this.registryAddress = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
