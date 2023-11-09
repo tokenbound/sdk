@@ -13,11 +13,13 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with:
+          ref: 'main' # Ensure we're on the main branch
 
-      # - name: Set up PNPM
-      #   uses: pnpm/action-setup@v2
-      #   with:
-      #     version: 8
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -29,14 +31,13 @@ jobs:
       - name: Change to package directory
         run: cd packages/sdk
 
-      - name: Install dependencies
-        run: npm install
-
+      # - name: Install dependencies
+      #   run: pnpm install
       - name: Clean install and build 🔧
-        run: npm ci && npm run build
+        run: cd packages/sdk && pnpm i --force --frozen-lockfile && pnpm build
         # run: pnpm ci && pnpm build // pnpm ci not yet implemented: https://github.com/pnpm/pnpm/issues/6100
 
       - name: Publish package on NPM 📦
-        run: npm publish
+        run: cd packages/sdk && pnpm publish --publish-branch main --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

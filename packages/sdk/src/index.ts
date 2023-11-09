@@ -1,4 +1,4 @@
-import { erc6551AccountAbi, erc6551RegistryAbi } from '../abis'
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from '../abis'
 
 import {
   getAccount,
@@ -26,14 +26,26 @@ import {
   ETHTransferParams,
   NFTTransferParams,
   BytecodeParams,
+  TBImplementationVersion,
+  TBVersion,
+  MultiCallTx,
 } from './types'
 
-import { TokenboundClient } from './TokenboundClient'
+import {
+  TokenboundClient,
+  erc6551AccountAbiV3,
+  erc6551AccountProxyAbiV3,
+  erc6551RegistryAbiV3,
+} from './TokenboundClient'
 
 export {
   TokenboundClient,
-  erc6551AccountAbi,
-  erc6551RegistryAbi,
+  TBVersion,
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountAbiV3,
+  erc6551AccountProxyAbiV3,
+  erc6551RegistryAbiV3,
   getAccount,
   computeAccount,
   prepareCreateAccount,
@@ -59,4 +71,6 @@ export type {
   ERC20TransferParams,
   ETHTransferParams,
   NFTTransferParams,
+  TBImplementationVersion,
+  MultiCallTx,
 }

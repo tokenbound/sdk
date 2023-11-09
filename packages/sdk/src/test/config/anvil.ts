@@ -9,6 +9,7 @@ export const ANVIL_CONFIG = {
 }
 
 export const CREATE_ANVIL_OPTIONS: CreateAnvilOptions = {
+  // noStorageCaching: true,
   forkChainId: ACTIVE_CHAIN.id,
   forkUrl: import.meta.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT,
   forkBlockNumber: import.meta.env.VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER

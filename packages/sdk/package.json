@@ -1,6 +1,6 @@
 {
   "name": "@tokenbound/sdk",
-  "version": "0.3.12",
+  "version": "0.4.4",
   "type": "module",
   "files": [
     "dist"
@@ -26,10 +26,9 @@
   },
   "dependencies": {
     "axios": "^1.5.1",
-    "viem": "^1.16.2"
+    "viem": "^1.18.9"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
     "@tanstack/react-query": "4.29.1",
     "@testing-library/dom": "^9.3.1",
     "@testing-library/jest-dom": "^6.1.3",
@@ -38,27 +37,28 @@
     "@tokenbound/sdk": "workspace:^",
     "@types/react": "^18.2.21",
     "@types/testing-library__jest-dom": "^5.14.9",
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^6.7.2",
-    "@viem/anvil": "^0.0.6",
     "@vitest/coverage-c8": "^0.33.0",
-    "@wagmi/cli": "^1.5.0",
+    "@wagmi/cli": "^1.5.2",
     "connectkit": "^1.5.3",
-    "eslint": "^8.50.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-unused-imports": "^3.0.0",
     "ethers": "^5.7.2",
     "ethers6": "npm:ethers@^6.7.1",
-    "forge-std": "1.1.2",
     "jsdom": "^22.1.0",
-    "prettier": "^2.8.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.2.2",
-    "viem": "^1.16.2",
+    "viem": "^1.18.9",
+    "wagmi": "^1.4.5",
+    "@viem/anvil": "^0.0.6",
     "vite": "^4.4.9",
     "vite-plugin-dts": "^3.5.1",
     "vitest": "^0.34.2",
-    "wagmi": "^1.4.3"
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "prettier": "^2.8.8",
+    "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
+    "@typescript-eslint/parser": "^6.7.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
+    "forge-std": "1.1.2"
   }
 }

@@ -10,14 +10,22 @@ import {
   getAddress,
 } from 'viem'
 
-import { erc6551AccountAbi, erc6551RegistryAbi } from '../../abis'
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from '../../abis'
 import {
-  erc6551AccountImplementationAddressV1,
-  erc6551RegistryAddressV1,
-} from '../constants'
+  erc6551AccountProxyV3ABI,
+  erc6551AccountV3ABI,
+  erc6551RegistryV3ABI,
+} from '../../src/test/wagmi-cli-hooks/generated'
 import { addressToUint8Array } from '../utils'
+import { ERC_6551_LEGACY_V2 } from '../constants'
 
-export { erc6551AccountAbi, erc6551RegistryAbi }
+export {
+  erc6551AccountAbiV2,
+  erc6551RegistryAbiV2,
+  erc6551AccountProxyV3ABI,
+  erc6551AccountV3ABI,
+  erc6551RegistryV3ABI,
+}
 
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
@@ -32,11 +40,11 @@ export async function getAccount(
 ): Promise<`0x${string}`> {
   const erc6551registry = registryAddress
     ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+    : ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
   const registry = getContract({
     address: erc6551registry,
-    abi: erc6551RegistryAbi,
+    abi: ERC_6551_LEGACY_V2.REGISTRY.ABI,
     publicClient: client as PublicClient,
   })
 
@@ -45,7 +53,7 @@ export async function getAccount(
   const account = await registry.read.account([
     implementationAddress
       ? getAddress(implementationAddress)
-      : erc6551AccountImplementationAddressV1,
+      : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS,
     chainId,
     tokenContract,
     tokenId,
@@ -64,18 +72,20 @@ export async function prepareCreateAccount(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): Promise<{
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
 }> {
+  salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
+    : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
   const erc6551registry = registryAddress
     ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+    : ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
   const initData = encodeFunctionData({
     abi: [
@@ -94,16 +104,9 @@ export async function prepareCreateAccount(
     to: erc6551registry,
     value: BigInt(0),
     data: encodeFunctionData({
-      abi: erc6551RegistryAbi,
+      abi: ERC_6551_LEGACY_V2.REGISTRY.ABI,
       functionName: 'createAccount',
-      args: [
-        implementation,
-        chainId,
-        tokenContract,
-        tokenId,
-        0, // salt
-        initData,
-      ],
+      args: [implementation, chainId, tokenContract, tokenId, salt, initData],
     }),
   }
 }
@@ -117,18 +120,20 @@ export async function createAccount(
   tokenId: string,
   client: WalletClient,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): Promise<`0x${string}`> {
+  salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
+    : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
   const erc6551registry = registryAddress
     ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+    : ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
   const registry = getContract({
     address: erc6551registry,
-    abi: erc6551RegistryAbi,
+    abi: ERC_6551_LEGACY_V2.REGISTRY.ABI,
     walletClient: client,
   })
 
@@ -152,7 +157,7 @@ export async function createAccount(
     chainId,
     tokenContract,
     tokenId,
-    0, // salt
+    salt,
     initData,
   ])
 }
@@ -175,7 +180,7 @@ export async function prepareExecuteCall(
     to: account as `0x${string}`,
     value: 0n,
     data: encodeFunctionData({
-      abi: erc6551AccountAbi,
+      abi: ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI,
       functionName: 'executeCall',
       args: [to as `0x${string}`, value, data as `0x${string}`],
     }),
@@ -195,7 +200,7 @@ export async function executeCall(
 ) {
   const registry = getContract({
     address: account as `0x${string}`,
-    abi: erc6551AccountAbi,
+    abi: ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI,
     walletClient: client,
   })
 
@@ -211,19 +216,27 @@ export function computeAccount(
   tokenId: string,
   chainId: number,
   implementationAddress?: `0x${string}`,
-  registryAddress?: `0x${string}`
+  registryAddress?: `0x${string}`,
+  salt?: number
 ): `0x${string}` {
+  salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
-    : erc6551AccountImplementationAddressV1
+    : ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
   const erc6551registry = registryAddress
     ? getAddress(registryAddress)
-    : erc6551RegistryAddressV1
+    : ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
-  const code = getCreationCode(implementation, chainId, tokenContract, tokenId, '0')
+  const code = getCreationCode(
+    implementation,
+    chainId,
+    tokenContract,
+    tokenId,
+    salt.toString()
+  )
 
-  const bigIntZero = BigInt('0').toString(16) as `0x${string}`
-  const saltHex = pad(bigIntZero, { size: 32 })
+  const bigIntSalt = BigInt(salt).toString(16) as `0x${string}`
+  const saltHex = pad(bigIntSalt, { size: 32 })
 
   return getContractAddress({
     bytecode: code,

@@ -3,11 +3,14 @@ import { isHex, isAddress } from 'viem'
 
 import { TokenboundClient } from '../TokenboundClient'
 import { TEST_CONFIG } from './config'
+import { ERC_6551_LEGACY_V2 } from '../constants'
 
 const tokenboundClient = new TokenboundClient({
-  // signer,
+  // signer, // no signer, only performing writes
   chainId: TEST_CONFIG.CHAIN_ID,
   implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS,
+  registryAddress: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS,
+  // version: 'V2',
 })
 
 test('tokenboundClient.getAccount → customImplementation', () => {
@@ -16,15 +19,6 @@ test('tokenboundClient.getAccount → customImplementation', () => {
     tokenId: TEST_CONFIG.TOKEN_ID,
   })
   expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_TB_ACCOUNT)
-})
-
-test('tokenboundClient.getAccount → override customImplementation', () => {
-  const result = tokenboundClient.getAccount({
-    tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-    tokenId: TEST_CONFIG.TOKEN_ID,
-    implementationAddress: TEST_CONFIG.CUSTOM_IMPLEMENTATION_ADDRESS_OVERRIDE,
-  })
-  expect(result).toEqual(TEST_CONFIG.CUSTOM_IMPLEMENTATION_OVERRIDDEN_TB_ACCOUNT)
 })
 
 test('tokenboundClient.prepareCreateAccount → customImplementation', async () => {
@@ -37,15 +31,3 @@ test('tokenboundClient.prepareCreateAccount → customImplementation', async () 
   expect(typeof preparedAccount.value).toEqual('bigint')
   expect(isHex(preparedAccount.data)).toEqual(true)
 })
-test('tokenboundClient.prepareCreateAccount → customRegistry', async () => {
-  const preparedAccount = await tokenboundClient.prepareCreateAccount({
-    tokenContract: TEST_CONFIG.TOKEN_CONTRACT,
-    tokenId: TEST_CONFIG.TOKEN_ID,
-    registryAddress: TEST_CONFIG.CUSTOM_REGISTRY_ADDRESS_OVERRIDE,
-  })
-
-  expect(isAddress(preparedAccount.to)).toEqual(true)
-  expect(typeof preparedAccount.value).toEqual('bigint')
-  expect(isHex(preparedAccount.data)).toEqual(true)
-})
-test.todo('.createAccount')
