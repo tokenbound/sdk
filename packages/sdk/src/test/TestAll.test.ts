@@ -168,6 +168,10 @@ describe('Test SDK methods - viem + Ethers', async () => {
       runTxTests({
         testName: 'Ethers 6 Tests - v3',
         signer: ethers6Signer,
+        testingMode: {
+          walletClient,
+          rpcUrl: ANVIL_RPC_URL,
+        },
       })
     }
   }

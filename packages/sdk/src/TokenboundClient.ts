@@ -496,7 +496,7 @@ class TokenboundClient {
 
     // format callData, get current gas price, get sender nonce
     const [callData, gasPrice, nonce] = await Promise.all([
-      this.prepareExecuteCall(params),
+      this.supportsV3 ? this.prepareExecution(params) : this.prepareExecuteCall(params),
       this._getCurrentGasPrice(id),
       this.publicClient
         .simulateContract({
@@ -746,6 +746,10 @@ class TokenboundClient {
       if (!this.supportsV3) {
         // const { operation, ...rest } = params
         return await this.executeCall(params)
+      }
+
+      if (this.enable4337 && bundlerChains[this.chainId]) {
+        return await this.executeCall4337(params)
       }
 
       const preparedExecution = await this.prepareExecution(params)
