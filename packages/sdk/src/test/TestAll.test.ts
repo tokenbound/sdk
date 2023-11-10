@@ -111,6 +111,9 @@ describe('Test SDK methods - viem + Ethers', async () => {
   const ENABLE_ETHERS_TESTS = true
   const ENABLE_V2_TESTS = true
   const ENABLE_V3_TESTS = true
+  const ENABLE_4337 = false
+
+  console.log('4337 is enabled: ', ENABLE_4337)
 
   const bundlerConfig = {
     networks: {
@@ -133,18 +136,25 @@ describe('Test SDK methods - viem + Ethers', async () => {
 
   if (ENABLE_V2_TESTS) {
     if (ENABLE_VIEM_TESTS) {
-      runTxTests({ testName: 'Viem Tests - v2', walletClient, version: TBVersion.V2 })
+      runTxTests({
+        testName: 'Viem Tests - v2',
+        walletClient,
+        version: TBVersion.V2,
+        enable4337: ENABLE_4337,
+      })
     }
     if (ENABLE_ETHERS_TESTS) {
       runTxTests({
         testName: 'Ethers 5 Tests - v2',
         signer: ethers5Signer,
         version: TBVersion.V2,
+        enable4337: ENABLE_4337,
       })
       runTxTests({
         testName: 'Ethers 6 Tests - v2',
         signer: ethers6Signer,
         version: TBVersion.V2,
+        enable4337: ENABLE_4337,
         testingMode: {
           walletClient,
           rpcUrl: ANVIL_RPC_URL,
@@ -158,16 +168,19 @@ describe('Test SDK methods - viem + Ethers', async () => {
       runTxTests({
         testName: 'Viem Tests - v3',
         walletClient,
+        enable4337: ENABLE_4337,
       })
     }
     if (ENABLE_ETHERS_TESTS) {
       runTxTests({
         testName: 'Ethers 5 Tests - v3',
         signer: ethers5Signer,
+        enable4337: ENABLE_4337,
       })
       runTxTests({
         testName: 'Ethers 6 Tests - v3',
         signer: ethers6Signer,
+        enable4337: ENABLE_4337,
         testingMode: {
           walletClient,
           rpcUrl: ANVIL_RPC_URL,
@@ -251,31 +264,34 @@ function runTxTests({
 
         await anvil.start()
 
-        const commandDirectory = path.resolve(__dirname, './bundler')
-        console.log('running command to start node server')
+        if (enable4337) {
+          const commandDirectory = path.resolve(__dirname, './bundler')
+          console.log('running command to start node server')
 
-        serverProcess = spawn(
-          'node',
-          [
-            '--experimental-specifier-resolution=node',
-            './packages/cli/bin/bundler.js',
-            'standalone',
-            '--unsafeMode',
-          ],
-          { cwd: commandDirectory, env: { ...process.env, BENCHMARK: 'false' } }
-        )
+          serverProcess = spawn(
+            'node',
+            [
+              '--experimental-specifier-resolution=node',
+              './packages/cli/bin/bundler.js',
+              'standalone',
+              '--unsafeMode',
+            ],
+            { cwd: commandDirectory, env: { ...process.env, BENCHMARK: 'false' } }
+          )
 
-        // uncomment for debugging output
-        // serverProcess.stdout.on('data', (data) => {
-        //   console.log(`Server stdout: ${data}`)
-        // })
+          // uncomment for debugging output
+          // serverProcess.stdout.on('data', (data) => {
+          //   console.log(`Server stdout: ${data}`)
+          // })
 
-        serverProcess.stderr.on('data', (data) => {
-          console.error(`Server stderr: ${data}`)
-        })
+          serverProcess.stderr.on('data', (data) => {
+            console.error(`Server stderr: ${data}`)
+          })
 
-        console.log('waiting 10s for server to startup....')
-        await new Promise((resolve) => setTimeout(resolve, 10000))
+          console.log('waiting 5s for server to startup....')
+          await new Promise((resolve) => setTimeout(resolve, 5000))
+        }
+
         console.log(`START → \x1b[94m ${testName} \x1b[0m`)
       } catch (err) {
         console.error('Error during setup:', err)
@@ -283,9 +299,11 @@ function runTxTests({
     }, TIMEOUT + TIMEOUT)
 
     afterAll(async () => {
-      if (serverProcess) {
-        serverProcess.kill()
-        console.log('Successfully killed process on port 14337.')
+      if (enable4337) {
+        if (serverProcess) {
+          serverProcess.kill()
+          console.log('Successfully killed process on port 14337.')
+        }
       }
       await anvil.stop()
 
