@@ -166,14 +166,14 @@ class TokenboundClient {
    * @returns The tokenbound account address.
    */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const { tokenContract, tokenId, salt = 0 } = params
+    const { tokenContract, tokenId, salt = 0, chainId = this.chainId } = params
 
     try {
       const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
       return getAcct(
         tokenContract,
         tokenId,
-        this.chainId,
+        chainId,
         this.implementationAddress,
         this.registryAddress,
         salt
@@ -197,7 +197,7 @@ class TokenboundClient {
         data: `0x${string}`
       }
   > {
-    const { tokenContract, tokenId, salt = 0 } = params
+    const { tokenContract, tokenId, salt = 0, chainId = this.chainId } = params
 
     const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
@@ -222,7 +222,7 @@ class TokenboundClient {
     const preparedBasicCreateAccount = await prepareBasicCreateAccount(
       tokenContract,
       tokenId,
-      this.chainId,
+      chainId,
       this.implementationAddress,
       this.registryAddress,
       salt
@@ -271,7 +271,7 @@ class TokenboundClient {
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
-    const { tokenContract, tokenId, salt = 0 } = params
+    const { tokenContract, tokenId, salt = 0, chainId = this.chainId } = params
 
     try {
       let txHash: `0x${string}` | undefined
@@ -281,7 +281,7 @@ class TokenboundClient {
       const computedAcct = getAcct(
         tokenContract,
         tokenId,
-        this.chainId,
+        chainId,
         this.implementationAddress,
         this.registryAddress,
         salt
@@ -290,6 +290,7 @@ class TokenboundClient {
       const preparedCreateAccount = await this.prepareCreateAccount({
         tokenContract,
         tokenId,
+        chainId,
         salt,
       })
 
