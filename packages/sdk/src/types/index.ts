@@ -1,4 +1,5 @@
 export * from './abstractBigNumber'
+export * from './abstractEthersProvider'
 export * from './abstractEthersSigner'
 export * from './abstractEthersTransactionResponse'
 export * from './addresses'

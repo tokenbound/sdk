@@ -216,7 +216,7 @@ console.log(tokenboundAccount) //0x1a2...3b4cd
 
 ### checkAccountDeployment
 
-Check if the tokenbound account address has been activated using createAddress.
+Check if the tokenbound account address has been activated using createAccount.
 
 **Returns** a boolean indicating if a tokenbound account has been deployed (created) at the accountAddress
 

@@ -4,4 +4,8 @@
 
 export type AbstractEthersSigner = {
   readonly _isSigner: boolean
+  address: any
+  signMessage: any
+  signTransaction: any
+  _signTypedData: any
 } & Record<string, any>

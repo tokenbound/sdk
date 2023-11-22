@@ -1,6 +1,7 @@
 export * from './addressToUint8Array'
 export * from './chainIdToChain'
 export * from './ethersAdaptors'
+export * from './ethersWalletToAccount'
 export * from './getImplementationName'
 export * from './isAbstractBigNumber'
 export * from './messageTypeguards'

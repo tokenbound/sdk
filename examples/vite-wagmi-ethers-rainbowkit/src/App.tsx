@@ -14,6 +14,9 @@ const recipientAddress = getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4'
 const ethAmount = 0.005
 const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 
+const TOKEN_CONTRACT = `0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2`
+const TOKEN_ID = '5'
+
 export function App() {
   const { isConnected, address } = useAccount()
   const signer = useEthersSigner({ chainId: 5 })
@@ -55,11 +58,12 @@ export function App() {
 
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
-    const createdAccount = await tokenboundClient.createAccount({
-      tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-      tokenId: '1',
+    const { account, txHash } = await tokenboundClient.createAccount({
+      tokenContract: TOKEN_CONTRACT,
+      tokenId: TOKEN_ID,
     })
-    alert(`new account: ${createdAccount}`)
+    console.log(`new account: ${account}`)
+    alert(`new account: ${account}`)
   }, [tokenboundClient])
 
   const execute = useCallback(async () => {

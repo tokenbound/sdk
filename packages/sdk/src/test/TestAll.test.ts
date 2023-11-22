@@ -63,7 +63,7 @@ const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
 const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
 
 // Create Ethers 5/6 signers from the walletClient + run tests
-describe('Test SDK methods - viem + Ethers', () => {
+describe('SDK Tests', () => {
   const ENABLE_VIEM_TESTS = true
   const ENABLE_ETHERS_TESTS = true
   const ENABLE_V2_TESTS = true
@@ -71,16 +71,16 @@ describe('Test SDK methods - viem + Ethers', () => {
 
   if (ENABLE_V2_TESTS) {
     if (ENABLE_VIEM_TESTS) {
-      runTxTests({ testName: 'Viem Tests - v2', walletClient, version: TBVersion.V2 })
+      runTxTests({ testName: 'Viem - v2', walletClient, version: TBVersion.V2 })
     }
     if (ENABLE_ETHERS_TESTS) {
       runTxTests({
-        testName: 'Ethers 5 Tests - v2',
+        testName: 'Ethers 5 - v2',
         signer: ethers5Signer,
         version: TBVersion.V2,
       })
       runTxTests({
-        testName: 'Ethers 6 Tests - v2',
+        testName: 'Ethers 6 - v2',
         signer: ethers6Signer,
         version: TBVersion.V2,
       })
@@ -90,17 +90,17 @@ describe('Test SDK methods - viem + Ethers', () => {
   if (ENABLE_V3_TESTS) {
     if (ENABLE_VIEM_TESTS) {
       runTxTests({
-        testName: 'Viem Tests - v3',
+        testName: 'Viem - v3',
         walletClient,
       })
     }
     if (ENABLE_ETHERS_TESTS) {
       runTxTests({
-        testName: 'Ethers 5 Tests - v3',
+        testName: 'Ethers 5 - v3',
         signer: ethers5Signer,
       })
       runTxTests({
-        testName: 'Ethers 6 Tests - v3',
+        testName: 'Ethers 6 - v3',
         signer: ethers6Signer,
       })
     }
@@ -135,6 +135,7 @@ function runTxTests({
     let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
     let ZORA721_TBA_ADDRESS_CUSTOM_SALT: `0x${string}`
+    let ZORA721_TBA_ADDRESS_CUSTOM_CHAIN: `0x${string}`
 
     const ERC6551_DEPLOYMENT = isV2 ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
 
@@ -294,6 +295,32 @@ function runTxTests({
       TIMEOUT
     )
 
+    // v3OnlyIt(
+    //   'can createAccount with a custom chain',
+    //   async () => {
+    //     console.log('CREATED ACCT WITH CUSTOM CHAIN BEFORE')
+
+    //     const { account, txHash } = await tokenboundClient.createAccount({
+    //       NFT_IN_EOA,
+    //       chain: zora,
+    //     })
+    //     console.log('CREATED ACCT WITH CUSTOM CHAIN AFTER', account)
+
+    //     const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+    //       hash: txHash,
+    //     })
+
+    //     console.log('CUSTOM CHAIN createdAccountTxReceipt', createdAccountTxReceipt)
+
+    //     ZORA721_TBA_ADDRESS_CUSTOM_CHAIN = account
+    //     await waitFor(() => {
+    //       expect(account).toMatch(ADDRESS_REGEX)
+    //       expect(createdAccountTxReceipt.status).toBe('success')
+    //     })
+    //   },
+    //   TIMEOUT
+    // )
+
     it('can checkAccountDeployment for the created account', async () => {
       const isAccountDeployed = await tokenboundClient.checkAccountDeployment({
         accountAddress: ZORA721_TBA_ADDRESS,
@@ -319,6 +346,17 @@ function runTxTests({
         expect(getAccount).toEqual(ZORA721_TBA_ADDRESS_CUSTOM_SALT)
       })
     })
+
+    // v3OnlyIt('can getAccount with a custom chain', async () => {
+    //   const getAccount = tokenboundClient.getAccount({
+    //     ...NFT_IN_EOA,
+    //     chain: zora,
+    //   })
+    //   await waitFor(() => {
+    //     expect(getAccount).toMatch(ADDRESS_REGEX)
+    //     expect(getAccount).toEqual(ZORA721_TBA_ADDRESS_CUSTOM_CHAIN)
+    //   })
+    // })
 
     // We transfer an NFT to the TBA so that we can test the TBA methods.
     it(

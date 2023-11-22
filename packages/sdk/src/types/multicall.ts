@@ -1,5 +1,7 @@
 import { TransactionRequestEIP1559 } from 'viem'
-export type MultiCallTx = Omit<
-  TransactionRequestEIP1559<bigint, number, 'eip1559'>,
-  'from' | 'account'
+import { Prettify } from './prettify'
+export type MultiCallTx = Prettify<
+  Omit<TransactionRequestEIP1559<bigint, number, 'eip1559'>, 'from' | 'account'> & {
+    chainId?: number
+  }
 >

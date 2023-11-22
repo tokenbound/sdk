@@ -12,7 +12,10 @@ import {
   isAddressEqual,
   numberToHex,
   multicall3Abi,
+  createWalletClient,
+  custom,
 } from 'viem'
+// import { privateKeyToAccount } from 'viem/accounts'
 import { erc1155Abi, erc721Abi, erc20Abi } from '../abis'
 import {
   getAccount,
@@ -59,6 +62,7 @@ import {
   isViemSignableMessage,
   resolvePossibleENS,
   getImplementationName,
+  ethersWalletToAccount,
 } from './utils'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2, MULTICALL_ADDRESS } from './constants'
 import { version as TB_SDK_VERSION } from '../package.json'
@@ -79,6 +83,8 @@ class TokenboundClient {
   private implementationAddress: `0x${string}`
   private registryAddress: `0x${string}`
 
+  // private eip1193Bridge:any
+
   constructor(options: TokenboundClientOptions) {
     const {
       chainId,
@@ -90,6 +96,7 @@ class TokenboundClient {
       registryAddress,
       publicClientRPCUrl,
       version,
+      eip1193Bridge,
     } = options
 
     if (!chainId && !chain) {
@@ -109,7 +116,24 @@ class TokenboundClient {
     this.chainId = chainId ?? chain!.id
 
     if (signer) {
-      this.signer = signer
+      // this.signer = signer
+      // const signerToWalletClient = createWalletClient({
+      //   transport: custom(signer.provider.provider as any),
+      //   chain,
+      //   account: signer._address,
+      //   pollingInterval: 100,
+      // })
+      // this.walletClient = signerToWalletClient
+      // const account = ethersWalletToAccount(signer)
+
+      const walletClient = createWalletClient({
+        transport: custom(eip1193Bridge),
+        // account,
+        account: signer.address ?? signer._address,
+        chain: chain ?? chainIdToChain(this.chainId),
+      })
+
+      this.walletClient = walletClient
     } else if (walletClient) {
       this.walletClient = walletClient
     }
@@ -161,14 +185,17 @@ class TokenboundClient {
    * @returns The tokenbound account address.
    */
   public getAccount(params: GetAccountParams): `0x${string}` {
-    const { tokenContract, tokenId, salt = 0 } = params
+    const { tokenContract, tokenId, chain, salt = 0 } = params
+
+    // V3 implementations can override client's chainId to enable cross-chain account deployment
+    const chainIdForGetAcct = chain && this.supportsV3 ? chain.id : this.chainId
 
     try {
       const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
       return getAcct(
         tokenContract,
         tokenId,
-        this.chainId,
+        chainIdForGetAcct,
         this.implementationAddress,
         this.registryAddress,
         salt
@@ -192,14 +219,21 @@ class TokenboundClient {
         data: `0x${string}`
       }
   > {
-    const { tokenContract, tokenId, salt = 0 } = params
+    const { tokenContract, tokenId, chain, salt = 0 } = params
+
+    if (chain && !this.supportsV3) {
+      throw new Error('V2 does not support cross-chain account creation.')
+    }
+
+    // V3 implementations can override client's chainId to enable cross-chain account deployment
+    const createWithChainId = chain && this.supportsV3 ? chain.id : this.chainId
 
     const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
     const computedAcct = getAcct(
       tokenContract,
       tokenId,
-      this.chainId,
+      createWithChainId,
       this.implementationAddress,
       this.registryAddress,
       salt
@@ -214,23 +248,29 @@ class TokenboundClient {
       ? prepareCreateTokenboundV3Account
       : prepareCreateAccount
 
-    const preparedBasicCreateAccount = await prepareBasicCreateAccount(
+    chain && console.log('PRE-PREPARE')
+
+    const preparedImplAgnosticCreation = await prepareBasicCreateAccount(
       tokenContract,
       tokenId,
-      this.chainId,
+      createWithChainId,
       this.implementationAddress,
       this.registryAddress,
       salt
     )
 
+    chain &&
+      console.log('PREPARED CREATE ACCOUNT PRE-INIT: ', preparedImplAgnosticCreation)
+
     if (isCustomImplementation) {
       // Don't initialize for custom implementations. Allow third-party handling of initialization.
-      return preparedBasicCreateAccount
+      return preparedImplAgnosticCreation
     } else {
       // For standard implementations, use the multicall3 aggregate function to create and initialize the account in one transaction
       return {
         to: MULTICALL_ADDRESS,
         value: BigInt(0),
+        chainId: createWithChainId, // just a test for ethers
         data: encodeFunctionData({
           abi: multicall3Abi,
           functionName: 'aggregate3',
@@ -239,7 +279,7 @@ class TokenboundClient {
               {
                 target: this.registryAddress,
                 allowFailure: false,
-                callData: preparedBasicCreateAccount.data,
+                callData: preparedImplAgnosticCreation.data,
               },
               {
                 target: computedAcct,
@@ -266,37 +306,163 @@ class TokenboundClient {
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
-    const { tokenContract, tokenId, salt = 0 } = params
+    const { tokenContract, tokenId, chain, provider, salt = 0 } = params
+
+    if (chain && !this.supportsV3) {
+      throw new Error('V2 does not support cross-chain account creation.')
+    }
+
+    // V3 implementations can override client's chainId to enable cross-chain account deployment
+    const createWithChainId = chain && this.supportsV3 ? chain.id : this.chainId
+
+    chain && console.log('CUSTOM CHAIN: ', chain.id)
 
     try {
       let txHash: `0x${string}` | undefined
 
       const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
-      const computedAcct = getAcct(
+      let preparedCreateAccount = await this.prepareCreateAccount({
         tokenContract,
         tokenId,
-        this.chainId,
-        this.implementationAddress,
-        this.registryAddress,
-        salt
-      )
-
-      const preparedCreateAccount = await this.prepareCreateAccount({
-        tokenContract,
-        tokenId,
+        // chain: chain ?? undefined,
+        chain,
         salt,
       })
 
+      chain && console.log('POST-PREPARE: ', preparedCreateAccount)
+
+      let signerL2
+
       if (this.signer) {
-        txHash = (await this.signer
+        // @BJ: can set anyNetwork: true on the provider (in useEthersSigner) to allow for any chainId
+        // if (chain || provider) {
+        if (chain) {
+          const account = ethersWalletToAccount(this.signer)
+          console.log('signer', this.signer, this.signer.address, account)
+          const signerToWalletClient = createWalletClient({
+            // transport: custom(this.signer.provider.provider as any), // works in Ethers 5, seemingly missing provider.request in Ethers6
+
+            // Ethers5: has signer.provider.provider.request
+
+            // transport: custom(this.signer.provider.provider as any),
+            transport: custom(this.signer.provider as any),
+            // transport: custom(window.ethereum),
+
+            // transport: http(),
+            chain,
+            // account: this.signer._address,
+            account,
+            // pollingInterval: 100,
+          })
+
+          // const account = privateKeyToAccount(this.signer.privateKey)
+
+          // const signerToWalletClient = createWalletClient({
+          //   account,
+          //   chain,
+          //   transport: http(),
+          // })
+
+          // const signerToWalletClient = createWalletClient({
+          //   transport: custom(this.signer.provider.provider as any),
+          // })
+
+          console.log('new.walletClient', signerToWalletClient)
+          await signerToWalletClient.addChain({ chain: chain })
+          await signerToWalletClient.switchChain({ id: chain.id })
+
+          txHash = await signerToWalletClient.sendTransaction({
+            ...preparedCreateAccount,
+            chain: chainIdToChain(createWithChainId),
+            // chain: chainIdToChain(this.chainId),
+            // chain: The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
+
+            account: signerToWalletClient?.account?.address!,
+          })
+
+          // if (chain) {
+          // await this.signer.provider?.request({
+          //   method: 'wallet_addEthereumChain',
+          //   params: [chain],
+          // })
+
+          // const newChainRPCUrl = chain.rpcUrls.default.http[0] // or chain.rpcUrls.public.http[0]?
+
+          // Create new provider + connect to the chain:
+          // new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL) // ethers6
+          // const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL) // ethers5
+          // this.signer.connect(chain.id)
+
+          // this.signer.provider.on('chainChanged', (chainId: number) =>
+          //   // console.log('RESP', resp)
+          //   console.log(`chain changed to ${chainId}! updating providers`)
+          // )
+
+          // this.signer.connect({ chainId: chain.id, url: newChainRPCUrl })
+          // await this.signer.connect(provider)
+
+          // Construct a new signer for Layer 2 by using the L2 chainId.
+          // signerL2 = await this.signer.connectUnchecked({
+          //   chainId: chain.id,
+          // })
+
+          // if (typeof window !== 'undefined' && 'ethereum' in window && 'request' in window.ethereum) {
+
+          // await window.ethereum!.request({
+          //   method: 'wallet_switchEthereumChain',
+          //   params: [{ chainId: '0x13881' }],    // chainId must be in HEX with 0x in front
+          //   });
+          // }
+
+          // this.signer.network
+
+          // preparedCreateAccount = { chainId: chain.id, ...preparedCreateAccount }
+          console.log(
+            'AFTER ADDING CHAIN ID',
+            preparedCreateAccount,
+            // await this.signer.provider.getNetwork(),
+            provider,
+            signerL2 //  has anyNetwork: true on the provider, but no chainId is evident
+          )
+          console.log('L1', this.signer)
+
+          console.log(
+            'L2',
+            signerL2 //  has anyNetwork: true on the provider, but no chainId is evident
+          )
+        }
+
+        const signerOrL2 = signerL2 ?? this.signer
+
+        txHash = (await signerOrL2
           .sendTransaction(preparedCreateAccount)
           .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
+        // txHash = (await this.signer
+        //   .sendTransaction(preparedCreateAccount)
+        //   .then((tx: AbstractEthersTransactionResponse) => tx.hash)) as `0x${string}`
       } else if (this.walletClient) {
+        // switch chains if a chain is specified
+
+        console.log('this.walletClient', this.walletClient)
+        if (chain) {
+          await this.walletClient.addChain({ chain })
+          await this.walletClient.switchChain({ id: chain.id })
+
+          // MethodNotFoundRpcError: The method does not exist / is not available.
+          // URL: http://127.0.0.1:8545
+          // Request body: {"method":"wallet_addEthereumChain","params":[{"chainId":"0x76adf1","chainName":"Zora","nativeCurrency":{"decimals":18,"name":"Ether","symbol":"ETH"},"rpcUrls":["https://rpc.zora.energy"],"blockExplorerUrls":["https://explorer.zora.energy"]}]}
+
+          console.log('this.walletClient.chain', this.walletClient.chain)
+        }
+        console.log('preparedCREATE', preparedCreateAccount)
         txHash = this.supportsV3
           ? await this.walletClient.sendTransaction({
               ...preparedCreateAccount,
-              chain: chainIdToChain(this.chainId),
+              chain: chainIdToChain(createWithChainId),
+              // chain: chainIdToChain(this.chainId),
+              // chain: The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
+
               account: this.walletClient?.account?.address!,
             }) // @BJ TODO: extract into viemV3?
           : await createAccount(
@@ -308,6 +474,17 @@ class TokenboundClient {
               salt
             )
       }
+
+      const computedAcct = getAcct(
+        tokenContract,
+        tokenId,
+        createWithChainId,
+        this.implementationAddress,
+        this.registryAddress,
+        salt
+      )
+
+      console.log('COMPUTED: ', computedAcct)
 
       if (txHash) {
         return {

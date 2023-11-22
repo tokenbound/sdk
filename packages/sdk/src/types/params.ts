@@ -1,6 +1,6 @@
 import { WalletClient, PublicClient, Chain } from 'viem'
 import { Prettify } from './prettify'
-import { UniversalSignableMessage, CallOperation } from '.'
+import { UniversalSignableMessage, CallOperation, AbstractEthersProvider } from '.'
 import { PossibleENSAddress } from './addresses'
 import { ERC_6551_LEGACY_V2 } from '../constants'
 
@@ -70,6 +70,7 @@ export type TokenboundClientOptions = Prettify<{
   implementationAddress?: ImplementationAddress
   registryAddress?: `0x${string}`
   version?: TBImplementationVersion
+  eip1193Bridge?: any
 }>
 
 type Custom6551Implementation = Prettify<{
@@ -79,14 +80,17 @@ type Custom6551Implementation = Prettify<{
 export type TBAccountParams = NFTParams
 
 export type GetAccountParams = Prettify<
-  TBAccountParams & Partial<Custom6551Implementation>
+  TBAccountParams & { chain?: Chain } & Partial<Custom6551Implementation>
 >
 
 export type PrepareCreateAccountParams = Prettify<
-  TBAccountParams & Partial<Custom6551Implementation>
+  TBAccountParams & { chain?: Chain } & Partial<Custom6551Implementation>
 >
 export type CreateAccountParams = Prettify<
-  TBAccountParams & Partial<Custom6551Implementation>
+  TBAccountParams & {
+    chain?: Chain
+    provider?: AbstractEthersProvider
+  } & Partial<Custom6551Implementation>
 >
 
 export type ExecuteCallParams = Prettify<{

@@ -11,7 +11,7 @@ import {
   parseUnits,
   getAddress,
 } from 'viem'
-import { goerli } from 'viem/chains'
+import { goerli, sepolia } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
 
 import { useCallback, useEffect } from 'react'
@@ -46,48 +46,51 @@ export function App() {
     // implementationAddress: '0x2d25602551487c3f3354dd80d76d54383a243358',
   })
 
-  useEffect(() => {
-    async function testTokenboundClass() {
-      if (!tokenboundClient) return
+  // useEffect(() => {
+  //   async function testTokenboundClass() {
+  //     if (!tokenboundClient) return
 
-      const tokenboundAccount = tokenboundClient.getAccount({
-        tokenContract: TOKEN_CONTRACT,
-        tokenId: TOKEN_ID,
-      })
+  //     const tokenboundAccount = tokenboundClient.getAccount({
+  //       tokenContract: TOKEN_CONTRACT,
+  //       tokenId: TOKEN_ID,
+  //     })
 
-      const preparedExecution = await tokenboundClient.prepareExecution({
-        account: tokenboundAccount,
-        to: recipientAddress,
-        value: 0n,
-        data: '',
-      })
+  //     const preparedExecution = await tokenboundClient.prepareExecution({
+  //       account: tokenboundAccount,
+  //       to: recipientAddress,
+  //       value: 0n,
+  //       data: '',
+  //     })
 
-      const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
-        tokenContract: TOKEN_CONTRACT,
-        tokenId: TOKEN_ID,
-      })
+  //     const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
+  //       tokenContract: TOKEN_CONTRACT,
+  //       tokenId: TOKEN_ID,
+  //     })
 
-      console.log('getAccount', tokenboundAccount)
-      console.log('preparedExecution', preparedExecution)
-      console.log('preparedAccount', preparedCreateAccount)
+  //     console.log('getAccount', tokenboundAccount)
+  //     console.log('preparedExecution', preparedExecution)
+  //     console.log('preparedAccount', preparedCreateAccount)
 
-      // if (address) {
-      //   walletClient?.sendTransaction(preparedCreateAccount)
-      //   walletClient?.sendTransaction(preparedExecuteCall)
-      // }
-    }
+  //     // if (address) {
+  //     //   walletClient?.sendTransaction(preparedCreateAccount)
+  //     //   walletClient?.sendTransaction(preparedExecuteCall)
+  //     // }
+  //   }
 
-    testTokenboundClass()
-  }, [])
+  //   testTokenboundClass()
+  // }, [])
 
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
-    const createdAccount = await tokenboundClient.createAccount({
+    const { account, txHash } = await tokenboundClient.createAccount({
+      // 0x8dde0de0dA9910928928D2493D567b6eEd65486e
       tokenContract: TOKEN_CONTRACT,
       tokenId: TOKEN_ID,
+      chain: sepolia,
     })
-    console.log(`new account: ${createdAccount}`)
-    alert(`new account: ${createdAccount}`)
+    console.log(`new account: ${account}`)
+    console.log('txHash', txHash)
+    alert(`new account on sepolia: ${account}`)
   }, [tokenboundClient])
 
   const execute = useCallback(async () => {
