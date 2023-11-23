@@ -53,77 +53,58 @@ const walletClient = createWalletClient({
   transport: http(ANVIL_RPC_URL),
   chain: ANVIL_CONFIG.ACTIVE_CHAIN,
   account: privateKeyToAccount(ANVIL_ACCOUNTS[0].privateKey),
-  pollingInterval: 100,
 })
 
 const ethers5Provider = new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL)
 const ethers5Signer = new ethers.Wallet(ANVIL_ACCOUNTS[0].privateKey, ethers5Provider)
 
 const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
-const ethers6Signer = new JsonRpcSigner(ethers6Provider, walletClient.account!.address)
+const ethers6Signer = new JsonRpcSigner(ethers6Provider, ANVIL_USER_0)
 
-// Create Ethers 5/6 signers from the walletClient + run tests
-describe('Test SDK methods - viem + Ethers', () => {
-  const ENABLE_VIEM_TESTS = true
-  const ENABLE_ETHERS_TESTS = true
-  const ENABLE_V2_TESTS = true
-  const ENABLE_V3_TESTS = true
-
-  if (ENABLE_V2_TESTS) {
-    if (ENABLE_VIEM_TESTS) {
-      runTxTests({ testName: 'Viem Tests - v2', walletClient, version: TBVersion.V2 })
-    }
-    if (ENABLE_ETHERS_TESTS) {
-      runTxTests({
-        testName: 'Ethers 5 Tests - v2',
-        signer: ethers5Signer,
-        version: TBVersion.V2,
-      })
-      runTxTests({
-        testName: 'Ethers 6 Tests - v2',
-        signer: ethers6Signer,
-        version: TBVersion.V2,
-      })
-    }
-  }
-
-  if (ENABLE_V3_TESTS) {
-    if (ENABLE_VIEM_TESTS) {
-      runTxTests({
-        testName: 'Viem Tests - v3',
-        walletClient,
-      })
-    }
-    if (ENABLE_ETHERS_TESTS) {
-      runTxTests({
-        testName: 'Ethers 5 Tests - v3',
-        signer: ethers5Signer,
-      })
-      runTxTests({
-        testName: 'Ethers 6 Tests - v3',
-        signer: ethers6Signer,
-      })
-    }
-  }
-})
-
-function runTxTests({
-  testName,
-  walletClient,
-  signer,
-  version,
-}: {
+type TestConfig = {
   testName: string
   walletClient?: WalletClient
   signer?: any
   version?: TBImplementationVersion
-}) {
-  const isV2 = version === TBVersion.V2
-  const isV3 = isV2 === false
-  const viemOnlyIt = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
-  const v3OnlyIt = isV3 ? it : it.skip
+}
 
-  describe(testName, () => {
+const ENABLED_TESTS: Array<TestConfig> = [
+  {
+    testName: 'viem v2',
+    walletClient,
+    version: TBVersion.V2,
+  },
+  {
+    testName: 'ethers@5 v2',
+    signer: ethers5Signer,
+    version: TBVersion.V2,
+  },
+  {
+    testName: 'ethers@6 v2',
+    signer: ethers6Signer,
+    version: TBVersion.V2,
+  },
+  {
+    testName: 'viem v3',
+    walletClient,
+  },
+  {
+    testName: 'ethers@5 v3',
+    signer: ethers5Signer,
+  },
+  {
+    testName: 'ethers@6 v3',
+    signer: ethers6Signer,
+  },
+]
+
+describe.each(ENABLED_TESTS)(
+  '$testName',
+  ({ testName, walletClient, signer, version }) => {
+    const isV2 = version === TBVersion.V2
+    const isV3 = isV2 === false
+    const viemOnlyIt = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
+    const v3OnlyIt = isV3 ? it : it.skip
     // Set up Anvil instance + clients
     const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
     const CUSTOM_SALT = 6551
@@ -351,15 +332,15 @@ function runTxTests({
             ...preparedNFTTransfer,
           })
         } else {
-          transferHash = await signer
-            .sendTransaction({
-              chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-              ...preparedNFTTransfer,
-            })
-            .then((tx: providers.TransactionResponse) => tx.hash)
+          const tx = await signer.sendTransaction({
+            chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+            ...preparedNFTTransfer,
+          })
+
+          transferHash = tx.hash
         }
 
-        const transactionReceipt = await publicClient.getTransactionReceipt({
+        const transactionReceipt = await publicClient.waitForTransactionReceipt({
           hash: transferHash,
         })
 
@@ -406,15 +387,14 @@ function runTxTests({
             ...preparedNFTTransfer,
           })
         } else {
-          transferHash = await signer
-            .sendTransaction({
-              chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-              ...preparedNFTTransfer,
-            })
-            .then((tx: providers.TransactionResponse) => tx.hash)
+          const tx = await signer.sendTransaction({
+            chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+            ...preparedNFTTransfer,
+          })
+          transferHash = tx.hash
         }
 
-        const transactionReceipt = await publicClient.getTransactionReceipt({
+        const transactionReceipt = await publicClient.waitForTransactionReceipt({
           hash: transferHash,
         })
 
@@ -953,8 +933,8 @@ function runTxTests({
         expect(ensWETHBalance).toBe(transferWeiValue)
       })
     })
-  })
-}
+  }
+)
 
 describe('Custom client configurations', () => {
   it('can use a custom publicClient RPC URL', async () => {
