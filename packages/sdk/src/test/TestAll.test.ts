@@ -290,22 +290,24 @@ describe.each(ENABLED_TESTS)(
     v3OnlyIt(
       'can createAccount and append multicall transaction(s) that use the deployed TBA',
       async () => {
+        const multicallTBAAddress = tokenboundClient.getAccount(NFT_FOR_MULTICALL_CREATE)
+
         // Perform a simple ERC20 balanceOf call to test the appended multicall transaction
         const encodedBalanceOfFunctionData = encodeFunctionData({
           abi: erc20ABI,
           functionName: 'balanceOf',
-          args: [ZORA721_TBA_ADDRESS],
+          args: [multicallTBAAddress],
         })
 
         const preparedBalanceOfByTBA = await tokenboundClient.prepareExecution({
-          account: ZORA721_TBA_ADDRESS,
+          account: multicallTBAAddress,
           to: WETH_CONTRACT_ADDRESS,
           value: 0n,
           data: encodedBalanceOfFunctionData,
         })
 
         const appendedCall: Call3 = {
-          target: ZORA721_TBA_ADDRESS, // Execute with TBA
+          target: multicallTBAAddress, // Execute with TBA
           allowFailure: false,
           callData: preparedBalanceOfByTBA.data,
         }
