@@ -711,7 +711,6 @@ describe.each(ENABLED_TESTS)(
       await waitFor(() => {
         expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
         expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
-        // expect(zoraBalanceInTBA).toBe(3n)
         expect(zoraBalanceInTBA).toBe(4n)
       })
     })
