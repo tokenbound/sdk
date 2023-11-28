@@ -172,11 +172,15 @@ console.log(preparedAccount) //0x1a2...3b4cd
 | **tokenContract** | The address of the token contract.                           | string |
 | **tokenId**       | The token ID.                                                | string |
 | **salt**          | The salt used to create a unique account address (optional)  | number |
+| **appendedCalls** | An array of calls to execute via Multicall3      (optional)  | Call3[] |
+
+See [Appending Calls To Account Creation](#appending-calls-to-account-creation) for `appendedCalls` documentation.
+
 ---
 
 ### createAccount
 
-Creates a tokenbound account for an NFT. The deterministic address is calculated using the `create2` opcode using the listed parameters along with chainId and implementation address. `createAccount` creates and initializes the account for use. Prior to account creation, the address can already receive assets. Deploying the account allows the NFT's owner to interact with the account. 
+Creates a tokenbound account for an NFT. The deterministic address is calculated using the `create2` opcode using the listed parameters along with chainId and implementation address. `createAccount` adds the account to the registry and initializes it for use. Prior to account creation, the address can already receive assets. Deploying the account allows the NFT's owner to interact with the account. 
 
 **Returns** an object containing the account address of the tokenbound account created and the hash of the transaction. If an account already exists, the existing account is returned.
 
@@ -189,11 +193,14 @@ const { account, txHash } = await tokenboundClient.createAccount({
 console.log(account) //0x1a2...3b4cd
 ```
 
-| Parameter         | Description                                                  | Type   |
-| ----------------- | ------------------------------------------------------------ | ------ |
-| **tokenContract** | The address of the token contract.                           | string |
-| **tokenId**       | The token ID.                                                | string |
-| **salt**          | The salt used to create a unique account address (optional)  | number |
+| Parameter         | Description                                                  | Type    |
+| ----------------- | ------------------------------------------------------------ | ------- |
+| **tokenContract** | The address of the token contract.                           | string  |
+| **tokenId**       | The token ID.                                                | string  |
+| **salt**          | The salt used to create a unique account address (optional)  | number  |
+| **appendedCalls** | An array of calls to execute via Multicall3      (optional)  | Call3[] |
+
+See [Appending Calls To Account Creation](#appending-calls-to-account-creation) for `appendedCalls` documentation.
 
 ---
 
@@ -566,6 +573,52 @@ If your application was created using the **standard legacy V2 account implement
 ```ts copy
 import { TokenboundClient, TBVersion } from '@tokenbound/sdk'
 const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1, version: TBVersion.V2 })
+```
+
+---
+
+### Appending Calls To Account Creation
+
+You can make your first transaction using a newly-created TBA by appending a call to `createAccount`'s internal multicall sequence for execution after the account creation and initialization steps. To determine your account address before it has been created, use the `getAccount` method. You can then use the account as the Call3 `target`.
+
+See the [Multicall3 docs](https://github.com/mds1/multicall) for detailed info regarding this approach. Pay special attention to the notices re: contract writes.
+
+
+```typescript
+import { Call3 } from '@tokenbound/sdk'
+import { encodeFunctionData } from 'viem'
+
+const TOKENBOUND_ACCOUNT_ADDRESS = `0xABC123...`
+
+// Encode function data for use in prepareExecution call
+const encodedFunctionData = encodeFunctionData({
+  abi: erc20ABI,
+  functionName: 'balanceOf',
+  args: [TOKENBOUND_ACCOUNT_ADDRESS],
+})
+
+// Prepare execution call via Tokenbound account
+const preparedExecution = await tokenboundClient.prepareExecution({
+  account: TOKENBOUND_ACCOUNT_ADDRESS,
+  to: WETH_CONTRACT_ADDRESS,
+  value: 0n,
+  data: encodedFunctionData,
+})
+
+// Assemble a Call3 call that can be used by createAccount's internal Multicall3 invocation
+const appendedCall: Call3 = {
+  target: TOKENBOUND_ACCOUNT_ADDRESS, // <-- Execute with TBA contract
+  allowFailure: false,
+  callData: preparedExecution.data, // <-- Encoded TBA 'execute' function data
+}
+
+const { account, txHash } = await tokenboundClient.createAccount({
+  tokenContract: "<token_contract_address>",
+  tokenId: "<token_id>",
+  appendedCalls: [appendedCall] // <-- Call(s) to be executed sequentially after account creation
+})
+
+console.log(account) //0x1a2...3b4cd
 ```
 
 ---

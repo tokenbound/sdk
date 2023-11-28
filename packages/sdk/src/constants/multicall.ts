@@ -1,5 +1,5 @@
 import { getAddress } from 'viem'
 
-export const MULTICALL_ADDRESS: `0x${string}` = getAddress(
-  '0xcA11bde05977b3631167028862bE2a173976CA11'
+export const MULTICALL_AUTHENTICATED_ADDRESS: `0x${string}` = getAddress(
+  '0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD'
 )

@@ -12,6 +12,8 @@ import {
 import { TEST_CONFIG, TEST_RESULTS } from './config'
 import { ERC_6551_LEGACY_V2 } from '../constants'
 
+const TIMEOUT = 60000 // default 10000
+
 describe.each([
   {
     testName: 'v2',
@@ -22,21 +24,25 @@ describe.each([
 ])(
   'Test SDK read methods across standard implementations $testName',
   ({ testName, expectedTestResults, implementationAddress, registryAddress }) => {
-    test(`.getAccount ${testName}`, async () => {
-      const publicClient = createPublicClient({
-        chain: goerli,
-        transport: http(),
-      })
+    test(
+      `.getAccount ${testName}`,
+      async () => {
+        const publicClient = createPublicClient({
+          chain: goerli,
+          transport: http(),
+        })
 
-      const result = await getAccount(
-        TEST_CONFIG.TOKEN_CONTRACT,
-        TEST_CONFIG.TOKEN_ID,
-        publicClient,
-        implementationAddress,
-        registryAddress
-      )
-      expect(result).toEqual(expectedTestResults['TB_ACCOUNT'])
-    })
+        const result = await getAccount(
+          TEST_CONFIG.TOKEN_CONTRACT,
+          TEST_CONFIG.TOKEN_ID,
+          publicClient,
+          implementationAddress,
+          registryAddress
+        )
+        expect(result).toEqual(expectedTestResults['TB_ACCOUNT'])
+      },
+      TIMEOUT
+    )
 
     test(`computeAccount ${testName}`, async () => {
       const result = computeAccount(
