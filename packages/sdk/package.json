@@ -19,7 +19,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest --watch=false",
+    "test": "vitest run",
     "coverage": "vitest run --coverage",
     "clean": "rm -rf node_modules/",
     "wagmi": "wagmi generate"

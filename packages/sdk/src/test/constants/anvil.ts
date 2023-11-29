@@ -4,6 +4,9 @@ import { getAddress } from 'viem'
 
 export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]
 
+export const ANVIL_MNEMONIC =
+  'test test test test test test test test test test test junk'
+
 // Anvil Accounts for local testing
 export const ANVIL_ACCOUNTS: AnvilAccount[] = [
   {
