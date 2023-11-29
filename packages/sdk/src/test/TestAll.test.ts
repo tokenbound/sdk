@@ -237,7 +237,6 @@ describe.each(ENABLED_TESTS)(
           expect(mintTxHash).toMatch(ADDRESS_REGEX)
           expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
           expect(NFT_FOR_MULTICALL_CREATE.tokenId).toBe(TOKENID_FOR_MULTICALL_CREATE)
-          // expect(zoraBalanceInAnvilWallet).toBe(3n)
           expect(zoraBalanceInAnvilWallet).toBe(4n)
           unwatch()
         })
