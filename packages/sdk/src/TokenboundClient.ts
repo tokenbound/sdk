@@ -11,10 +11,9 @@ import {
   SignableMessage,
   isAddressEqual,
   numberToHex,
-  multicall3Abi,
   custom,
 } from 'viem'
-import { erc1155Abi, erc721Abi, erc20Abi } from '../abis'
+import { erc1155Abi, erc721Abi, erc20Abi, multicall3AuthenticatedABI } from '../abis'
 import {
   getAccount,
   computeAccount,
@@ -61,7 +60,11 @@ import {
   resolvePossibleENS,
   getImplementationName,
 } from './utils'
-import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2, MULTICALL_ADDRESS } from './constants'
+import {
+  ERC_6551_DEFAULT,
+  ERC_6551_LEGACY_V2,
+  MULTICALL_AUTHENTICATED_ADDRESS,
+} from './constants'
 import { version as TB_SDK_VERSION } from '../package.json'
 
 declare global {
@@ -197,7 +200,7 @@ class TokenboundClient {
         data: `0x${string}`
       }
   > {
-    const { tokenContract, tokenId, salt = 0, chainId = this.chainId } = params
+    const { tokenContract, tokenId, salt = 0, chainId = this.chainId, appendedCalls = [] } = params
 
     const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
@@ -228,16 +231,22 @@ class TokenboundClient {
       salt
     )
 
+    if (appendedCalls.length > 0 && (!this.supportsV3 || isCustomImplementation)) {
+      throw new Error(
+        'Multicall via appendedCalls is not supported using the legacy V2 implementation or custom implementations'
+      )
+    }
+
     if (isCustomImplementation) {
       // Don't initialize for custom implementations. Allow third-party handling of initialization.
       return preparedBasicCreateAccount
     } else {
       // For standard implementations, use the multicall3 aggregate function to create and initialize the account in one transaction
       return {
-        to: MULTICALL_ADDRESS,
+        to: MULTICALL_AUTHENTICATED_ADDRESS,
         value: BigInt(0),
         data: encodeFunctionData({
-          abi: multicall3Abi,
+          abi: multicall3AuthenticatedABI,
           functionName: 'aggregate3',
           args: [
             [
@@ -255,6 +264,9 @@ class TokenboundClient {
                   args: [ERC_6551_DEFAULT.IMPLEMENTATION!.ADDRESS],
                 }),
               },
+              // Append Multicall3 calls, so the newly-created Tokenbound account
+              // can be used to execute calls immediately after creation
+              ...appendedCalls,
             ],
           ],
         }),
@@ -271,7 +283,7 @@ class TokenboundClient {
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
-    const { tokenContract, tokenId, salt = 0, chainId = this.chainId } = params
+    const { tokenContract, tokenId, salt = 0, chainId = this.chainId, appendedCalls = [] } = params
 
     try {
       let txHash: `0x${string}` | undefined
@@ -292,6 +304,7 @@ class TokenboundClient {
         tokenId,
         chainId,
         salt,
+        appendedCalls,
       })
 
       if (this.signer) {
@@ -394,7 +407,7 @@ class TokenboundClient {
   /**
    * Returns prepared transaction to execute on a tokenbound account
    * @param {string} params.account The tokenbound account address
-   * @param {string} params.to The recipient address
+   * @param {string} params.to The contract address to execute the call on
    * @param {bigint} params.value The value to send, in wei
    * @param {string} params.data The encoded operation calldata to send
    * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
@@ -427,7 +440,7 @@ class TokenboundClient {
   /**
    * Executes a transaction call on a tokenbound account
    * @param {string} params.account The tokenbound account address
-   * @param {string} params.to The recipient contract address
+   * @param {string} params.to The contract address to execute the call on
    * @param {bigint} params.value The value to send, in wei
    * @param {string} params.data The encoded operation calldata to send
    * @returns a Promise that resolves to the transaction hash of the executed call

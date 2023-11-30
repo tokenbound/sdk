@@ -52,7 +52,7 @@ importers:
         version: 6.0.3
       connectkit:
         specifier: ^1.5.3
-        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5)
+        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7)
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -69,11 +69,11 @@ importers:
         specifier: ^0.12.5
         version: 0.12.5
       viem:
-        specifier: ^1.18.9
-        version: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+        specifier: ^1.19.9
+        version: 1.19.9(typescript@5.2.2)(zod@3.21.4)
       wagmi:
-        specifier: ^1.4.5
-        version: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+        specifier: ^1.4.7
+        version: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
     devDependencies:
       '@types/react':
         specifier: ^18.2.21
@@ -95,7 +95,7 @@ importers:
     dependencies:
       '@rainbow-me/rainbowkit':
         specifier: ^1.0.11
-        version: 1.0.11(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5)
+        version: 1.0.11(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7)
       '@tokenbound/sdk':
         specifier: workspace:^
         version: link:../../packages/sdk
@@ -118,11 +118,11 @@ importers:
         specifier: ^0.12.5
         version: 0.12.5
       viem:
-        specifier: ^1.18.9
-        version: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+        specifier: ^1.19.9
+        version: 1.19.9(typescript@5.2.2)(zod@3.21.4)
       wagmi:
-        specifier: ^1.4.5
-        version: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+        specifier: ^1.4.7
+        version: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
     devDependencies:
       '@types/react':
         specifier: ^18.2.21
@@ -150,7 +150,7 @@ importers:
         version: 6.0.3
       connectkit:
         specifier: ^1.5.3
-        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5)
+        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7)
       ethers:
         specifier: ^6.7.0
         version: 6.7.0
@@ -167,11 +167,11 @@ importers:
         specifier: ^0.12.5
         version: 0.12.5
       viem:
-        specifier: ^1.18.9
-        version: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+        specifier: ^1.19.9
+        version: 1.19.9(typescript@5.2.2)(zod@3.21.4)
       wagmi:
-        specifier: ^1.4.5
-        version: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+        specifier: ^1.4.7
+        version: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
     devDependencies:
       '@types/react':
         specifier: ^18.2.21
@@ -199,7 +199,7 @@ importers:
         version: 6.0.3
       connectkit:
         specifier: ^1.5.3
-        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5)
+        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7)
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -216,11 +216,11 @@ importers:
         specifier: ^0.12.5
         version: 0.12.5
       viem:
-        specifier: ^1.18.9
-        version: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+        specifier: ^1.19.9
+        version: 1.19.9(typescript@5.2.2)(zod@3.21.4)
       wagmi:
-        specifier: ^1.4.5
-        version: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+        specifier: ^1.4.7
+        version: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
     devDependencies:
       '@types/react':
         specifier: ^18.2.21
@@ -241,8 +241,8 @@ importers:
   packages/sdk:
     dependencies:
       viem:
-        specifier: ^1.18.9
-        version: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+        specifier: ^1.19.9
+        version: 1.19.9(typescript@5.2.2)(zod@3.21.4)
     devDependencies:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.1.0
@@ -285,10 +285,10 @@ importers:
         version: 0.33.0(vitest@0.34.2)
       '@wagmi/cli':
         specifier: ^1.5.2
-        version: 1.5.2(typescript@5.2.2)(wagmi@1.4.5)
+        version: 1.5.2(typescript@5.2.2)(wagmi@1.4.7)
       connectkit:
         specifier: ^1.5.3
-        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5)
+        version: 1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7)
       eslint:
         specifier: ^8.50.0
         version: 8.50.0
@@ -332,8 +332,8 @@ importers:
         specifier: ^0.34.2
         version: 0.34.2(jsdom@22.1.0)
       wagmi:
-        specifier: ^1.4.5
-        version: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+        specifier: ^1.4.7
+        version: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
 
 packages:
 
@@ -346,11 +346,11 @@ packages:
     resolution: {integrity: sha512-+RNNcQvw2V1bmnBTPAtOLfW/9mhH2vC67+rUSi5T8EtEWt6lEnGNY2GuhZ1/YwbgikT1TkhvidCDmN5Q5YCo/w==}
     dev: true
 
+  /@adraffy/ens-normalize@1.10.0:
+    resolution: {integrity: sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==}
+
   /@adraffy/ens-normalize@1.9.2:
     resolution: {integrity: sha512-0h+FrQDqe2Wn+IIGFkTCd4aAwTJ+7834Ek1COohCyV26AXhwQ7WQaz+4F/nLOeVl/3BtWHOHLPsq46V8YB46Eg==}
-
-  /@adraffy/ens-normalize@1.9.4:
-    resolution: {integrity: sha512-UK0bHA7hh9cR39V+4gl2/NnBBjoXIxkuWAPCaY4X7fbH4L/azIi7ilWOCjMUYfpJgraLUAqkRi2BqrjME8Rynw==}
 
   /@ampproject/remapping@2.2.1:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
@@ -1954,7 +1954,7 @@ packages:
       fastq: 1.15.0
     dev: true
 
-  /@rainbow-me/rainbowkit@1.0.11(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5):
+  /@rainbow-me/rainbowkit@1.0.11(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7):
     resolution: {integrity: sha512-+cm6+WUPG9iPgkfJKbvlowcrSHu266Zk20LVRsYLcmb6v29gVMHcWQvyI4T6EVC9TxNjnyq/jIlen++uiUBmmQ==}
     engines: {node: '>=12.4'}
     peerDependencies:
@@ -1971,8 +1971,8 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-remove-scroll: 2.5.4(@types/react@18.2.21)(react@18.2.0)
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
-      wagmi: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
+      wagmi: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
     transitivePeerDependencies:
       - '@types/react'
     dev: false
@@ -2040,7 +2040,7 @@ packages:
     resolution: {integrity: sha512-gYw0ki/EAuV1oSyMxpqandHjnthZjYYy+YWpTAzf8BqfXM3ItcZLpjxfg+3+mXW8HIO+3jw6T9iiqEXsqHaMMw==}
     dependencies:
       '@safe-global/safe-gateway-typescript-sdk': 3.7.0
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -2762,7 +2762,7 @@ packages:
       - typescript
     dev: true
 
-  /@wagmi/cli@1.5.2(typescript@5.2.2)(wagmi@1.4.5):
+  /@wagmi/cli@1.5.2(typescript@5.2.2)(wagmi@1.4.7):
     resolution: {integrity: sha512-UfLMYhW6mQBCjR8A5s01Chf9GpHzdpcuuBuzJ36QGXcMSJAxylz5ImVZWfCRV0ct1UruydjKVSW1QSI6azNxRQ==}
     engines: {node: '>=14'}
     hasBin: true
@@ -2799,16 +2799,16 @@ packages:
       picocolors: 1.0.0
       prettier: 2.8.8
       typescript: 5.2.2
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
-      wagmi: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
+      wagmi: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
       zod: 3.21.4
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
     dev: true
 
-  /@wagmi/connectors@3.1.3(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9):
-    resolution: {integrity: sha512-UgwsQKQDFObJVJMf9pDfFoXTv710o4zrTHyhIWKBTMMkLpCMsMxN5+ZaDhBYt/BgoRinfRYQo8uwuwLhxE6Log==}
+  /@wagmi/connectors@3.1.5(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9):
+    resolution: {integrity: sha512-aE4rWZbivqWa9HqjiLDPtwROH2b1Az+lBVMeZ3o/aFxGNGNEkdrSAMOUG15/UFy3VnN6HqGOtTobOBZ10JhfNQ==}
     peerDependencies:
       typescript: '>=5.0.4'
       viem: '>=0.3.35'
@@ -2827,7 +2827,7 @@ packages:
       abitype: 0.8.7(typescript@5.2.2)(zod@3.21.4)
       eventemitter3: 4.0.7
       typescript: 5.2.2
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
     transitivePeerDependencies:
       - '@react-native-async-storage/async-storage'
       - '@types/react'
@@ -2839,8 +2839,8 @@ packages:
       - utf-8-validate
       - zod
 
-  /@wagmi/core@1.4.5(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9):
-    resolution: {integrity: sha512-N9luRb1Uk4tBN9kaYcQSWKE9AsRt/rvZaFt5IZech4JPzNN2sQlfhKd9GEjOXYRDqEPHdDvos7qyBKiDNTz4GA==}
+  /@wagmi/core@1.4.7(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9):
+    resolution: {integrity: sha512-PiOIGni8ArQoPmuDylHX38zMt2nPnTYRIluIqiduKyGCM61X/tf10a0rafUMOOphDPudZu1TacNDhCSeoh/LEA==}
     peerDependencies:
       typescript: '>=5.0.4'
       viem: '>=0.3.35'
@@ -2848,11 +2848,11 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@wagmi/connectors': 3.1.3(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+      '@wagmi/connectors': 3.1.5(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
       abitype: 0.8.7(typescript@5.2.2)(zod@3.21.4)
       eventemitter3: 4.0.7
       typescript: 5.2.2
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
       zustand: 4.3.7(react@18.2.0)
     transitivePeerDependencies:
       - '@react-native-async-storage/async-storage'
@@ -3879,7 +3879,7 @@ packages:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
     dev: true
 
-  /connectkit@1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.18.9)(wagmi@1.4.5):
+  /connectkit@1.5.3(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.19.9)(wagmi@1.4.7):
     resolution: {integrity: sha512-vXneVOa+oit5Migoxca2QkgVBHaROItzb2kW13o7aUrcEcecYIGZjsizsVM2YvIdKihyWs+zJFrlED4g8zAMew==}
     engines: {node: '>=12.4'}
     peerDependencies:
@@ -3898,8 +3898,8 @@ packages:
       react-use-measure: 2.1.1(react-dom@18.2.0)(react@18.2.0)
       resize-observer-polyfill: 1.5.1
       styled-components: 5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
-      wagmi: 1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
+      wagmi: 1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
     transitivePeerDependencies:
       - react-is
 
@@ -5928,12 +5928,7 @@ packages:
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.1.0
       '@lit/reactive-element': 1.6.1
-      lit-html: 2.7.2
-
-  /lit-html@2.7.2:
-    resolution: {integrity: sha512-ZJCfKlA2XELu5tn7XuzOziGFGvf1SeQm+ngLWoJ8bXtSkRrrR3ms6SWy+gsdxeYwySLij5xAhdd2C3EX0ftxdQ==}
-    dependencies:
-      '@types/trusted-types': 2.0.3
+      lit-html: 2.8.0
 
   /lit-html@2.8.0:
     resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
@@ -7867,15 +7862,15 @@ packages:
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
 
-  /viem@1.18.9(typescript@5.2.2)(zod@3.21.4):
-    resolution: {integrity: sha512-eAXtoTwAFA3YEgjTYMb5ZTQrDC0UPx5qyZ4sv90TirVKepcM9mBPksTkC1SSWya0UdxhBmhEBL/CiYMjmGCTWg==}
+  /viem@1.19.9(typescript@5.2.2)(zod@3.21.4):
+    resolution: {integrity: sha512-Sf9U2x4jU0S/FALqYypcspWOGene0NZyD470oUripNhE0Ta6uOE/OgE4toTDVfRxov8qw0JFinr/wPGxYE3+HQ==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
-      '@adraffy/ens-normalize': 1.9.4
+      '@adraffy/ens-normalize': 1.10.0
       '@noble/curves': 1.2.0
       '@noble/hashes': 1.3.2
       '@scure/bip32': 1.3.2
@@ -8063,8 +8058,8 @@ packages:
       xml-name-validator: 4.0.0
     dev: true
 
-  /wagmi@1.4.5(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9):
-    resolution: {integrity: sha512-Ph62E6cO5n2Z8Z5LTyZrkaNprxTsbC4w0qZJT4OJdXrEELziI8z/b4FO6amVFXdu2rDp/wpvF56e4mhKC8/Kdw==}
+  /wagmi@1.4.7(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9):
+    resolution: {integrity: sha512-/k8gA9S6RnwU6Qroxs630jAFvRIx+DSKpCP1owgAEGWc7D2bAJHljwRSCRTGENz48HyJ4V3R7KYV1yImxPvM3A==}
     peerDependencies:
       react: '>=17.0.0'
       typescript: '>=5.0.4'
@@ -8076,12 +8071,12 @@ packages:
       '@tanstack/query-sync-storage-persister': 4.29.1
       '@tanstack/react-query': 4.29.1(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/react-query-persist-client': 4.29.1(@tanstack/react-query@4.29.1)
-      '@wagmi/core': 1.4.5(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.18.9)
+      '@wagmi/core': 1.4.7(@types/react@18.2.21)(react@18.2.0)(typescript@5.2.2)(viem@1.19.9)
       abitype: 0.8.7(typescript@5.2.2)(zod@3.21.4)
       react: 18.2.0
       typescript: 5.2.2
       use-sync-external-store: 1.2.0(react@18.2.0)
-      viem: 1.18.9(typescript@5.2.2)(zod@3.21.4)
+      viem: 1.19.9(typescript@5.2.2)(zod@3.21.4)
     transitivePeerDependencies:
       - '@react-native-async-storage/async-storage'
       - '@types/react'

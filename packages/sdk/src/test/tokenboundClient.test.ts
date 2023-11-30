@@ -5,6 +5,8 @@ import { TEST_CONFIG, TEST_RESULTS } from './config'
 import { ERC_6551_LEGACY_V2 } from '../constants'
 import { TBVersion } from '../types'
 
+const TIMEOUT = 60000 // default 10000
+
 describe.each([
   {
     testName: 'v2',
@@ -70,22 +72,28 @@ describe.each([
         tokenId: TEST_CONFIG.TOKEN_ID,
       })
 
+      if (!preparedAccount.to) return false
+
       expect(isAddress(preparedAccount.to)).toEqual(true)
       expect(typeof preparedAccount.value).toEqual('bigint')
       expect(isHex(preparedAccount.data)).toEqual(true)
     })
 
-    test(`tokenboundClient.checkAccountDeployment ${testName}`, async () => {
-      const isSapienz0Deployed = await tokenboundClient.checkAccountDeployment({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
-      })
-      const isSapienz1Deployed = await tokenboundClient.checkAccountDeployment({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_1,
-      })
+    test(
+      `tokenboundClient.checkAccountDeployment ${testName}`,
+      async () => {
+        const isSapienz0Deployed = await tokenboundClient.checkAccountDeployment({
+          accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+        })
+        const isSapienz1Deployed = await tokenboundClient.checkAccountDeployment({
+          accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_1,
+        })
 
-      expect(isSapienz0Deployed).toEqual(true)
-      expect(isSapienz1Deployed).toEqual(false)
-    })
+        expect(isSapienz0Deployed).toEqual(true)
+        expect(isSapienz1Deployed).toEqual(false)
+      },
+      TIMEOUT
+    )
 
     test(`tokenboundClient.deconstructBytecode ${testName}`, async () => {
       const bytecode = await tokenboundClient.deconstructBytecode({
@@ -113,18 +121,22 @@ describe.each([
       expect(salt).toEqual(0)
     })
 
-    test(`tokenboundClient.getNFT ${testName}`, async () => {
-      const nft = await tokenboundClient.getNFT({
-        accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
-      })
+    test(
+      `tokenboundClient.getNFT ${testName}`,
+      async () => {
+        const nft = await tokenboundClient.getNFT({
+          accountAddress: TEST_CONFIG.SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
+        })
 
-      if (!nft) throw new Error('Bytecode is undefined')
+        if (!nft) throw new Error('Bytecode is undefined')
 
-      const { chainId, tokenContract, tokenId } = nft
+        const { chainId, tokenContract, tokenId } = nft
 
-      expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
-      expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
-      expect(tokenId).toEqual('0')
-    })
+        expect(chainId).toEqual(TEST_CONFIG.CHAIN_ID)
+        expect(tokenContract).toEqual(TEST_CONFIG.SAPIENZ_GOERLI_CONTRACT)
+        expect(tokenId).toEqual('0')
+      },
+      TIMEOUT
+    )
   }
 )

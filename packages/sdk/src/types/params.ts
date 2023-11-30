@@ -1,6 +1,6 @@
 import { WalletClient, PublicClient, Chain } from 'viem'
 import { Prettify } from './prettify'
-import { UniversalSignableMessage, CallOperation } from '.'
+import { UniversalSignableMessage, CallOperation, Call3 } from '.'
 import { PossibleENSAddress } from './addresses'
 import { ERC_6551_LEGACY_V2 } from '../constants'
 
@@ -86,11 +86,15 @@ export type GetAccountParams = Prettify<
   TBAccountParams & Partial<Custom6551Implementation>
 >
 
+export type MultiCallParams = Prettify<{
+  appendedCalls?: Call3[]
+}>
+
 export type PrepareCreateAccountParams = Prettify<
-  TBAccountParams & Partial<Custom6551Implementation>
+  TBAccountParams & MultiCallParams & Partial<Custom6551Implementation>
 >
 export type CreateAccountParams = Prettify<
-  TBAccountParams & Partial<Custom6551Implementation>
+  TBAccountParams & MultiCallParams & Partial<Custom6551Implementation>
 >
 
 export type ExecuteCallParams = Prettify<{
