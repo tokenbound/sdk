@@ -590,11 +590,44 @@ import { encodeFunctionData } from 'viem'
 
 const TOKENBOUND_ACCOUNT_ADDRESS = `0xABC123...`
 
+// Here's an example that uses your just-deployed token bound account to make a transaction.
+// Let's claim an ERC-1155 token from one of ThirdWeb's DropERC1115 contract deployments
+// https://thirdweb.com/thirdweb.eth/DropERC1155
+
+const maxClaimablePerWallet = 1
+const pricePerToken = 0
+const quantity = 1
+const currencyAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' // ETH
+
+// Configure the arguments for the claim
+const claimConfig = {
+  receivingTBA: TOKENBOUND_ACCOUNT_ADDRESS,
+  pricePerToken,
+  quantity,
+  tokenId: 0,
+  currencyAddress,
+  allowListProof: {
+    proof: [],
+    quantityLimitPerWallet: maxClaimablePerWallet ?? 1,
+    pricePerToken,
+    currency: currencyAddress,
+  },
+  data: '0x',
+}
+
 // Encode function data for use in prepareExecution call
-const encodedFunctionData = encodeFunctionData({
-  abi: erc20ABI,
-  functionName: 'balanceOf',
-  args: [TOKENBOUND_ACCOUNT_ADDRESS],
+const encodedClaimFunctionData = encodeFunctionData({
+  abi: rewardContractABI,
+  functionName: 'claim',
+  args: [
+    claimConfig.receivingTBA,
+    claimConfig.tokenId,
+    claimConfig.quantity,
+    claimConfig.currencyAddress,
+    claimConfig.pricePerToken,
+    claimConfig.allowListProof, 
+    claimConfig.data,
+  ],
 })
 
 // Prepare execution call via Tokenbound account
@@ -602,7 +635,7 @@ const preparedExecution = await tokenboundClient.prepareExecution({
   account: TOKENBOUND_ACCOUNT_ADDRESS,
   to: WETH_CONTRACT_ADDRESS,
   value: 0n,
-  data: encodedFunctionData,
+  data: encodedClaimFunctionData,
 })
 
 // Assemble a Call3 call that can be used by createAccount's internal Multicall3 invocation
