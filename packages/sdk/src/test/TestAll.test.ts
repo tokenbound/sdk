@@ -42,7 +42,7 @@ import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
-import { CreateAccountParams, TokenboundClient } from '../'
+import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
@@ -278,14 +278,11 @@ describe.each(ENABLED_TESTS)(
     it(
       'can createAccount with a custom chainId',
       async () => {
-        const computedAccount = tokenboundClient.getAccount({
-          ...NFT_IN_EOA,
-          chainId: 31337,
-        })
+        const HARDHAT_CHAIN_ID = 31337
 
         const { account, txHash } = await tokenboundClient.createAccount({
           ...NFT_IN_EOA,
-          chainId: 31337,
+          chainId: HARDHAT_CHAIN_ID,
         })
         console.log('CREATED ACCT WITH CUSTOM CHAIN ID', account)
 
@@ -293,11 +290,19 @@ describe.each(ENABLED_TESTS)(
           hash: txHash,
         })
 
-        const bytecode = await publicClient.getBytecode({ address: account })
+        const bytecode = await tokenboundClient.deconstructBytecode({
+          accountAddress: account,
+        })
+
+        if (!bytecode) return false
+
+        const { chainId } = bytecode
+
+        console.log('CREATED ACCT CHAIN ID', chainId)
 
         expect(isAddress(account)).toEqual(true)
         expect(createdAccountTxReceipt.status).toBe('success')
-        expect(bytecode?.length).toBeGreaterThan(0)
+        expect(chainId).toBe(HARDHAT_CHAIN_ID)
       },
       TIMEOUT
     )
