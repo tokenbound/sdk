@@ -40,8 +40,9 @@ import {
 import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
-import { TBImplementationVersion, TBVersion } from '../types'
+import { Call3, TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
+import { erc20ABI } from 'wagmi'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
@@ -111,11 +112,14 @@ describe.each(ENABLED_TESTS)(
     let tokenboundClient: TokenboundClient
     let publicClient: PublicClient
     let NFT_IN_EOA: CreateAccountParams
+    let NFT_FOR_MULTICALL_CREATE: CreateAccountParams
     let TOKENID_IN_EOA: string
+    let TOKENID_FOR_MULTICALL_CREATE: string
     let TOKENID1_IN_TBA: string
     let TOKENID2_IN_TBA: string
     let ZORA721_TBA_ADDRESS: `0x${string}`
     let ZORA721_TBA_ADDRESS_CUSTOM_SALT: `0x${string}`
+    let ZORA721_TBA_ADDRESS_MULTICALL: `0x${string}`
 
     const ERC6551_DEPLOYMENT = isV2 ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
 
@@ -173,15 +177,21 @@ describe.each(ENABLED_TESTS)(
             const { tokenId: eoaTokenId } = logs[0].args
             const { tokenId: tbaToken1Id } = logs[1].args
             const { tokenId: tbaToken2Id } = logs[2].args
+            const { tokenId: multicallTokenId } = logs[3].args
 
-            if (eoaTokenId && tbaToken1Id && tbaToken2Id) {
+            if (eoaTokenId && tbaToken1Id && tbaToken2Id && multicallTokenId) {
               TOKENID_IN_EOA = eoaTokenId.toString()
+              TOKENID_FOR_MULTICALL_CREATE = multicallTokenId.toString()
               TOKENID1_IN_TBA = tbaToken1Id.toString()
               TOKENID2_IN_TBA = tbaToken2Id.toString()
 
               NFT_IN_EOA = {
                 tokenContract: zora721.proxyContractAddress,
                 tokenId: TOKENID_IN_EOA,
+              }
+              NFT_FOR_MULTICALL_CREATE = {
+                tokenContract: zora721.proxyContractAddress,
+                tokenId: TOKENID_FOR_MULTICALL_CREATE,
               }
             }
           },
@@ -226,7 +236,8 @@ describe.each(ENABLED_TESTS)(
           expect(mintLogs.length).toBe(zora721.quantity)
           expect(mintTxHash).toMatch(ADDRESS_REGEX)
           expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
-          expect(zoraBalanceInAnvilWallet).toBe(3n)
+          expect(NFT_FOR_MULTICALL_CREATE.tokenId).toBe(TOKENID_FOR_MULTICALL_CREATE)
+          expect(zoraBalanceInAnvilWallet).toBe(4n)
           unwatch()
         })
       },
@@ -267,6 +278,50 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS_CUSTOM_SALT = account
+        await waitFor(() => {
+          expect(account).toMatch(ADDRESS_REGEX)
+          expect(createdAccountTxReceipt.status).toBe('success')
+        })
+      },
+      TIMEOUT
+    )
+
+    v3OnlyIt(
+      'can createAccount and append multicall transaction(s) that use the deployed TBA',
+      async () => {
+        const multicallTBAAddress = tokenboundClient.getAccount(NFT_FOR_MULTICALL_CREATE)
+
+        // Perform a simple ERC20 balanceOf call to test the appended multicall transaction
+        const encodedBalanceOfFunctionData = encodeFunctionData({
+          abi: erc20ABI,
+          functionName: 'balanceOf',
+          args: [multicallTBAAddress],
+        })
+
+        const preparedBalanceOfByTBA = await tokenboundClient.prepareExecution({
+          account: multicallTBAAddress,
+          to: WETH_CONTRACT_ADDRESS,
+          value: 0n,
+          data: encodedBalanceOfFunctionData,
+        })
+
+        const appendedCall: Call3 = {
+          target: multicallTBAAddress, // Execute with TBA
+          allowFailure: false,
+          callData: preparedBalanceOfByTBA.data,
+        }
+
+        const { account, txHash } = await tokenboundClient.createAccount({
+          ...NFT_FOR_MULTICALL_CREATE,
+          appendedCalls: [appendedCall],
+        })
+        console.log('CREATED ACCT WITH MULTICALL', account)
+
+        const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
+
+        ZORA721_TBA_ADDRESS_MULTICALL = account
         await waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
@@ -629,7 +684,7 @@ describe.each(ENABLED_TESTS)(
       })
     })
 
-    it('can mint 3 Zora 721 NFTs with the TBA', async () => {
+    it('can mint 4 Zora 721 NFTs with the TBA', async () => {
       const encodedMintFunctionData = encodeFunctionData({
         abi: zora721.abi,
         functionName: 'purchase',
@@ -657,7 +712,7 @@ describe.each(ENABLED_TESTS)(
       await waitFor(() => {
         expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
         expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
-        expect(zoraBalanceInTBA).toBe(3n)
+        expect(zoraBalanceInTBA).toBe(4n)
       })
     })
 

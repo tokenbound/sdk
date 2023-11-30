@@ -29,6 +29,8 @@ import {
   TBImplementationVersion,
   TBVersion,
   MultiCallTx,
+  Call3,
+  CALL_OPERATIONS,
 } from './types'
 
 import {
@@ -53,6 +55,7 @@ export {
   getCreationCode,
   prepareExecuteCall,
   executeCall,
+  CALL_OPERATIONS,
 }
 
 export type {
@@ -73,4 +76,5 @@ export type {
   NFTTransferParams,
   TBImplementationVersion,
   MultiCallTx,
+  Call3,
 }
