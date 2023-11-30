@@ -19,9 +19,9 @@ import {
   getContract,
   encodeAbiParameters,
   parseAbiParameters,
+  isAddress,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
 import {
   ADDRESS_REGEX,
   ANVIL_ACCOUNTS,
@@ -42,6 +42,7 @@ import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
+import { CreateAccountParams, TokenboundClient } from '../'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
@@ -68,7 +69,7 @@ type TestConfig = {
   version?: TBImplementationVersion
 }
 
-const ENABLED_TESTS: Array<TestConfig> = [
+export const ENABLED_TESTS: Array<TestConfig> = [
   {
     testName: 'viem v2',
     walletClient,
@@ -271,6 +272,31 @@ describe.each(ENABLED_TESTS)(
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
+      },
+      TIMEOUT
+    )
+    it(
+      'can createAccount with a custom chainId',
+      async () => {
+        const { account, txHash } = await tokenboundClient.createAccount({
+          ...NFT_IN_EOA,
+          chainId: 31337,
+        })
+        console.log('CREATED ACCT WITH CUSTOM CHAIN ID', account)
+
+        try {
+          const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+            hash: txHash,
+          })
+        } catch (error) {
+          console.log(error)
+        }
+
+        const bytecode = await publicClient.getBytecode({ address: account })
+
+        expect(isAddress(account)).toEqual(true)
+        expect(createdAccountTxReceipt.status).toBe('success')
+        expect(bytecode?.length).toBeGreaterThan(0)
       },
       TIMEOUT
     )
