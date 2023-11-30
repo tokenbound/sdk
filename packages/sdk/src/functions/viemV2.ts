@@ -121,7 +121,8 @@ export async function createAccount(
   client: WalletClient,
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`,
-  salt?: number
+  salt?: number,
+  chainId?: number
 ): Promise<`0x${string}`> {
   salt = salt ?? 0
   const implementation = implementationAddress
@@ -137,7 +138,7 @@ export async function createAccount(
     walletClient: client,
   })
 
-  const chainId = await client.getChainId()
+  const _chainId = chainId || (await client.getChainId())
 
   const initData = encodeFunctionData({
     abi: [
@@ -154,7 +155,7 @@ export async function createAccount(
 
   return registry.write.createAccount([
     implementation,
-    chainId,
+    _chainId,
     tokenContract,
     tokenId,
     salt,

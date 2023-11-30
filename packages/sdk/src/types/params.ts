@@ -76,7 +76,11 @@ type Custom6551Implementation = Prettify<{
   salt?: number
 }>
 
-export type TBAccountParams = NFTParams
+export type TBAccountParams = Prettify<
+  NFTParams & {
+    chainId?: number
+  }
+>
 
 export type GetAccountParams = Prettify<
   TBAccountParams & Partial<Custom6551Implementation>
