@@ -5,7 +5,6 @@ This repo houses the Tokenbound SDK, a front-end library for interacting with [E
 ### Packages
 
 - **[@tokenbound/sdk](https://github.com/tokenbound/sdk/tree/main/packages/sdk)** - SDK client for all projects, signing enabled via either Ethers Signer or viem WalletClient.
-- **[@tokenbound/react](https://github.com/tokenbound/sdk/tree/main/packages/react)** - Low-level react hooks for interacting with token bound accounts
 
 ### Examples
 
@@ -581,16 +580,21 @@ const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1, versio
 
 You can make your first transaction using a newly-created TBA by appending a call to `createAccount`'s internal multicall sequence for execution after the account creation and initialization steps. To determine your account address before it has been created, use the `getAccount` method. You can then use the account as the Call3 `target`.
 
+The Tokenbound SDK uses a fork of Multicall3 with support for authenticated calls. The value of msg.sender is appended to the calldata of each call in the style of [ERC-2771](https://eips.ethereum.org/EIPS/eip-2771), allowing contract recipients to verify the multicall sender.
+
 See the [Multicall3 docs](https://github.com/mds1/multicall) for detailed info regarding this approach. Pay special attention to the notices re: contract writes.
 
+Here's an example that uses your just-deployed token bound account to make a transaction.
 
 ```typescript
 import { Call3 } from '@tokenbound/sdk'
 import { encodeFunctionData } from 'viem'
 
-const TOKENBOUND_ACCOUNT_ADDRESS = `0xABC123...`
+const tokenboundAccount = tokenboundClient.getAccount({
+  tokenContract: "<token_contract_address>",
+  tokenId: "<token_id>",
+})
 
-// Here's an example that uses your just-deployed token bound account to make a transaction.
 // Let's claim an ERC-1155 token from one of ThirdWeb's DropERC1115 contract deployments
 // https://thirdweb.com/thirdweb.eth/DropERC1155
 
@@ -601,7 +605,7 @@ const currencyAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' // ETH
 
 // Configure the arguments for the claim
 const claimConfig = {
-  receivingTBA: TOKENBOUND_ACCOUNT_ADDRESS,
+  receivingTBA: tokenboundAccount,
   pricePerToken,
   quantity,
   tokenId: 0,
@@ -632,15 +636,15 @@ const encodedClaimFunctionData = encodeFunctionData({
 
 // Prepare execution call via Tokenbound account
 const preparedExecution = await tokenboundClient.prepareExecution({
-  account: TOKENBOUND_ACCOUNT_ADDRESS,
-  to: WETH_CONTRACT_ADDRESS,
+  account: tokenboundAccount,
+  to: CLAIM_CONTRACT_ADDRESS,
   value: 0n,
   data: encodedClaimFunctionData,
 })
 
 // Assemble a Call3 call that can be used by createAccount's internal Multicall3 invocation
 const appendedCall: Call3 = {
-  target: TOKENBOUND_ACCOUNT_ADDRESS, // <-- Execute with TBA contract
+  target: tokenboundAccount, // <-- Execute with TBA contract
   allowFailure: false,
   callData: preparedExecution.data, // <-- Encoded TBA 'execute' function data
 }
