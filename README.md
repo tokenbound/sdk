@@ -167,13 +167,13 @@ const preparedAccount = await tokenboundClient.prepareCreateAccount({
 console.log(preparedAccount) //0x1a2...3b4cd
 ```
 
-| Parameter         | Description                                                  | Type   |
-| ----------------- | ------------------------------------------------------------ | ------ |
-| **tokenContract** | The address of the token contract.                           | string |
-| **tokenId**       | The token ID.                                                | string |
-| **salt**          | The salt used to create a unique account address (optional)  | number |
-| **chainId**       | The address of the chain the token exists on (optional)     | number |
-| **appendedCalls** | An array of calls to execute via Multicall3      (optional)  | Call3[] |
+| Parameter         | Description                                                     | Type    |
+| ----------------- | --------------------------------------------------------------- | ------- |
+| **tokenContract** | The address of the token contract.                              | string  |
+| **tokenId**       | The token ID.                                                   | string  |
+| **salt**          | The salt used to create a unique account address (optional)     | number  |
+| **chainId**       | The id of the chain on which the account will exist (optional)  | number  |
+| **appendedCalls** | An array of calls to execute via Multicall3 (optional)          | Call3[] |
 
 See [Appending Calls To Account Creation](#appending-calls-to-account-creation) for `appendedCalls` documentation.
 
@@ -194,13 +194,13 @@ const { account, txHash } = await tokenboundClient.createAccount({
 console.log(account) //0x1a2...3b4cd
 ```
 
-| Parameter         | Description                                                  | Type    |
-| ----------------- | ------------------------------------------------------------ | ------- |
-| **tokenContract** | The address of the token contract.                           | string  |
-| **tokenId**       | The token ID.                                                | string  |
-| **salt**          | The salt used to create a unique account address (optional)  | number  |
-| **chainId**       | The address of the chain the token exists on (optional)     | number |
-| **appendedCalls** | An array of calls to execute via Multicall3      (optional)  | Call3[] |
+| Parameter         | Description                                                     | Type    |
+| ----------------- | --------------------------------------------------------------- | ------- |
+| **tokenContract** | The address of the token contract.                              | string  |
+| **tokenId**       | The token ID.                                                   | string  |
+| **salt**          | The salt used to create a unique account address (optional)     | number  |
+| **chainId**       | The id of the chain on which the account will exist (optional)  | number  |
+| **appendedCalls** | An array of calls to execute via Multicall3 (optional)          | Call3[] |
 
 See [Appending Calls To Account Creation](#appending-calls-to-account-creation) for `appendedCalls` documentation.
 
