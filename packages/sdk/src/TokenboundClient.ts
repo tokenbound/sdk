@@ -204,7 +204,7 @@ class TokenboundClient {
     const computedAcct = getAcct(
       tokenContract,
       tokenId,
-      this.chainId,
+      chainId,
       this.implementationAddress,
       this.registryAddress,
       salt
@@ -311,7 +311,8 @@ class TokenboundClient {
               this.walletClient,
               this.implementationAddress,
               this.registryAddress,
-              salt
+              salt,
+              chainId
             )
       }
 

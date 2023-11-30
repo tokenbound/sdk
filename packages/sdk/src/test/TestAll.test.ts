@@ -278,19 +278,20 @@ describe.each(ENABLED_TESTS)(
     it(
       'can createAccount with a custom chainId',
       async () => {
+        const computedAccount = tokenboundClient.getAccount({
+          ...NFT_IN_EOA,
+          chainId: 31337,
+        })
+
         const { account, txHash } = await tokenboundClient.createAccount({
           ...NFT_IN_EOA,
           chainId: 31337,
         })
         console.log('CREATED ACCT WITH CUSTOM CHAIN ID', account)
 
-        try {
-          const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
-            hash: txHash,
-          })
-        } catch (error) {
-          console.log(error)
-        }
+        const createdAccountTxReceipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
 
         const bytecode = await publicClient.getBytecode({ address: account })
 

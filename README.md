@@ -27,24 +27,25 @@ $ pnpm install
 $ pnpm --filter "@tokenbound/*" build
 ```
 
-NOTE: Any local changes to SDK methods in `TokenboundClient.ts` require a rebuild to be useable in the example apps in ```/example```
+NOTE: Any local changes to SDK methods in `TokenboundClient.ts` require a rebuild to be useable in the example apps in `/example`
 
 2. Install [Anvil](https://github.com/foundry-rs/foundry/tree/master/anvil) to run a local Ethereum node.
 3. Configure environment variables. See `.env.example` for instructions
-4. Run dev server: ```pnpm dev```
+4. Run dev server: `pnpm dev`
 
 ## Unit/integration tests
 
 Tests are using [Vitest](https://vitest.dev), and can be performed via multiple pipelines:
 
 - Unit tests spin up a local Anvil instance using [viem/anvil](https://www.npmjs.com/package/@viem/anvil) and transact against a local fork of mainnet.
-- Integration tests are rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library that integrates with Anvil. See usage of ```renderWithWagmiConfig``` in ```packages/sdk/src/tests```.
+- Integration tests are rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library that integrates with Anvil. See usage of `renderWithWagmiConfig` in `packages/sdk/src/tests`.
 
 Both pipelines use [wagmi's Ethers adaptors](https://wagmi.sh/react/ethers-adapters) to convert the viem walletClient to Ethers 5 and Ethers 6 signers so the entire test suite is run against all 3 implementations.
 
 These tests require a local Anvil node so test transactions can be run against a mainnet fork.
 
 Thanks to [@tmm](https://github.com/tmm) for sharing [testing-wagmi](https://github.com/tmm/testing-wagmi) for reference.
+
 ### Run Tests
 
 1. Set up environment variables in `.env.test`
@@ -85,8 +86,7 @@ The client is instantiated with an object containing two parameters:
 | One of **signer** _or_ **walletClient** | mandatory |
 | One of **chainId** _or_ **chain**       | mandatory |
 
-
-Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) *or* an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
+Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) _or_ an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
 
 The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default.
 
@@ -129,14 +129,15 @@ const tokenboundClient = new TokenboundClient({ signer, chainId: 1 })
 ```
 
 ### Making your first call
+
 Now you can use the TokenboundClient to interact with the Tokenbound contracts:
 
 ```ts copy
 const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 })
 
 const tokenboundAccount = tokenboundClient.getAccount({
-  tokenContract: "<token_contract_address>",
-  tokenId: "<token_id>",
+  tokenContract: '<token_contract_address>',
+  tokenId: '<token_id>',
 })
 
 console.log(tokenboundAccount) //0x1a2...3b4cd
@@ -160,40 +161,43 @@ If using the legacy V2 implementation, the return will be a standard object of t
 
 ```typescript
 const preparedAccount = await tokenboundClient.prepareCreateAccount({
-  tokenContract: "<token_contract_address>",
-  tokenId: "<token_id>",
+  tokenContract: '<token_contract_address>',
+  tokenId: '<token_id>',
 })
 
 console.log(preparedAccount) //0x1a2...3b4cd
 ```
 
-| Parameter         | Description                                                  | Type   |
-| ----------------- | ------------------------------------------------------------ | ------ |
-| **tokenContract** | The address of the token contract.                           | string |
-| **tokenId**       | The token ID.                                                | string |
-| **salt**          | The salt used to create a unique account address (optional)  | number |
+| Parameter         | Description                                                 | Type   |
+| ----------------- | ----------------------------------------------------------- | ------ |
+| **tokenContract** | The address of the token contract.                          | string |
+| **tokenId**       | The token ID.                                               | string |
+| **salt**          | The salt used to create a unique account address (optional) | number |
+| **chainId**       | The address of the chain the token exists on (optional)     | number |
+
 ---
 
 ### createAccount
 
-Creates a tokenbound account for an NFT. The deterministic address is calculated using the `create2` opcode using the listed parameters along with chainId and implementation address. `createAccount` creates and initializes the account for use. Prior to account creation, the address can already receive assets. Deploying the account allows the NFT's owner to interact with the account. 
+Creates a tokenbound account for an NFT. The deterministic address is calculated using the `create2` opcode using the listed parameters along with chainId and implementation address. `createAccount` creates and initializes the account for use. Prior to account creation, the address can already receive assets. Deploying the account allows the NFT's owner to interact with the account.
 
 **Returns** an object containing the account address of the tokenbound account created and the hash of the transaction. If an account already exists, the existing account is returned.
 
 ```typescript
 const { account, txHash } = await tokenboundClient.createAccount({
-  tokenContract: "<token_contract_address>",
-  tokenId: "<token_id>",
+  tokenContract: '<token_contract_address>',
+  tokenId: '<token_id>',
 })
 
 console.log(account) //0x1a2...3b4cd
 ```
 
-| Parameter         | Description                                                  | Type   |
-| ----------------- | ------------------------------------------------------------ | ------ |
-| **tokenContract** | The address of the token contract.                           | string |
-| **tokenId**       | The token ID.                                                | string |
-| **salt**          | The salt used to create a unique account address (optional)  | number |
+| Parameter         | Description                                                 | Type   |
+| ----------------- | ----------------------------------------------------------- | ------ |
+| **tokenContract** | The address of the token contract.                          | string |
+| **tokenId**       | The token ID.                                               | string |
+| **salt**          | The salt used to create a unique account address (optional) | number |
+| **chainId**       | The address of the chain the token exists on (optional)     | number |
 
 ---
 
@@ -205,18 +209,18 @@ Gets the tokenbound account address for an NFT.
 
 ```typescript
 const tokenboundAccount = tokenboundClient.getAccount({
-  tokenContract: "<token_contract_address>",
-  tokenId: "<token_id>",
+  tokenContract: '<token_contract_address>',
+  tokenId: '<token_id>',
 })
 
 console.log(tokenboundAccount) //0x1a2...3b4cd
 ```
 
-| Parameter         | Description                                               | Type   |
-| ----------------- | --------------------------------------------------------- | ------ |
-| **tokenContract** | The address of the token contract.                        | string |
-| **tokenId**       | The token ID.                                             | string |
-| **salt**          | The salt used when the account was created (optional)     | number |
+| Parameter         | Description                                           | Type   |
+| ----------------- | ----------------------------------------------------- | ------ |
+| **tokenContract** | The address of the token contract.                    | string |
+| **tokenId**       | The token ID.                                         | string |
+| **salt**          | The salt used when the account was created (optional) | number |
 
 ---
 
@@ -228,13 +232,13 @@ Check if the tokenbound account address has been activated using createAccount.
 
 ```ts copy
 const SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0 =
-  "0x33D622b211C399912eC0feaaf1caFD01AFA53980" as `0x${string}`
+  '0x33D622b211C399912eC0feaaf1caFD01AFA53980' as `0x${string}`
 
 const isAccountDeployed = await tokenboundClient.checkAccountDeployment({
   accountAddress: SAPIENZ_GOERLI_TOKEN_TBA_TOKENID_0,
 })
 
-console.log("IS SAPIENZ 0 DEPLOYED?", isAccountDeployed) //...
+console.log('IS SAPIENZ 0 DEPLOYED?', isAccountDeployed) //...
 ```
 
 | Parameter          | Description                     | Type   |
@@ -255,7 +259,7 @@ Extracts information about the origin NFT that is paired with the tokenbound acc
 
 ```ts
 const nft = await tokenboundClient.getNFT({
-  accountAddress: "<account_address>",
+  accountAddress: '<account_address>',
 })
 
 const { tokenContract, tokenId, chainId } = nft
@@ -271,29 +275,29 @@ console.log({ tokenContract, tokenId, chainId })
 
 ### prepareExecution
 
-Prepares an arbitrary contract call for execution against any contract. 
+Prepares an arbitrary contract call for execution against any contract.
 
-**Note**: this method replaces the deprecated V2 method `prepareExecuteCall`. 
+**Note**: this method replaces the deprecated V2 method `prepareExecuteCall`.
 
 **Returns** A Promise with prepared transaction to execute a call on a Tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or via WalletClient.
 
 ```typescript
 const preparedExecution = await tokenboundClient.prepareExecution({
-  account: "<account_address>",
-  to: "<contract_address>",
-  value: "<wei_value>",
-  data: "<encoded_call_data>",
+  account: '<account_address>',
+  to: '<contract_address>',
+  value: '<wei_value>',
+  data: '<encoded_call_data>',
 })
 
 console.log(preparedExecution) //...
 ```
 
-| Parameter   | Description                               | Type   |
-| ----------- | ----------------------------------------- | ------ |
-| **account** | The Tokenbound account address.           | string |
-| **to**      | The contract address.                     | string |
-| **value**   | The value to send, in wei.                | bigint |
-| **data**    | The ABI-encoded call data (optional)      | string |
+| Parameter   | Description                          | Type   |
+| ----------- | ------------------------------------ | ------ |
+| **account** | The Tokenbound account address.      | string |
+| **to**      | The contract address.                | string |
+| **value**   | The value to send, in wei.           | bigint |
+| **data**    | The ABI-encoded call data (optional) | string |
 
 ---
 
@@ -301,27 +305,27 @@ console.log(preparedExecution) //...
 
 Performs an arbitrary contract call against any contract. This means any onchain action you can perform with your EOA wallet can be done with your NFT's Tokenbound account. You can mint or transfer NFTs, approve contracts, make and vote on DAO proposals, and much more.
 
-**Note**: this method replaces the deprecated V2 method `executeCall`. 
+**Note**: this method replaces the deprecated V2 method `executeCall`.
 
 **Returns** a hash of the transaction that executed a call using a Tokenbound account.
 
 ```typescript
 const executedCall = await tokenboundClient.execute({
-  account: "<account_address>",
-  to: "<contract_address>",
-  value: "<wei_value>",
-  data: "<encoded_call_data>",
+  account: '<account_address>',
+  to: '<contract_address>',
+  value: '<wei_value>',
+  data: '<encoded_call_data>',
 })
 
 console.log(executedCall)
 ```
 
-| Parameter           | Description                     | Type          |
-| ------------------- | ------------------------------- | ------------- |
-| **account**         | The Tokenbound account address. | string        |
-| **to**              | The contract address.           | string        |
-| **value**           | The value to send, in wei.      | bigint        |
-| **data** (optional) | The ABI-encoded call data.      | `0x{string}`  |
+| Parameter           | Description                     | Type         |
+| ------------------- | ------------------------------- | ------------ |
+| **account**         | The Tokenbound account address. | string       |
+| **to**              | The contract address.           | string       |
+| **value**           | The value to send, in wei.      | bigint       |
+| **data** (optional) | The ABI-encoded call data.      | `0x{string}` |
 
 Here's a more robust example, where we see how to use your TBA to mint an NFT using Zora's [ERC721Drop contract](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c#code) by calling the contract's `purchase` function.
 
@@ -331,17 +335,15 @@ Here's a more robust example, where we see how to use your TBA to mint an NFT us
 
 const zora721 = {
   abi: zora721DropABI,
-  proxyContractAddress: getAddress(
-    "0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d"
-  ),
+  proxyContractAddress: getAddress('0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d'),
   mintPrice: BigInt(0),
   quantity: 2,
-  tbaAddress: getAddress("0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c"),
+  tbaAddress: getAddress('0xc33f0A7FcD69Ba00b4e980463199CD38E30d0E5c'),
 }
 
 const encodedMintFunctionData = encodeFunctionData({
   abi: zora721.abi,
-  functionName: "purchase",
+  functionName: 'purchase',
   args: [BigInt(zora721.quantity)],
 })
 
@@ -371,9 +373,9 @@ const isValidSigner = await tokenboundClient.isValidSigner({
 console.log('isValidSigner?', isValidSigner)
 ```
 
-| Parameter            | Description                               | Type   |
-| -------------------- | ----------------------------------------- | ------ |
-| **account**          | The Tokenbound account address.           | string |
+| Parameter   | Description                     | Type   |
+| ----------- | ------------------------------- | ------ |
+| **account** | The Tokenbound account address. | string |
 
 ---
 
@@ -385,11 +387,11 @@ Transfer an NFT to a recipient from a Tokenbound account
 
 ```typescript
 const transferNFT = await tokenboundClient.transferNFT({
-  account: "<account_address>",
-  tokenType: "ERC721",
-  tokenContract: "<nft_contract_address>",
-  tokenId: "<nft_token_id>",
-  recipientAddress: "<recipient_address>",
+  account: '<account_address>',
+  tokenType: 'ERC721',
+  tokenContract: '<nft_contract_address>',
+  tokenId: '<nft_token_id>',
+  recipientAddress: '<recipient_address>',
 })
 
 console.log(transferNFT) //...
@@ -414,9 +416,9 @@ Transfer ETH to a recipient from a Tokenbound account
 
 ```typescript
 const transferETH = await tokenboundClient.transferETH({
-  account: "<tokenbound_account_address>",
+  account: '<tokenbound_account_address>',
   amount: 0.01,
-  recipientAddress: "<recipient_address>",
+  recipientAddress: '<recipient_address>',
 })
 
 console.log(transferERC20) //...
@@ -438,11 +440,11 @@ Transfer ERC-20 tokens to a recipient from a Tokenbound account
 
 ```typescript
 const transferERC20 = await tokenboundClient.transferERC20({
-  account: "<tokenbound_account_address>",
+  account: '<tokenbound_account_address>',
   amount: 0.1,
-  recipientAddress: "<recipient_address>",
-  erc20tokenAddress: "<erc20_token_address>",
-  erc20tokenDecimals: "<erc20_token_decimals>",
+  recipientAddress: '<recipient_address>',
+  erc20tokenAddress: '<erc20_token_address>',
+  erc20tokenDecimals: '<erc20_token_decimals>',
 })
 
 console.log(transferERC20) //...
@@ -474,7 +476,7 @@ Deconstructs the bytecode of a Tokenbound account into its constituent parts.
 
 ```ts
 const segmentedBytecode = await tokenboundClient.deconstructBytecode({
-  accountAddress: "<account_address>",
+  accountAddress: '<account_address>',
 })
 
 console.log(segmentedBytecode)
@@ -506,7 +508,7 @@ Note that this method is just for convenience. Since your EOA wallet is responsi
 
 ```ts
 const signedMessage = await tokenboundClient.signMessage({
-  message: "Ice cream so good",
+  message: 'Ice cream so good',
 })
 
 console.log(signedMessage)
@@ -520,7 +522,7 @@ console.log(signedUint8Message)
 
 // Works in viem
 const signedRawUint8Message = await tokenboundClient.signMessage({
-  message: {raw: uint8ArrayMessage},
+  message: { raw: uint8ArrayMessage },
 })
 
 console.log(signedUint8Message)
@@ -533,6 +535,7 @@ console.log(signedUint8Message)
 ---
 
 ## Advanced Usage
+
 ### Custom Account Implementation
 
 If your team has deployed a custom [account implementation](/contracts/account) contract, you'll need to point the SDK to your custom implementation instead of the default implementation.
@@ -540,20 +543,20 @@ If your team has deployed a custom [account implementation](/contracts/account) 
 If your custom implementation uses the legacy V2 account logic, you'll also need to supply a version parameter to instruct the TokenboundClient to make use of the V2 methods.
 
 ```javascript
-import { TokenboundClient } from "@tokenbound/sdk"
+import { TokenboundClient } from '@tokenbound/sdk'
 
 const tokenboundClient = new TokenboundClient({
-  walletClient: "<walletClient>",
-  chainId: "<chainId>",
-  implementationAddress: "<custom_implementation_address>",
+  walletClient: '<walletClient>',
+  chainId: '<chainId>',
+  implementationAddress: '<custom_implementation_address>',
 })
 
 // Custom implementation AND custom registry (uncommon for most implementations)
 const tokenboundClientWithCustomRegistry = new TokenboundClient({
-  walletClient: "<walletClient>",
-  chainId: "<chainId>",
-  implementationAddress: "<custom_implementation_address>",
-  registryAddress: "<custom_registry_address>",
+  walletClient: '<walletClient>',
+  chainId: '<chainId>',
+  implementationAddress: '<custom_implementation_address>',
+  registryAddress: '<custom_registry_address>',
 })
 ```
 
@@ -565,7 +568,11 @@ If your application was created using the **standard legacy V2 account implement
 
 ```ts copy
 import { TokenboundClient, TBVersion } from '@tokenbound/sdk'
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1, version: TBVersion.V2 })
+const tokenboundClient = new TokenboundClient({
+  walletClient,
+  chainId: 1,
+  version: TBVersion.V2,
+})
 ```
 
 ---
@@ -582,11 +589,12 @@ Alternately, you can simply configure and pass your own publicClient. This optio
 | **publicClient**       | optional |
 
 ```javascript
-import { TokenboundClient } from "@tokenbound/sdk"
+import { TokenboundClient } from '@tokenbound/sdk'
 
 const tokenboundClient = new TokenboundClient({
-  walletClient: "<walletClient>",
-  chainId: "<chainId>",
-  publicClientRPCUrl: "<custom_rpc_url>",
+  walletClient: '<walletClient>',
+  chainId: '<chainId>',
+  publicClientRPCUrl: '<custom_rpc_url>',
 })
 ```
+
