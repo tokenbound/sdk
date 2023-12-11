@@ -24,6 +24,7 @@ import {
   prepareCreateAccount,
   getTokenboundV3Account,
   prepareCreateTokenboundV3Account,
+  encodeCrossChainCall,
 } from './functions'
 import {
   AbstractEthersSigner,
@@ -200,7 +201,13 @@ class TokenboundClient {
         data: `0x${string}`
       }
   > {
-    const { tokenContract, tokenId, salt = 0, chainId = this.chainId, appendedCalls = [] } = params
+    const {
+      tokenContract,
+      tokenId,
+      salt = 0,
+      chainId = this.chainId,
+      appendedCalls = [],
+    } = params
 
     const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
@@ -283,7 +290,13 @@ class TokenboundClient {
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
-    const { tokenContract, tokenId, salt = 0, chainId = this.chainId, appendedCalls = [] } = params
+    const {
+      tokenContract,
+      tokenId,
+      salt = 0,
+      chainId = this.chainId,
+      appendedCalls = [],
+    } = params
 
     try {
       let txHash: `0x${string}` | undefined
@@ -418,7 +431,7 @@ class TokenboundClient {
     data: `0x${string}`
     // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
   }> {
-    const { account, to, value, data } = params
+    const { account, to, value, data, chainId = this.chainId } = params
     const operation = CALL_OPERATIONS.CALL
 
     if (!this.supportsV3) {
@@ -426,14 +439,35 @@ class TokenboundClient {
       return await this.prepareExecuteCall(params)
     }
 
+    let executionArgs = [to, value, data, operation]
+
+    // Handle cross-chain call encoding
+    if (this.chainId !== chainId) {
+      const {
+        to: crossChainTo,
+        value: crossChainValue,
+        data: crossChainData,
+      } = encodeCrossChainCall({
+        to,
+        value,
+        data: data as `0x${string}`,
+        originChainId: this.chainId,
+        destinationChainId: chainId,
+      })
+
+      executionArgs = [crossChainTo, crossChainValue, crossChainData, operation]
+    }
+
+    const executionData = encodeFunctionData({
+      abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
+      functionName: 'execute',
+      args: executionArgs,
+    })
+
     return {
       to: account as `0x${string}`,
       value: 0n,
-      data: encodeFunctionData({
-        abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
-        functionName: 'execute',
-        args: [to, value, data, operation],
-      }),
+      data: executionData,
     }
   }
 
