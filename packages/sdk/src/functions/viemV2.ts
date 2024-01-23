@@ -45,7 +45,9 @@ export async function getAccount(
   const registry = getContract({
     address: erc6551registry,
     abi: ERC_6551_LEGACY_V2.REGISTRY.ABI,
-    publicClient: client as PublicClient,
+    client: {
+      public: client as PublicClient,
+    },
   })
 
   const chainId = await client.getChainId()
@@ -135,7 +137,9 @@ export async function createAccount(
   const registry = getContract({
     address: erc6551registry,
     abi: ERC_6551_LEGACY_V2.REGISTRY.ABI,
-    walletClient: client,
+    client: {
+      wallet: client,
+    },
   })
 
   const _chainId = chainId || (await client.getChainId())
@@ -202,7 +206,9 @@ export async function executeCall(
   const registry = getContract({
     address: account as `0x${string}`,
     abi: ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI,
-    walletClient: client,
+    client: {
+      wallet: client,
+    },
   })
 
   return registry.write.executeCall([to as `0x${string}`, value, data as `0x${string}`])

@@ -42,7 +42,7 @@ import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { Call3, TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
-import { erc20ABI } from 'wagmi'
+import { erc20Abi } from 'viem'
 import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
@@ -326,7 +326,7 @@ describe.each(ENABLED_TESTS)(
 
         // Perform a simple ERC20 balanceOf call to test the appended multicall transaction
         const encodedBalanceOfFunctionData = encodeFunctionData({
-          abi: erc20ABI,
+          abi: erc20Abi,
           functionName: 'balanceOf',
           args: [multicallTBAAddress],
         })
@@ -923,7 +923,9 @@ describe.each(ENABLED_TESTS)(
         const wethContract = getContract({
           address: WETH_CONTRACT_ADDRESS,
           abi: wethABI,
-          walletClient,
+          client: {
+            wallet: walletClient,
+          },
         })
 
         // Convert ETH to WETH in ANVIL_USER_0 wallet

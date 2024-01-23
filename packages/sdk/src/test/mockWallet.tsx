@@ -20,16 +20,16 @@ import { foundry } from 'viem/chains'
 type SetupClient = Partial<CreateConfigParameters> & {
   walletClient?: WalletClient
 }
-export function setupConfig({
-  walletClient = getMockWalletClient() as WalletClient,
-  ...config
-}: SetupClient = {}): WagmiConfigProps['config'] {
-  return createConfig({
-    connectors: [new MockConnector({ options: { walletClient } })],
-    publicClient: getPublicClient({ chainId: foundry.id }) as PublicClient,
-    ...config,
-  })
-}
+// export function setupConfig({
+//   walletClient = getMockWalletClient() as WalletClient,
+//   ...config
+// }: SetupClient = {}): WagmiConfigProps['config'] {
+//   return createConfig({
+//     connectors: [new MockConnector({ options: { walletClient } })],
+//     publicClient: getPublicClient({ chainId: foundry.id }) as PublicClient,
+//     ...config,
+//   })
+// }
 
 type ProvidersProps = {
   children: React.ReactNode
@@ -39,13 +39,13 @@ export function Providers({ children, config = setupConfig() }: ProvidersProps) 
   return <WagmiConfig config={config}>{children}</WagmiConfig>
 }
 
-const renderWithWagmiConfig = (
-  ui: React.ReactElement,
-  options?: RenderOptions
-): RenderResult => render(ui, { wrapper: Providers, ...options })
+// const renderWithWagmiConfig = (
+//   ui: React.ReactElement,
+//   options?: RenderOptions
+// ): RenderResult => render(ui, { wrapper: Providers, ...options })
 
 export * from '@testing-library/react'
-export { renderWithWagmiConfig }
+// export { renderWithWagmiConfig }
 
 export type UserEvent = ReturnType<typeof userEvent.setup>
 export { default as userEvent } from '@testing-library/user-event'

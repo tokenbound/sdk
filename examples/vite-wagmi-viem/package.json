@@ -11,14 +11,15 @@
   "dependencies": {
     "@tokenbound/sdk": "workspace:^",
     "buffer": "^6.0.3",
-    "connectkit": "^1.5.3",
+    "@tanstack/react-query": "^5.17.19",
+    "@rainbow-me/rainbowkit": "2.0.0-beta.2",
     "ethers": "^5.7.2",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "util": "^0.12.5",
-    "viem": "^1.19.11",
-    "wagmi": "^1.4.7"
+    "viem": "^2.4.1",
+    "wagmi": "^2.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.21",
