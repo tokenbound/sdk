@@ -81,7 +81,9 @@ export async function createTokenboundV3Account(
   const registry = getContract({
     address: erc6551registry,
     abi: ERC_6551_DEFAULT.REGISTRY.ABI,
-    walletClient: client,
+    client: {
+      wallet: client,
+    },
   })
 
   const chainId = await client.getChainId()
@@ -136,7 +138,9 @@ export async function tokenboundV3Execute(
   const registry = getContract({
     address: account as `0x${string}`,
     abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
-    walletClient: client,
+    client: {
+      wallet: client,
+    },
   })
 
   return await registry.write.execute([to as `0x${string}`, value, data as `0x${string}`])
