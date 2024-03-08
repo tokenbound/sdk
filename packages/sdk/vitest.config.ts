@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -5,8 +6,8 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'json', 'html'],
     },
-    environment: 'jsdom',
-    // environment: 'node',
+    // environment: 'jsdom',
+    environment: 'node',
     exclude: [
       '**/.{idea,git,cache,output,temp}/**',
       '**/cypress/**',

@@ -25,7 +25,7 @@
     "wagmi": "wagmi generate"
   },
   "dependencies": {
-    "viem": "^2.4.1"
+    "viem": "^2.7.20"
   },
   "devDependencies": {
     "@tanstack/react-query": "4.29.1",
@@ -45,9 +45,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.2.2",
-    "viem": "^2.4.1",
-    "wagmi": "^2.3.1",
-    "@viem/anvil": "^0.0.7",
+    "viem": "^2.7.20",
+    "wagmi": "^2.5.7",
+    "@viem/anvil": "^0.0.8",
     "vite": "^4.4.9",
     "vite-plugin-dts": "^3.5.1",
     "vitest": "^0.34.2",
