@@ -57,10 +57,16 @@ VITE_PRIVATE_ALCHEMY_API_KEY=REPLACE_WITH_YOUR_ALCHEMY_API_KEY
 
 # PUBLIC ENV VARS, add to `.env`:
 VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.alchemyapi.io/v2/$VITE_PRIVATE_ALCHEMY_API_KEY
-VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=17680029
+VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=19364398
 ```
 
-2. Spin up an Anvil instance and start Vitest from the SDK root:
+2. Build the SDK from `/packages/sdk`
+
+```ts copy
+pnpm clean && pnpm i && pnpm build
+```
+
+3. Spin up an Anvil instance and start Vitest from the SDK root:
 
 ```bash copy
 pnpm test
