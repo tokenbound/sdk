@@ -522,7 +522,7 @@ class TokenboundClient {
       return await this.publicClient
         .getBytecode({ address: accountAddress })
         .then((bytecode: GetBytecodeReturnType) => {
-          return bytecode ? bytecode.length > 2 : false
+          return !!bytecode ? bytecode.length > 2 : false
         })
     } catch (error) {
       throw error
