@@ -60,7 +60,13 @@ VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.alchemyapi.io/v2/$VITE_PRIV
 VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=17680029
 ```
 
-2. Spin up an Anvil instance and start Vitest from the SDK root:
+2. Build the SDK from `/packages/sdk`
+
+```ts copy
+pnpm clean && pnpm i && pnpm build
+```
+
+3. Spin up an Anvil instance and start Vitest from the SDK root:
 
 ```bash copy
 pnpm test

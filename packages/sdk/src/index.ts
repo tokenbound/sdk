@@ -31,6 +31,7 @@ import {
   MultiCallTx,
   Call3,
   CALL_OPERATIONS,
+  SegmentedERC6551Bytecode
 } from './types'
 
 import {
@@ -77,4 +78,5 @@ export type {
   TBImplementationVersion,
   MultiCallTx,
   Call3,
+  SegmentedERC6551Bytecode
 }
