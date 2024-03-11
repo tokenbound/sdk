@@ -39,6 +39,7 @@ export type NFTTransferParams = Prettify<
       recipientAddress: PossibleENSAddress
       account: `0x${string}`
       amount?: number
+      chainId?: number
     }
 >
 
@@ -46,6 +47,7 @@ export type ETHTransferParams = Prettify<{
   account: `0x${string}`
   recipientAddress: PossibleENSAddress
   amount: number
+  chainId?: number
 }>
 
 export type ERC20TransferParams = Prettify<{
@@ -54,6 +56,7 @@ export type ERC20TransferParams = Prettify<{
   amount: number
   erc20tokenAddress: `0x${string}`
   erc20tokenDecimals: number
+  chainId?: number
 }>
 
 type ImplementationAddress =

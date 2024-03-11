@@ -657,6 +657,7 @@ class TokenboundClient {
       tokenId,
       amount = 1,
       recipientAddress,
+      chainId,
     } = params
 
     const is1155: boolean = tokenType === NFTTokenType.ERC1155
@@ -688,7 +689,10 @@ class TokenboundClient {
       }
 
       if (this.supportsV3) {
-        return await this.execute(execution)
+        return await this.execute({
+          ...execution,
+          chainId,
+        })
       }
 
       return await this.executeCall(execution)
@@ -706,7 +710,7 @@ class TokenboundClient {
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async transferETH(params: ETHTransferParams): Promise<`0x${string}`> {
-    const { account: tbAccountAddress, amount, recipientAddress } = params
+    const { account: tbAccountAddress, amount, recipientAddress, chainId } = params
     const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
 
     try {
@@ -720,7 +724,10 @@ class TokenboundClient {
       }
 
       if (this.supportsV3) {
-        return await this.execute(execution)
+        return await this.execute({
+          ...execution,
+          chainId,
+        })
       }
       return await this.executeCall(execution)
     } catch (err) {
@@ -745,6 +752,7 @@ class TokenboundClient {
       recipientAddress,
       erc20tokenAddress,
       erc20tokenDecimals,
+      chainId,
     } = params
 
     if (erc20tokenDecimals < 0 || erc20tokenDecimals > 18)
@@ -769,7 +777,10 @@ class TokenboundClient {
       }
 
       if (this.supportsV3) {
-        return await this.execute(execution)
+        return await this.execute({
+          ...execution,
+          chainId,
+        })
       }
       return await this.executeCall(execution)
     } catch (error) {
