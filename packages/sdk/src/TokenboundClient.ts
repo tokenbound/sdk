@@ -447,7 +447,9 @@ class TokenboundClient {
         to: crossChainTo,
         value: crossChainValue,
         data: crossChainData,
-      } = encodeCrossChainCall({
+      } = await encodeCrossChainCall({
+        publicClient: this.publicClient,
+        account,
         to,
         value,
         data: data as `0x${string}`,

@@ -1,7 +1,10 @@
-import { encodeFunctionData, parseAbi } from 'viem'
-import { ERC_6551_DEFAULT } from '../constants'
+import { PublicClient, encodeFunctionData, parseAbi } from 'viem'
+import { ERC_6551_DEFAULT, LZ_EXECUTORS, LZ_EIDS } from '../constants'
+import { Options } from '@layerzerolabs/lz-v2-utilities'
 
 type CrossChainCallParams = {
+  publicClient: PublicClient
+  account: `0x${string}`
   to: `0x${string}`
   value: bigint
   data: `0x${string}`
@@ -15,44 +18,48 @@ type CrossChainCallData = {
   data: `0x${string}`
 }
 
-function encodeEthToPolygonCall(params: CrossChainCallParams): CrossChainCallData {
-  const fxRoot = '0xfe5e5D361b2ad62c541bAb87C45a0B9B018389a2'
-  const fxChildExecutor = '0x33937f3B8A9107E409931b70478aE716CB51aEE8'
-  const { to, value, data } = params
+export async function encodeCrossChainCall(
+  params: CrossChainCallParams
+): Promise<CrossChainCallData> {
+  const { originChainId, destinationChainId, to, value, data, account, publicClient } =
+    params
 
-  const l2ExecutionData = encodeFunctionData({
+  const lzExecutorAbi = parseAbi([
+    'function quote(uint32 eid, address sender, bytes calldata payload, bytes calldata options) external view returns (uint256 nativeFee, uint256 lzTokenFee)',
+    'function execute(uint32 eid, bytes calldata payload, bytes calldata options) external payable',
+  ])
+
+  const lzExecutor = LZ_EXECUTORS[originChainId]
+  const lzEid = LZ_EIDS[destinationChainId]
+
+  const destinationExecutionData = encodeFunctionData({
     abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
     functionName: 'execute',
     args: [to, value, data, 0],
   })
 
-  const fxCallData = encodeFunctionData({
-    abi: parseAbi(['function sendMessageToChild(address,bytes)']),
-    functionName: 'sendMessageToChild',
-    args: [fxChildExecutor, l2ExecutionData],
+  const txOptions = Options.newOptions().addExecutorLzReceiveOption(200000, 0)
+
+  const txOptionsHex = txOptions.toHex() as `0x${string}`
+
+  const quoteData: any = await publicClient.readContract({
+    address: lzExecutor,
+    abi: lzExecutorAbi,
+    functionName: 'quote',
+    args: [lzEid, account, destinationExecutionData, txOptionsHex],
+  })
+
+  const txValue = quoteData.at(0) || 0
+
+  const encodedLzCall = encodeFunctionData({
+    abi: lzExecutorAbi,
+    functionName: 'execute',
+    args: [lzEid, destinationExecutionData, txOptionsHex],
   })
 
   return {
-    to: fxRoot,
-    value: 0n,
-    data: fxCallData,
+    to: lzExecutor,
+    value: txValue,
+    data: encodedLzCall,
   }
-}
-
-const SUPPORTED_ENCODERS: {
-  [originChainId: number]: {
-    [destinationChainId: number]: (params: CrossChainCallParams) => CrossChainCallData
-  }
-} = {
-  1: {
-    137: encodeEthToPolygonCall,
-  },
-}
-
-export function encodeCrossChainCall(params: CrossChainCallParams): CrossChainCallData {
-  const { originChainId, destinationChainId } = params
-
-  const encoder = SUPPORTED_ENCODERS?.[originChainId]?.[destinationChainId]
-
-  return encoder(params)
 }
