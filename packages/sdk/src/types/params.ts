@@ -105,7 +105,9 @@ export type ExecuteCallParams = Prettify<{
 }>
 export type PrepareExecuteCallParams = ExecuteCallParams
 
-export type ExecuteParams = Prettify<ExecuteCallParams & { operation?: CallOperation }>
+export type ExecuteParams = Prettify<
+  ExecuteCallParams & { operation?: CallOperation; chainId?: number }
+>
 export type PrepareExecutionParams = ExecuteParams
 
 export type ValidSignerParams = Prettify<{
