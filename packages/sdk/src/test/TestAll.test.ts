@@ -43,7 +43,7 @@ import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { Call3, TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
 import { erc20ABI } from 'wagmi'
-import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
+import { CreateAccountParams, TokenboundClient } from '../'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
