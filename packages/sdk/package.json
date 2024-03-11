@@ -1,6 +1,6 @@
 {
   "name": "@tokenbound/sdk",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "type": "module",
   "files": [
     "dist"
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@layerzerolabs/lz-v2-utilities": "^2.1.18",
-    "viem": "^1.19.11"
+    "viem": "^1.21.4"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
@@ -48,14 +48,14 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
     "ethers": "^5.7.2",
-    "ethers6": "npm:ethers@^6.7.1",
-    "forge-std": "1.1.2",
-    "jsdom": "^22.1.0",
     "prettier": "^2.8.8",
+    "forge-std": "1.1.2",
+    "ethers6": "npm:ethers@^6.11.1",
+    "jsdom": "^24.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.2.2",
-    "viem": "^1.19.11",
+    "typescript": "^5.4.2",
+    "viem": "^1.21.4",
     "vite": "^4.4.9",
     "vite-plugin-dts": "^3.5.1",
     "vitest": "^0.34.2",

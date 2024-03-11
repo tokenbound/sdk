@@ -1,6 +1,7 @@
 import {
   WalletClient,
   PublicClient,
+  Chain,
   createPublicClient,
   http,
   GetBytecodeReturnType,
@@ -76,6 +77,7 @@ declare global {
 
 class TokenboundClient {
   private chainId: number
+  private chain: Chain
   public isInitialized: boolean = false
   public publicClient: PublicClient
   private supportsV3: boolean = true // Default to V3 implementation
@@ -112,6 +114,7 @@ class TokenboundClient {
     }
 
     this.chainId = chainId ?? chain!.id
+    this.chain = chain ?? chainIdToChain(this.chainId)
 
     if (signer) {
       this.signer = signer
@@ -125,7 +128,7 @@ class TokenboundClient {
     this.publicClient =
       publicClient ??
       createPublicClient({
-        chain: chain ?? chainIdToChain(this.chainId),
+        chain: this.chain,
         transport:
           walletClient && !publicClientRPCUrl
             ? custom(walletClient.transport)
@@ -328,7 +331,7 @@ class TokenboundClient {
         txHash = this.supportsV3
           ? await this.walletClient.sendTransaction({
               ...preparedCreateAccount,
-              chain: chainIdToChain(this.chainId),
+              chain: this.chain,
               account: this.walletClient?.account?.address!,
             }) // @BJ TODO: extract into viemV3?
           : await createAccount(
@@ -405,7 +408,7 @@ class TokenboundClient {
         return await this.walletClient.sendTransaction({
           // chain and account need to be added explicitly
           // because they're optional when instantiating a WalletClient
-          chain: chainIdToChain(this.chainId),
+          chain: this.chain,
           account: this.walletClient.account!,
           ...preparedExecuteCall,
         })
@@ -498,7 +501,7 @@ class TokenboundClient {
         return await this.walletClient.sendTransaction({
           // chain and account need to be added explicitly
           // because they're optional when instantiating a WalletClient
-          chain: chainIdToChain(this.chainId),
+          chain: this.chain,
           account: this.walletClient.account!,
           ...preparedExecution,
         })
@@ -555,7 +558,7 @@ class TokenboundClient {
       return await this.publicClient
         .getBytecode({ address: accountAddress })
         .then((bytecode: GetBytecodeReturnType) => {
-          return bytecode ? bytecode.length > 2 : false
+          return !!bytecode ? bytecode.length > 2 : false
         })
     } catch (error) {
       throw error
