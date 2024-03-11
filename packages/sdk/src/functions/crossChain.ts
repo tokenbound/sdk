@@ -42,14 +42,14 @@ export async function encodeCrossChainCall(
 
   const txOptionsHex = txOptions.toHex() as `0x${string}`
 
-  const quoteData: any = await publicClient.readContract({
+  const quoteData = await publicClient.readContract({
     address: lzExecutor,
     abi: lzExecutorAbi,
     functionName: 'quote',
     args: [lzEid, account, destinationExecutionData, txOptionsHex],
   })
 
-  const txValue = quoteData.at(0) || 0
+  const txValue = quoteData.at(0) || 0n
 
   const encodedLzCall = encodeFunctionData({
     abi: lzExecutorAbi,
