@@ -443,6 +443,7 @@ class TokenboundClient {
     }
 
     let executionArgs = [to, value, data, operation]
+    let executionValue = 0n
 
     // Handle cross-chain call encoding
     if (this.chainId !== chainId) {
@@ -461,6 +462,7 @@ class TokenboundClient {
       })
 
       executionArgs = [crossChainTo, crossChainValue, crossChainData, operation]
+      executionValue = crossChainValue
     }
 
     const executionData = encodeFunctionData({
@@ -471,7 +473,7 @@ class TokenboundClient {
 
     return {
       to: account as `0x${string}`,
-      value: 0n,
+      value: executionValue,
       data: executionData,
     }
   }

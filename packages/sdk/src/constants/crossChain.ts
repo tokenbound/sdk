@@ -1,5 +1,5 @@
-export const LZ_TESTNET_EXECUTOR = '0x9EBfAc34E461CCaBD0342C51f946429fc6d8B74e'
-export const LZ_MAINNET_EXECUTOR = '0x' // TODO: mainnet deployment
+export const LZ_TESTNET_EXECUTOR = '0xEF7B07Db21d449C50b00De4563FfFe4C9dd33f1f'
+export const LZ_MAINNET_EXECUTOR = '0x0F220412Bf22E05EBcC5070D60fd7136A08aF22C'
 
 export const LZ_MAINNET_EXECUTORS: { [originChainId: number]: `0x${string}` } = {
   // ethereum
