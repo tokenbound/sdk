@@ -1,5 +1,11 @@
 # @tokenbound/sdk
 
+## 0.5.1
+
+### Patch Changes
+
+- Fixed cross-chain gas fee calculation
+
 ## 0.5.0
 
 ### Minor Changes
