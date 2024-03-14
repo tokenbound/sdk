@@ -59,7 +59,7 @@ export async function encodeCrossChainCall(
 
   return {
     to: lzExecutor,
-    value: txValue + 1n,
+    value: txValue + 10n,
     data: encodedLzCall,
   }
 }
