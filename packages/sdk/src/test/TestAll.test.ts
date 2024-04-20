@@ -37,7 +37,7 @@ import {
   getZora1155Balance,
   getZora721Balance,
 } from './utils'
-import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
+import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155, TEST_CONFIG } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { Call3, TBImplementationVersion, TBVersion } from '../types'
@@ -371,6 +371,54 @@ describe.each(ENABLED_TESTS)(
       console.log(`isAccountDeployed ${testName}`, isAccountDeployed)
 
       expect(isAccountDeployed).toEqual(true)
+    })
+
+    it('can getNFT for the created account', async () => {
+      const nft = await tokenboundClient.getNFT({
+        accountAddress: ZORA721_TBA_ADDRESS,
+      })
+
+      if (!nft) throw new Error('Bytecode is undefined')
+
+      const { chainId, tokenContract, tokenId } = nft
+
+      expect(chainId).toEqual(ANVIL_CONFIG.ACTIVE_CHAIN.id)
+      expect(tokenContract).toEqual(NFT_IN_EOA.tokenContract)
+      expect(tokenId).toEqual(NFT_IN_EOA.tokenId)
+    })
+
+    it('can deconstructBytecode for the created account', async () => {
+      const bytecode = await tokenboundClient.deconstructBytecode({
+        accountAddress: ZORA721_TBA_ADDRESS,
+      })
+
+      if (!bytecode) throw new Error('Bytecode is undefined')
+
+      const {
+        chainId,
+        implementationAddress,
+        tokenContract,
+        tokenId,
+        salt,
+        erc1167Header,
+        erc1167Footer,
+      } = bytecode
+
+      expect(chainId).toEqual(ANVIL_CONFIG.ACTIVE_CHAIN.id)
+      expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
+      // expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
+
+      if(isV2) {
+        expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
+      }
+      if(isV3) {
+        expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.ACCOUNT_PROXY?.ADDRESS)
+      }
+
+      expect(erc1167Footer).toEqual(TEST_CONFIG.ERC1167_FOOTER)
+      expect(tokenContract).toEqual(NFT_IN_EOA.tokenContract)
+      expect(tokenId).toEqual(NFT_IN_EOA.tokenId)
+      expect(salt).toEqual(0)
     })
 
     it('can getAccount', async () => {

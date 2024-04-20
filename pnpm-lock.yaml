@@ -281,8 +281,8 @@ importers:
         specifier: ^6.7.2
         version: 6.7.2(eslint@8.50.0)(typescript@5.4.2)
       '@viem/anvil':
-        specifier: ^0.0.6
-        version: 0.0.6
+        specifier: ^0.0.9
+        version: 0.0.9
       '@vitest/coverage-c8':
         specifier: ^0.33.0
         version: 0.33.0(vitest@0.34.2)
@@ -2823,13 +2823,13 @@ packages:
       '@vanilla-extract/css': 1.9.1
     dev: false
 
-  /@viem/anvil@0.0.6:
-    resolution: {integrity: sha512-OjKR/+FVwzuygXYFqP8MBal1SXG8bT2gbZwqqB0XuLw81LNBBvmE/Repm6+5kkBh4IUj0PhYdrqOsnayS14Gtg==}
+  /@viem/anvil@0.0.9:
+    resolution: {integrity: sha512-JPy/w1A39PI59fbRU+pWC0Zadou4tu5rk3QUQBAWe6bdkQh05MfMkNKeRQKwI12Rrb37tfnR4V5bD3gcqRMY0Q==}
     dependencies:
       execa: 7.2.0
       get-port: 6.1.2
       http-proxy: 1.18.1
-      ws: 8.13.0
+      ws: 8.16.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - debug

@@ -52,7 +52,8 @@ export const TEST_CONFIG = {
 
 export const TEST_RESULTS = {
   V2: {
-    TB_ACCOUNT: <`0x${string}`>`0x5194b1c04Ed6464b3225324d6794f7d2698D8d1c`,
+    // TB_ACCOUNT: <`0x${string}`>`0x5194b1c04Ed6464b3225324d6794f7d2698D8d1c`, // goerli
+    TB_ACCOUNT: <`0x${string}`>`0xF950B93c904B7bee8b479C6b8Ca71d21f47B263c`, // sepolia
   },
   V3: {
     // TB_ACCOUNT: <`0x${string}`>`0xba0292aBcCAF72D8904D6cD01E67D00D6E702275`,

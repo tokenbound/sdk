@@ -1,4 +1,4 @@
-import { goerli } from 'viem/chains'
+import { goerli, sepolia } from 'viem/chains'
 import { isHex, createPublicClient, http, isAddress } from 'viem'
 import { describe, test, expect, it, vi } from 'vitest'
 
@@ -28,7 +28,8 @@ describe.each([
       `.getAccount ${testName}`,
       async () => {
         const publicClient = createPublicClient({
-          chain: goerli,
+          // chain: goerli,
+          chain: sepolia,
           transport: http(),
         })
 

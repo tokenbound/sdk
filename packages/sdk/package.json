@@ -21,7 +21,7 @@
     "preview": "vite preview",
     "test": "vitest --watch=false",
     "coverage": "vitest run --coverage",
-    "clean": "rm -rf node_modules/",
+    "clean": "rm -rf node_modules/ dist/",
     "wagmi": "wagmi generate"
   },
   "dependencies": {
@@ -40,7 +40,7 @@
     "@types/testing-library__jest-dom": "^5.14.9",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",
-    "@viem/anvil": "^0.0.6",
+    "@viem/anvil": "^0.0.9",
     "@vitest/coverage-c8": "^0.33.0",
     "@wagmi/cli": "^1.5.2",
     "connectkit": "^1.5.3",
