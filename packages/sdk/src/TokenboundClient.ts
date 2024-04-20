@@ -51,6 +51,7 @@ import {
   PrepareExecutionParams,
   ValidSignerParams,
   MultiCallTx,
+  CallData,
 } from './types'
 import {
   chainIdToChain,
@@ -198,11 +199,7 @@ class TokenboundClient {
    */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<
     | MultiCallTx
-    | {
-        to: `0x${string}`
-        value: bigint
-        data: `0x${string}`
-      }
+    | CallData
   > {
     const {
       tokenContract,
@@ -367,11 +364,7 @@ class TokenboundClient {
    * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecute() instead.
    */
-  public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<{
-    to: `0x${string}`
-    value: bigint
-    data: `0x${string}`
-  }> {
+  public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<CallData> {
     if (this.supportsV3) {
       throw new Error(
         'prepareExecuteCall() is not supported on V3 implementation deployments, use prepareExecute() instead.'
@@ -428,12 +421,10 @@ class TokenboundClient {
    * @param {string} params.data The encoded operation calldata to send
    * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    */
-  public async prepareExecution(params: PrepareExecutionParams): Promise<{
-    to: `0x${string}`
-    value: bigint
-    data: `0x${string}`
+  public async prepareExecution(params: PrepareExecutionParams): Promise<
+    CallData
     // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
-  }> {
+  > {
     const { account, to, value, data, chainId = this.chainId } = params
     const operation = CALL_OPERATIONS.CALL
 

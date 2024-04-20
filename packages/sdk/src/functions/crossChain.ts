@@ -1,26 +1,18 @@
 import { PublicClient, encodeFunctionData, parseAbi } from 'viem'
 import { ERC_6551_DEFAULT, LZ_EXECUTORS, LZ_EIDS } from '../constants'
 import { Options } from '@layerzerolabs/lz-v2-utilities'
+import { CallData } from '../types'
 
 type CrossChainCallParams = {
   publicClient: PublicClient
   account: `0x${string}`
-  to: `0x${string}`
-  value: bigint
-  data: `0x${string}`
   originChainId: number
   destinationChainId: number
-}
-
-type CrossChainCallData = {
-  to: `0x${string}`
-  value: bigint
-  data: `0x${string}`
-}
+} & CallData
 
 export async function encodeCrossChainCall(
   params: CrossChainCallParams
-): Promise<CrossChainCallData> {
+): Promise<CallData> {
   const { originChainId, destinationChainId, to, value, data, account, publicClient } =
     params
 
