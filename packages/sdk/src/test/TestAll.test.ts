@@ -20,6 +20,7 @@ import {
   encodeAbiParameters,
   parseAbiParameters,
   isAddress,
+  isHex,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
@@ -241,6 +242,23 @@ describe.each(ENABLED_TESTS)(
           expect(zoraBalanceInAnvilWallet).toBe(4n)
           unwatch()
         })
+      },
+      TIMEOUT
+    )
+
+    it(
+      'can prepareCreateAccount',
+      async () => {
+        const preparedAccount = await tokenboundClient.prepareCreateAccount({
+          tokenContract: zora721.proxyContractAddress,
+          tokenId: '1',
+        })
+  
+        if (!preparedAccount.to) return false
+  
+        expect(isAddress(preparedAccount.to)).toEqual(true)
+        expect(typeof preparedAccount.value).toEqual('bigint')
+        expect(isHex(preparedAccount.data)).toEqual(true)
       },
       TIMEOUT
     )
@@ -589,6 +607,24 @@ describe.each(ENABLED_TESTS)(
       },
       TIMEOUT
     )
+
+    it(isV2 ? 'can prepareExecuteCall' : 'can prepareExecution', async () => {
+
+      const execution = {
+        account: ZORA721_TBA_ADDRESS,
+        to: TEST_CONFIG.RECIPIENT_ADDRESS,
+        value: 0n,
+        data: TEST_CONFIG.EXAMPLE_DATA,
+      }
+
+      const preparedCall = isV3
+      ? await tokenboundClient.prepareExecution(execution)
+      : await tokenboundClient.prepareExecuteCall(execution)
+
+      expect(isAddress(preparedCall.to)).toEqual(true)
+      expect(typeof preparedCall.value).toEqual('bigint')
+      expect(isHex(preparedCall.data)).toEqual(true)
+    })
 
     // Execute a basic call with no value with the TBA to see if it works.
     it(
