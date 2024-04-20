@@ -614,7 +614,7 @@ describe.each(ENABLED_TESTS)(
         account: ZORA721_TBA_ADDRESS,
         to: TEST_CONFIG.RECIPIENT_ADDRESS,
         value: 0n,
-        data: TEST_CONFIG.EXAMPLE_DATA,
+        data: '',
       }
 
       const preparedCall = isV3
