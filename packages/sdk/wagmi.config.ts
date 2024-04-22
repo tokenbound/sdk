@@ -1,6 +1,6 @@
 import { defineConfig } from '@wagmi/cli'
 import { etherscan } from '@wagmi/cli/plugins'
-import { mainnet, goerli } from 'viem/chains'
+import { mainnet, goerli, sepolia } from 'viem/chains'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from './src/constants'
 
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
   contracts: [],
   plugins: [
     etherscan({
-      apiKey: '6RMAZFTCW43SGRY935CIEQ58D3ZP7S5BQX', // Tokenbound SDK, user bjfutureprimitive
+      apiKey: process.env.ETHERSCAN_API_KEY!, // Tokenbound SDK, user bjfutureprimitive
       // chainId: mainnet.id,
       chainId: goerli.id,
 
@@ -49,7 +49,7 @@ export default defineConfig({
           },
         },
         {
-          name: 'Zora1155_',
+          name: 'Zora1155_', // https://github.com/ourzora/zora-protocol/blob/003efca081ddc0da8753aec707706cd0efff3e7e/packages/protocol-deployments/src/addresses.ts#L134
           address: {
             [mainnet.id]: '0x4482c5929618b848a46e3da830a3d71085a5de07', // ZoraCreator1155Impl
             [goerli.id]: '0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA', // ZoraCreator1155Impl

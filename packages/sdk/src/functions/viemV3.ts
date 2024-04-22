@@ -21,6 +21,7 @@ import {
 import { addressToUint8Array } from '../utils'
 
 import { ERC_6551_DEFAULT, STANDARD_EIP_1167_IMPLEMENTATION } from '../constants'
+import { CallData } from '../types'
 export { erc6551AccountProxyV3ABI, erc6551AccountV3ABI, erc6551RegistryV3ABI }
 
 /**
@@ -34,11 +35,7 @@ export async function prepareCreateTokenboundV3Account(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`,
   salt?: number
-): Promise<{
-  to: `0x${string}`
-  value: bigint
-  data: `0x${string}`
-}> {
+): Promise<CallData> {
   salt = salt ?? 0
   const erc6551implementation =
     implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
@@ -106,11 +103,7 @@ export async function prepareTokenboundV3Execute(
   to: string,
   value: bigint,
   data: string
-): Promise<{
-  to: `0x${string}`
-  value: bigint
-  data: `0x${string}`
-}> {
+): Promise<CallData> {
   return {
     to: account as `0x${string}`,
     value: 0n,

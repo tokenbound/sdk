@@ -1,5 +1,19 @@
 # vite-wagmi-ethers-rainbowkit
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @tokenbound/sdk@0.5.2
+
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @tokenbound/sdk@0.5.1
+
 ## 0.0.3
 
 ### Patch Changes

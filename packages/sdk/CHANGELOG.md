@@ -1,5 +1,17 @@
 # @tokenbound/sdk
 
+## 0.5.2
+
+### Patch Changes
+
+- fix version misalignment with NPM
+
+## 0.5.1
+
+### Patch Changes
+
+- Add Base Sepolia chain, revise tests to eliminate goerli dep
+
 ## 0.5.0
 
 ### Minor Changes
