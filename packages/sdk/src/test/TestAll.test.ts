@@ -1,10 +1,9 @@
-// This test suite is for testing SDK methods with
+// This suite tests Tokenbound SDK methods with
 // viem walletClient + publicClient and Ethers 5/6.
 
 import { zora } from 'viem/chains'
 import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
 import { ethers, providers } from 'ethers'
-import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
 import {
   WalletClient,
@@ -20,6 +19,7 @@ import {
   encodeAbiParameters,
   parseAbiParameters,
   isAddress,
+  isHex,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
@@ -37,13 +37,13 @@ import {
   getZora1155Balance,
   getZora721Balance,
 } from './utils'
-import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155 } from './config'
+import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155, TEST_CONFIG } from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { Call3, TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
 import { erc20Abi } from 'viem'
-import { CreateAccountParams, TokenboundClient } from '@tokenbound/sdk'
+import { CreateAccountParams, TokenboundClient } from '../'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
@@ -152,9 +152,11 @@ describe.each(ENABLED_TESTS)(
       await anvil.stop()
       console.log(`END → \x1b[94m ${testName} \x1b[0m`)
     })
-
+    
     it('can get the SDK version', () => {
       const sdkVersion: string = tokenboundClient.getSDKVersion()
+      console.log(`SDK Version → \x1b[94m ${sdkVersion} \x1b[0m`)
+      // console.log('SDK Version:', sdkVersion)
       expect(sdkVersion).toBeDefined()
     })
 
@@ -233,7 +235,7 @@ describe.each(ENABLED_TESTS)(
           walletAddress: ANVIL_USER_0,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(mintLogs.length).toBe(zora721.quantity)
           expect(mintTxHash).toMatch(ADDRESS_REGEX)
           expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
@@ -241,6 +243,23 @@ describe.each(ENABLED_TESTS)(
           expect(zoraBalanceInAnvilWallet).toBe(4n)
           unwatch()
         })
+      },
+      TIMEOUT
+    )
+
+    it(
+      'can prepareCreateAccount',
+      async () => {
+        const preparedAccount = await tokenboundClient.prepareCreateAccount({
+          tokenContract: zora721.proxyContractAddress,
+          tokenId: '1',
+        })
+  
+        if (!preparedAccount.to) return false
+  
+        expect(isAddress(preparedAccount.to)).toEqual(true)
+        expect(typeof preparedAccount.value).toEqual('bigint')
+        expect(isHex(preparedAccount.data)).toEqual(true)
       },
       TIMEOUT
     )
@@ -257,7 +276,7 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS = account
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
@@ -279,7 +298,7 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS_CUSTOM_SALT = account
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
@@ -355,7 +374,7 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS_MULTICALL = account
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
@@ -373,9 +392,57 @@ describe.each(ENABLED_TESTS)(
       expect(isAccountDeployed).toEqual(true)
     })
 
+    it('can getNFT for the created account', async () => {
+      const nft = await tokenboundClient.getNFT({
+        accountAddress: ZORA721_TBA_ADDRESS,
+      })
+
+      if (!nft) throw new Error('Bytecode is undefined')
+
+      const { chainId, tokenContract, tokenId } = nft
+
+      expect(chainId).toEqual(ANVIL_CONFIG.ACTIVE_CHAIN.id)
+      expect(tokenContract).toEqual(NFT_IN_EOA.tokenContract)
+      expect(tokenId).toEqual(NFT_IN_EOA.tokenId)
+    })
+
+    it('can deconstructBytecode for the created account', async () => {
+      const bytecode = await tokenboundClient.deconstructBytecode({
+        accountAddress: ZORA721_TBA_ADDRESS,
+      })
+
+      if (!bytecode) throw new Error('Bytecode is undefined')
+
+      const {
+        chainId,
+        implementationAddress,
+        tokenContract,
+        tokenId,
+        salt,
+        erc1167Header,
+        erc1167Footer,
+      } = bytecode
+
+      expect(chainId).toEqual(ANVIL_CONFIG.ACTIVE_CHAIN.id)
+      expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
+      // expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
+
+      if(isV2) {
+        expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
+      }
+      if(isV3) {
+        expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.ACCOUNT_PROXY?.ADDRESS)
+      }
+
+      expect(erc1167Footer).toEqual(TEST_CONFIG.ERC1167_FOOTER)
+      expect(tokenContract).toEqual(NFT_IN_EOA.tokenContract)
+      expect(tokenId).toEqual(NFT_IN_EOA.tokenId)
+      expect(salt).toEqual(0)
+    })
+
     it('can getAccount', async () => {
       const getAccount = tokenboundClient.getAccount(NFT_IN_EOA)
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(getAccount).toMatch(ADDRESS_REGEX)
         expect(getAccount).toEqual(ZORA721_TBA_ADDRESS)
       })
@@ -383,7 +450,7 @@ describe.each(ENABLED_TESTS)(
 
     it('can getAccount with a custom salt', async () => {
       const getAccount = tokenboundClient.getAccount({ ...NFT_IN_EOA, salt: CUSTOM_SALT })
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(getAccount).toMatch(ADDRESS_REGEX)
         expect(getAccount).toEqual(ZORA721_TBA_ADDRESS_CUSTOM_SALT)
       })
@@ -438,7 +505,7 @@ describe.each(ENABLED_TESTS)(
         })
         console.log('# of NFTs in TBA: ', tbaNFTBalance.toString())
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
           expect(tbaNFTBalance).toBe(1n)
@@ -492,7 +559,7 @@ describe.each(ENABLED_TESTS)(
         })
         console.log('# of NFTs in TBA: ', tbaNFTBalance.toString())
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
           expect(tbaNFTBalance).toBe(2n)
@@ -534,13 +601,31 @@ describe.each(ENABLED_TESTS)(
           address: ZORA721_TBA_ADDRESS,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(balanceAfter).toBe(ethAmountWei)
         })
       },
       TIMEOUT
     )
+
+    it(isV2 ? 'can prepareExecuteCall' : 'can prepareExecution', async () => {
+
+      const execution = {
+        account: ZORA721_TBA_ADDRESS,
+        to: TEST_CONFIG.RECIPIENT_ADDRESS,
+        value: 0n,
+        data: '',
+      }
+
+      const preparedCall = isV3
+      ? await tokenboundClient.prepareExecution(execution)
+      : await tokenboundClient.prepareExecuteCall(execution)
+
+      expect(isAddress(preparedCall.to)).toEqual(true)
+      expect(typeof preparedCall.value).toEqual('bigint')
+      expect(isHex(preparedCall.data)).toEqual(true)
+    })
 
     // Execute a basic call with no value with the TBA to see if it works.
     it(
@@ -561,7 +646,7 @@ describe.each(ENABLED_TESTS)(
           hash: executedCallTxHash,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
         })
@@ -585,7 +670,7 @@ describe.each(ENABLED_TESTS)(
           hash: executedCallTxHash,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
         })
@@ -593,8 +678,9 @@ describe.each(ENABLED_TESTS)(
       TIMEOUT
     )
 
-    // The other methods in the SDK implement executeCall,
-    // so they provide further reinforcement that executeCall works.
+    // Other methods in the SDK implement executeCall, like transferETH, transferNFT, etc.
+    // so they provide further assurance that executeCall is working as expected:
+
     it('can transferETH with the TBA', async () => {
       const EXPECTED_BALANCE_BEFORE = parseUnits('1', 18)
       const EXPECTED_BALANCE_AFTER = parseUnits('0.75', 18)
@@ -623,8 +709,9 @@ describe.each(ENABLED_TESTS)(
         formatEther(balanceAfter)
       )
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+        expect(transactionReceipt.status).toBe('success')
         expect(balanceBefore).toBe(EXPECTED_BALANCE_BEFORE)
         expect(balanceAfter).toBe(EXPECTED_BALANCE_AFTER)
       })
@@ -653,7 +740,7 @@ describe.each(ENABLED_TESTS)(
         formatEther(balanceAfter)
       )
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(ethTransferHash).toMatch(ADDRESS_REGEX)
         expect(balanceBefore).toBe(EXPECTED_BALANCE_BEFORE)
         expect(balanceAfter).toBe(EXPECTED_BALANCE_AFTER)
@@ -689,7 +776,7 @@ describe.each(ENABLED_TESTS)(
         walletAddress: ANVIL_USER_1,
       })
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1NFTBalance).toBe(1n)
       })
@@ -711,7 +798,7 @@ describe.each(ENABLED_TESTS)(
         walletAddress: addr,
       })
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1NFTBalance).toBe(1n)
       })
@@ -742,7 +829,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('721s MINTED TO TBA: ', zoraBalanceInTBA.toString())
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
         expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
         expect(zoraBalanceInTBA).toBe(4n)
@@ -786,7 +873,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('1155 Balance', zora1155BalanceInTBA)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(mint1155TxHash).toMatch(ADDRESS_REGEX)
         expect(zora1155BalanceInTBA).toBe(5n)
       })
@@ -811,7 +898,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('1155 Balance', anvilAccount1_1155Balance)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1_1155Balance).toBe(BigInt(transferAmount))
       })
@@ -825,7 +912,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('isValidSigner?', isValidSigner)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(isValidSigner).toBe(true)
       })
     })
@@ -839,7 +926,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('SIGNED MESSAGE: ', signedMessageHash)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(signedMessageHash).toMatch(ADDRESS_REGEX)
       })
     })
@@ -852,7 +939,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('HEX SIGNED MESSAGE: ', hexSignedMessageHash)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(hexSignedMessageHash).toMatch(ADDRESS_REGEX)
       })
     })
@@ -865,7 +952,7 @@ describe.each(ENABLED_TESTS)(
         message: { raw: uint8ArrayMessage },
       })
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
       })
     })
@@ -1013,7 +1100,7 @@ describe.each(ENABLED_TESTS)(
         formatEther(ensWETHBalance)
       )
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(wethDepositHash).toMatch(ADDRESS_REGEX)
         expect(wethTransferHash).toMatch(ADDRESS_REGEX)
         expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
@@ -1035,7 +1122,7 @@ describe('Custom client configurations', () => {
       publicClientRPCUrl: customPublicClientRPCUrl,
     })
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
     })
   })
@@ -1047,7 +1134,7 @@ describe('Custom client configurations', () => {
       chain: zora,
     })
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
     })
   })

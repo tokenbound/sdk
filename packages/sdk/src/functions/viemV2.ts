@@ -18,6 +18,7 @@ import {
 } from '../../src/test/wagmi-cli-hooks/generated'
 import { addressToUint8Array } from '../utils'
 import { ERC_6551_LEGACY_V2 } from '../constants'
+import { CallData } from '../types'
 
 export {
   erc6551AccountAbiV2,
@@ -76,11 +77,7 @@ export async function prepareCreateAccount(
   implementationAddress?: `0x${string}`,
   registryAddress?: `0x${string}`,
   salt?: number
-): Promise<{
-  to: `0x${string}`
-  value: bigint
-  data: `0x${string}`
-}> {
+): Promise<CallData> {
   salt = salt ?? 0
   const implementation = implementationAddress
     ? getAddress(implementationAddress)
@@ -176,11 +173,7 @@ export async function prepareExecuteCall(
   to: string,
   value: bigint,
   data: string
-): Promise<{
-  to: `0x${string}`
-  value: bigint
-  data: `0x${string}`
-}> {
+): Promise<CallData> {
   return {
     to: account as `0x${string}`,
     value: 0n,

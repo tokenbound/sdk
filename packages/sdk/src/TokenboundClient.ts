@@ -1,6 +1,7 @@
 import {
   WalletClient,
   PublicClient,
+  Chain,
   createPublicClient,
   http,
   GetBytecodeReturnType,
@@ -24,6 +25,7 @@ import {
   prepareCreateAccount,
   getTokenboundV3Account,
   prepareCreateTokenboundV3Account,
+  encodeCrossChainCall,
 } from './functions'
 import {
   AbstractEthersSigner,
@@ -49,6 +51,7 @@ import {
   PrepareExecutionParams,
   ValidSignerParams,
   MultiCallTx,
+  CallData,
 } from './types'
 import {
   chainIdToChain,
@@ -75,6 +78,7 @@ declare global {
 
 class TokenboundClient {
   private chainId: number
+  private chain: Chain
   public isInitialized: boolean = false
   public publicClient: PublicClient
   private supportsV3: boolean = true // Default to V3 implementation
@@ -111,6 +115,7 @@ class TokenboundClient {
     }
 
     this.chainId = chainId ?? chain!.id
+    this.chain = chain ?? chainIdToChain(this.chainId)
 
     if (signer) {
       this.signer = signer
@@ -124,7 +129,7 @@ class TokenboundClient {
     this.publicClient =
       publicClient ??
       createPublicClient({
-        chain: chain ?? chainIdToChain(this.chainId),
+        chain: this.chain,
         transport:
           walletClient && !publicClientRPCUrl
             ? custom(walletClient.transport)
@@ -194,13 +199,15 @@ class TokenboundClient {
    */
   public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<
     | MultiCallTx
-    | {
-        to: `0x${string}`
-        value: bigint
-        data: `0x${string}`
-      }
+    | CallData
   > {
-    const { tokenContract, tokenId, salt = 0, chainId = this.chainId, appendedCalls = [] } = params
+    const {
+      tokenContract,
+      tokenId,
+      salt = 0,
+      chainId = this.chainId,
+      appendedCalls = [],
+    } = params
 
     const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
 
@@ -283,7 +290,13 @@ class TokenboundClient {
   public async createAccount(
     params: CreateAccountParams
   ): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
-    const { tokenContract, tokenId, salt = 0, chainId = this.chainId, appendedCalls = [] } = params
+    const {
+      tokenContract,
+      tokenId,
+      salt = 0,
+      chainId = this.chainId,
+      appendedCalls = [],
+    } = params
 
     try {
       let txHash: `0x${string}` | undefined
@@ -315,7 +328,7 @@ class TokenboundClient {
         txHash = this.supportsV3
           ? await this.walletClient.sendTransaction({
               ...preparedCreateAccount,
-              chain: chainIdToChain(this.chainId),
+              chain: this.chain,
               account: this.walletClient?.account?.address!,
             }) // @BJ TODO: extract into viemV3?
           : await createAccount(
@@ -351,11 +364,7 @@ class TokenboundClient {
    * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecute() instead.
    */
-  public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<{
-    to: `0x${string}`
-    value: bigint
-    data: `0x${string}`
-  }> {
+  public async prepareExecuteCall(params: PrepareExecuteCallParams): Promise<CallData> {
     if (this.supportsV3) {
       throw new Error(
         'prepareExecuteCall() is not supported on V3 implementation deployments, use prepareExecute() instead.'
@@ -392,7 +401,7 @@ class TokenboundClient {
         return await this.walletClient.sendTransaction({
           // chain and account need to be added explicitly
           // because they're optional when instantiating a WalletClient
-          chain: chainIdToChain(this.chainId),
+          chain: this.chain,
           account: this.walletClient.account!,
           ...preparedExecuteCall,
         })
@@ -412,13 +421,11 @@ class TokenboundClient {
    * @param {string} params.data The encoded operation calldata to send
    * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    */
-  public async prepareExecution(params: PrepareExecutionParams): Promise<{
-    to: `0x${string}`
-    value: bigint
-    data: `0x${string}`
+  public async prepareExecution(params: PrepareExecutionParams): Promise<
+    CallData
     // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
-  }> {
-    const { account, to, value, data } = params
+  > {
+    const { account, to, value, data, chainId = this.chainId } = params
     const operation = CALL_OPERATIONS.CALL
 
     if (!this.supportsV3) {
@@ -426,14 +433,39 @@ class TokenboundClient {
       return await this.prepareExecuteCall(params)
     }
 
+    let executionArgs = [to, value, data, operation]
+    let executionValue = 0n
+
+    // Handle cross-chain call encoding
+    if (this.chainId !== chainId) {
+      const {
+        to: crossChainTo,
+        value: crossChainValue,
+        data: crossChainData,
+      } = await encodeCrossChainCall({
+        publicClient: this.publicClient,
+        account,
+        to,
+        value,
+        data: data as `0x${string}`,
+        originChainId: this.chainId,
+        destinationChainId: chainId,
+      })
+
+      executionArgs = [crossChainTo, crossChainValue, crossChainData, operation]
+      executionValue = crossChainValue
+    }
+
+    const executionData = encodeFunctionData({
+      abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
+      functionName: 'execute',
+      args: executionArgs,
+    })
+
     return {
       to: account as `0x${string}`,
-      value: 0n,
-      data: encodeFunctionData({
-        abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
-        functionName: 'execute',
-        args: [to, value, data, operation],
-      }),
+      value: executionValue,
+      data: executionData,
     }
   }
 
@@ -462,7 +494,7 @@ class TokenboundClient {
         return await this.walletClient.sendTransaction({
           // chain and account need to be added explicitly
           // because they're optional when instantiating a WalletClient
-          chain: chainIdToChain(this.chainId),
+          chain: this.chain,
           account: this.walletClient.account!,
           ...preparedExecution,
         })
@@ -519,7 +551,7 @@ class TokenboundClient {
       return await this.publicClient
         .getBytecode({ address: accountAddress })
         .then((bytecode: GetBytecodeReturnType) => {
-          return bytecode ? bytecode.length > 2 : false
+          return !!bytecode ? bytecode.length > 2 : false
         })
     } catch (error) {
       throw error
@@ -618,6 +650,7 @@ class TokenboundClient {
       tokenId,
       amount = 1,
       recipientAddress,
+      chainId,
     } = params
 
     const is1155: boolean = tokenType === NFTTokenType.ERC1155
@@ -649,7 +682,10 @@ class TokenboundClient {
       }
 
       if (this.supportsV3) {
-        return await this.execute(execution)
+        return await this.execute({
+          ...execution,
+          chainId,
+        })
       }
 
       return await this.executeCall(execution)
@@ -667,7 +703,7 @@ class TokenboundClient {
    * @returns a Promise that resolves to the transaction hash of the executed call
    */
   public async transferETH(params: ETHTransferParams): Promise<`0x${string}`> {
-    const { account: tbAccountAddress, amount, recipientAddress } = params
+    const { account: tbAccountAddress, amount, recipientAddress, chainId } = params
     const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
 
     try {
@@ -681,7 +717,10 @@ class TokenboundClient {
       }
 
       if (this.supportsV3) {
-        return await this.execute(execution)
+        return await this.execute({
+          ...execution,
+          chainId,
+        })
       }
       return await this.executeCall(execution)
     } catch (err) {
@@ -706,6 +745,7 @@ class TokenboundClient {
       recipientAddress,
       erc20tokenAddress,
       erc20tokenDecimals,
+      chainId,
     } = params
 
     if (erc20tokenDecimals < 0 || erc20tokenDecimals > 18)
@@ -730,7 +770,10 @@ class TokenboundClient {
       }
 
       if (this.supportsV3) {
-        return await this.execute(execution)
+        return await this.execute({
+          ...execution,
+          chainId,
+        })
       }
       return await this.executeCall(execution)
     } catch (error) {
