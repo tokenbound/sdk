@@ -57,16 +57,24 @@ VITE_PRIVATE_ALCHEMY_API_KEY=REPLACE_WITH_YOUR_ALCHEMY_API_KEY
 
 # PUBLIC ENV VARS, add to `.env`:
 VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.alchemyapi.io/v2/$VITE_PRIVATE_ALCHEMY_API_KEY
-VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=19364398
+VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=19724244
 ```
 
 2. Build the SDK from `/packages/sdk`
 
-```ts copy
+```bash copy
 pnpm clean && pnpm i && pnpm build
 ```
 
-3. Spin up an Anvil instance and start Vitest from the SDK root:
+3. Generate ABIs using [Wagmi CLI](https://wagmi.sh/cli/getting-started)
+
+```bash copy
+pnpm wagmi
+```
+
+For convenience, you can also execute all commands from steps 2 and 3 using `pnpm prep`.
+
+4. Spin up an Anvil instance and start Vitest from the SDK root:
 
 ```bash copy
 pnpm test
