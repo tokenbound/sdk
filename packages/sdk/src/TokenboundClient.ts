@@ -463,7 +463,7 @@ class TokenboundClient {
     })
 
     return {
-      to: account as `0x${string}`,
+      to: account,
       value: executionValue,
       data: executionData,
     }
