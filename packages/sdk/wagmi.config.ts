@@ -1,6 +1,6 @@
 import { defineConfig } from '@wagmi/cli'
 import { etherscan } from '@wagmi/cli/plugins'
-import { mainnet, goerli, sepolia } from 'viem/chains'
+import { mainnet, goerli } from 'viem/chains'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from './src/constants'
 
 export default defineConfig({
@@ -71,16 +71,5 @@ export default defineConfig({
         },
       ],
     }),
-    // react({
-    // useContract: false,
-    // useContractEvent: false,
-    // useContractItemEvent: false,
-    // useContractRead: false,
-    // useContractFunctionWrite: true,
-    // usePrepareContractFunctionWrite: true,
-    // useContractFunctionRead: false,
-    // useContractWrite: false,
-    // usePrepareContractWrite: false,
-    // }),
   ],
 })
