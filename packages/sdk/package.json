@@ -59,7 +59,7 @@
     "viem": "^2.9.26",
     "wagmi": "^2.5.22",
     "vite": "^4.4.9",
-    "vite-plugin-dts": "^3.5.1",
+    "vite-plugin-dts": "^3.9.0",
     "vitest": "^0.34.5"
   }
 }
