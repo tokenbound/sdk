@@ -1,8 +1,8 @@
 // This suite tests Tokenbound SDK methods with
 // viem walletClient + publicClient and Ethers 5/6.
 
-import { zora } from 'viem/chains'
-import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
+import { zora, mainnet } from 'viem/chains'
+import { describe, beforeAll, afterAll, expect, it, vi } from 'vitest'
 import { ethers, providers } from 'ethers'
 import { createAnvil } from '@viem/anvil'
 import {
@@ -37,7 +37,13 @@ import {
   getZora1155Balance,
   getZora721Balance,
 } from './utils'
-import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155, TEST_CONFIG } from './config'
+import {
+  ANVIL_CONFIG,
+  CREATE_ANVIL_OPTIONS,
+  zora721,
+  zora1155,
+  TEST_CONFIG,
+} from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { Call3, TBImplementationVersion, TBVersion } from '../types'
@@ -127,11 +133,13 @@ describe.each(ENABLED_TESTS)(
     // Spin up a fresh anvil instance each time we run the test suite against a different signer
     beforeAll(async () => {
       try {
-        publicClient = getPublicClient({ chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id })
+        // publicClient = getPublicClient({ chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id })
+        publicClient = getPublicClient({ chain: ANVIL_CONFIG.ACTIVE_CHAIN })
 
         // Pass in the Anvil test walletClient + publicClient
         tokenboundClient = new TokenboundClient({
-          chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+          // chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
           walletClient,
           signer,
           publicClient,
@@ -152,7 +160,7 @@ describe.each(ENABLED_TESTS)(
       await anvil.stop()
       console.log(`END → \x1b[94m ${testName} \x1b[0m`)
     })
-    
+
     it('can get the SDK version', () => {
       const sdkVersion: string = tokenboundClient.getSDKVersion()
       console.log(`SDK Version → \x1b[94m ${sdkVersion} \x1b[0m`)
@@ -254,9 +262,9 @@ describe.each(ENABLED_TESTS)(
           tokenContract: zora721.proxyContractAddress,
           tokenId: '1',
         })
-  
+
         if (!preparedAccount.to) return false
-  
+
         expect(isAddress(preparedAccount.to)).toEqual(true)
         expect(typeof preparedAccount.value).toEqual('bigint')
         expect(isHex(preparedAccount.data)).toEqual(true)
@@ -427,10 +435,10 @@ describe.each(ENABLED_TESTS)(
       expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
       // expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
 
-      if(isV2) {
+      if (isV2) {
         expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
       }
-      if(isV3) {
+      if (isV3) {
         expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.ACCOUNT_PROXY?.ADDRESS)
       }
 
@@ -610,7 +618,6 @@ describe.each(ENABLED_TESTS)(
     )
 
     it(isV2 ? 'can prepareExecuteCall' : 'can prepareExecution', async () => {
-
       const execution = {
         account: ZORA721_TBA_ADDRESS,
         to: TEST_CONFIG.RECIPIENT_ADDRESS,
@@ -619,8 +626,8 @@ describe.each(ENABLED_TESTS)(
       }
 
       const preparedCall = isV3
-      ? await tokenboundClient.prepareExecution(execution)
-      : await tokenboundClient.prepareExecuteCall(execution)
+        ? await tokenboundClient.prepareExecution(execution)
+        : await tokenboundClient.prepareExecuteCall(execution)
 
       expect(isAddress(preparedCall.to)).toEqual(true)
       expect(typeof preparedCall.value).toEqual('bigint')
@@ -986,130 +993,134 @@ describe.each(ENABLED_TESTS)(
       }
     )
 
-    it('can transferERC20 with the TBA', async () => {
-      const depositEthValue = 0.2
-      const depositWeiValue = ethToWei(depositEthValue)
-      const transferEthValue = 0.1
-      const transferWeiValue = ethToWei(transferEthValue)
-      let wethDepositHash: `0x${string}`
-      let wethTransferHash: `0x${string}`
+    it(
+      'can transferERC20 with the TBA',
+      async () => {
+        const depositEthValue = 0.2
+        const depositWeiValue = ethToWei(depositEthValue)
+        const transferEthValue = 0.1
+        const transferWeiValue = ethToWei(transferEthValue)
+        let wethDepositHash: `0x${string}`
+        let wethTransferHash: `0x${string}`
 
-      const tbaWETHInitial = await getWETHBalance({
-        publicClient,
-        walletAddress: ZORA721_TBA_ADDRESS,
-      })
+        const tbaWETHInitial = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-      // Prepare encoded WETH transfer to TBA
-      const wethTransferCallData = encodeFunctionData({
-        abi: wethABI,
-        functionName: 'transfer',
-        args: [ZORA721_TBA_ADDRESS, depositWeiValue],
-      })
-
-      if (walletClient) {
-        const wethContract = getContract({
-          address: WETH_CONTRACT_ADDRESS,
+        // Prepare encoded WETH transfer to TBA
+        const wethTransferCallData = encodeFunctionData({
           abi: wethABI,
-          client: {
-            wallet: walletClient,
-          },
+          functionName: 'transfer',
+          args: [ZORA721_TBA_ADDRESS, depositWeiValue],
         })
 
-        // Convert ETH to WETH in ANVIL_USER_0 wallet
-        wethDepositHash = await wethContract.write.deposit({
-          account: ANVIL_USER_0,
-          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-          value: depositWeiValue,
-        })
+        if (walletClient) {
+          const wethContract = getContract({
+            address: WETH_CONTRACT_ADDRESS,
+            abi: wethABI,
+            client: {
+              wallet: walletClient,
+            },
+          })
 
-        // Transfer WETH from ANVIL_USER_0 to TBA
-        wethTransferHash = await walletClient.sendTransaction({
-          account: walletClient.account!,
-          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-          to: WETH_CONTRACT_ADDRESS,
-          value: 0n,
-          data: wethTransferCallData,
-        })
-      } else if (signer) {
-        // Convert ETH to WETH in ANVIL_USER_0 wallet
-        wethDepositHash = await signer
-          .sendTransaction({
-            to: WETH_CONTRACT_ADDRESS,
+          // Convert ETH to WETH in ANVIL_USER_0 wallet
+          wethDepositHash = await wethContract.write.deposit({
+            account: ANVIL_USER_0,
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
             value: depositWeiValue,
           })
-          .then((tx: providers.TransactionResponse) => tx.hash)
 
-        // Transfer WETH from ANVIL_USER_0 to TBA
-        wethTransferHash = await signer
-          .sendTransaction({
+          // Transfer WETH from ANVIL_USER_0 to TBA
+          wethTransferHash = await walletClient.sendTransaction({
+            account: walletClient.account!,
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
             to: WETH_CONTRACT_ADDRESS,
-            value: BigInt(0),
+            value: 0n,
             data: wethTransferCallData,
           })
-          .then((tx: providers.TransactionResponse) => tx.hash)
-      }
+        } else if (signer) {
+          // Convert ETH to WETH in ANVIL_USER_0 wallet
+          wethDepositHash = await signer
+            .sendTransaction({
+              to: WETH_CONTRACT_ADDRESS,
+              value: depositWeiValue,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
 
-      const tbaWETHReceived = await getWETHBalance({
-        publicClient,
-        walletAddress: ZORA721_TBA_ADDRESS,
-      })
+          // Transfer WETH from ANVIL_USER_0 to TBA
+          wethTransferHash = await signer
+            .sendTransaction({
+              to: WETH_CONTRACT_ADDRESS,
+              value: BigInt(0),
+              data: wethTransferCallData,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
+        }
 
-      // Transfer WETH from TBA to ANVIL_USER_1
-      const transferredERC20Hash = await tokenboundClient.transferERC20({
-        account: ZORA721_TBA_ADDRESS,
-        amount: transferEthValue,
-        recipientAddress: ANVIL_USER_1,
-        erc20tokenAddress: WETH_CONTRACT_ADDRESS,
-        erc20tokenDecimals: 18,
-      })
+        const tbaWETHReceived = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-      // Transfer WETH from TBA to jeebay.eth
-      const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
-        account: ZORA721_TBA_ADDRESS,
-        amount: transferEthValue,
-        recipientAddress: 'jeebay.eth',
-        erc20tokenAddress: WETH_CONTRACT_ADDRESS,
-        erc20tokenDecimals: 18,
-      })
+        // Transfer WETH from TBA to ANVIL_USER_1
+        const transferredERC20Hash = await tokenboundClient.transferERC20({
+          account: ZORA721_TBA_ADDRESS,
+          amount: transferEthValue,
+          recipientAddress: ANVIL_USER_1,
+          erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+          erc20tokenDecimals: 18,
+        })
 
-      const tbaWETHFinal = await getWETHBalance({
-        publicClient,
-        walletAddress: ZORA721_TBA_ADDRESS,
-      })
+        // Transfer WETH from TBA to jeebay.eth
+        const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
+          account: ZORA721_TBA_ADDRESS,
+          amount: transferEthValue,
+          recipientAddress: 'jeebay.eth',
+          erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+          erc20tokenDecimals: 18,
+        })
 
-      const anvilUser1WETHBalance = await getWETHBalance({
-        publicClient,
-        walletAddress: ANVIL_USER_1,
-      })
+        const tbaWETHFinal = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-      const ensWETHBalance = await getWETHBalance({
-        publicClient,
-        walletAddress: 'jeebay.eth',
-      })
+        const anvilUser1WETHBalance = await getWETHBalance({
+          publicClient,
+          walletAddress: ANVIL_USER_1,
+        })
 
-      console.log(
-        'TBA WETH INITIAL: ',
-        formatEther(tbaWETHInitial),
-        'TBA RECEIVED: ',
-        formatEther(tbaWETHReceived),
-        'AFTER: ',
-        formatEther(tbaWETHFinal),
-        'ANVIL USER 1 BALANCE: ',
-        formatEther(anvilUser1WETHBalance),
-        'ENS BALANCE: ',
-        formatEther(ensWETHBalance)
-      )
+        const ensWETHBalance = await getWETHBalance({
+          publicClient,
+          walletAddress: 'jeebay.eth',
+        })
 
-      await vi.waitFor(() => {
-        expect(wethDepositHash).toMatch(ADDRESS_REGEX)
-        expect(wethTransferHash).toMatch(ADDRESS_REGEX)
-        expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
-        expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
-        expect(tbaWETHReceived).toBe(depositWeiValue)
-        expect(anvilUser1WETHBalance).toBe(transferWeiValue)
-        expect(ensWETHBalance).toBe(transferWeiValue)
-      })
-    })
+        console.log(
+          'TBA WETH INITIAL: ',
+          formatEther(tbaWETHInitial),
+          'TBA RECEIVED: ',
+          formatEther(tbaWETHReceived),
+          'AFTER: ',
+          formatEther(tbaWETHFinal),
+          'ANVIL USER 1 BALANCE: ',
+          formatEther(anvilUser1WETHBalance),
+          'ENS BALANCE: ',
+          formatEther(ensWETHBalance)
+        )
+
+        await vi.waitFor(() => {
+          expect(wethDepositHash).toMatch(ADDRESS_REGEX)
+          expect(wethTransferHash).toMatch(ADDRESS_REGEX)
+          expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
+          expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
+          expect(tbaWETHReceived).toBe(depositWeiValue)
+          expect(anvilUser1WETHBalance).toBe(transferWeiValue)
+          expect(ensWETHBalance).toBe(transferWeiValue)
+        })
+      },
+      TIMEOUT
+    )
   }
 )
 
@@ -1117,7 +1128,7 @@ describe('Custom client configurations', () => {
   it('can use a custom publicClient RPC URL', async () => {
     const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
     const tokenboundClient = new TokenboundClient({
-      chainId: 1,
+      chain: mainnet,
       walletClient,
       publicClientRPCUrl: customPublicClientRPCUrl,
     })

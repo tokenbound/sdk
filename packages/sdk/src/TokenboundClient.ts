@@ -54,7 +54,7 @@ import {
   CallData,
 } from './types'
 import {
-  chainIdToChain,
+  // chainIdToChain,
   segmentBytecode,
   normalizeMessage,
   isEthers5SignableMessage,
@@ -89,7 +89,7 @@ class TokenboundClient {
 
   constructor(options: TokenboundClientOptions) {
     const {
-      chainId,
+      // chainId,
       chain,
       signer,
       walletClient,
@@ -100,7 +100,10 @@ class TokenboundClient {
       version,
     } = options
 
-    if (!chainId && !chain) {
+    // if (!chainId && !chain) {
+    //   throw new Error('chain or chainId required.')
+    // }
+    if (!chain) {
       throw new Error('chain or chainId required.')
     }
 
@@ -114,8 +117,9 @@ class TokenboundClient {
       )
     }
 
-    this.chainId = chainId ?? chain!.id
-    this.chain = chain ?? chainIdToChain(this.chainId)
+    // this.chainId = chainId ?? chain!.id
+    this.chainId = chain.id
+    this.chain = chain // ?? chainIdToChain(this.chainId)
 
     if (signer) {
       this.signer = signer
@@ -197,10 +201,9 @@ class TokenboundClient {
    * @param {string} params.tokenId The token ID.
    * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
    */
-  public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<
-    | MultiCallTx
-    | CallData
-  > {
+  public async prepareCreateAccount(
+    params: PrepareCreateAccountParams
+  ): Promise<MultiCallTx | CallData> {
     const {
       tokenContract,
       tokenId,
@@ -421,10 +424,8 @@ class TokenboundClient {
    * @param {string} params.data The encoded operation calldata to send
    * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    */
-  public async prepareExecution(params: PrepareExecutionParams): Promise<
-    CallData
-    // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
-  > {
+  public async prepareExecution(params: PrepareExecutionParams): Promise<CallData> {
+  // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
     const { account, to, value, data, chainId = this.chainId } = params
     const operation = CALL_OPERATIONS.CALL
 
