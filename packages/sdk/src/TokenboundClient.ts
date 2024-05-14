@@ -54,7 +54,7 @@ import {
   CallData,
 } from './types'
 import {
-  // chainIdToChain,
+  chainIdToChain,
   segmentBytecode,
   normalizeMessage,
   isEthers5SignableMessage,
@@ -89,7 +89,7 @@ class TokenboundClient {
 
   constructor(options: TokenboundClientOptions) {
     const {
-      // chainId,
+      chainId,
       chain,
       signer,
       walletClient,
@@ -100,10 +100,7 @@ class TokenboundClient {
       version,
     } = options
 
-    // if (!chainId && !chain) {
-    //   throw new Error('chain or chainId required.')
-    // }
-    if (!chain) {
+    if (!chainId && !chain) {
       throw new Error('chain or chainId required.')
     }
 
@@ -117,9 +114,8 @@ class TokenboundClient {
       )
     }
 
-    // this.chainId = chainId ?? chain!.id
-    this.chainId = chain.id
-    this.chain = chain // ?? chainIdToChain(this.chainId)
+    this.chainId = chainId ?? chain!.id
+    this.chain = chain ?? chainIdToChain(this.chainId)
 
     if (signer) {
       this.signer = signer
