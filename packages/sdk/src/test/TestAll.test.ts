@@ -1,10 +1,9 @@
-// This test suite is for testing SDK methods with
+// This suite tests Tokenbound SDK methods with
 // viem walletClient + publicClient and Ethers 5/6.
 
-import { zora } from 'viem/chains'
-import { describe, beforeAll, afterAll, test, expect, it, vi } from 'vitest'
+import { zora, mainnet } from 'viem/chains'
+import { describe, beforeAll, afterAll, expect, it, vi } from 'vitest'
 import { ethers, providers } from 'ethers'
-import { waitFor } from './mockWallet'
 import { createAnvil } from '@viem/anvil'
 import {
   WalletClient,
@@ -38,12 +37,18 @@ import {
   getZora1155Balance,
   getZora721Balance,
 } from './utils'
-import { ANVIL_CONFIG, CREATE_ANVIL_OPTIONS, zora721, zora1155, TEST_CONFIG } from './config'
+import {
+  ANVIL_CONFIG,
+  CREATE_ANVIL_OPTIONS,
+  zora721,
+  zora1155,
+  TEST_CONFIG,
+} from './config'
 import { wethABI } from './wagmi-cli-hooks/generated'
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from '../constants'
 import { Call3, TBImplementationVersion, TBVersion } from '../types'
 import { JsonRpcSigner, JsonRpcProvider } from 'ethers6'
-import { erc20ABI } from 'wagmi'
+import { erc20Abi } from 'viem'
 import { CreateAccountParams, TokenboundClient } from '../'
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
@@ -128,11 +133,13 @@ describe.each(ENABLED_TESTS)(
     // Spin up a fresh anvil instance each time we run the test suite against a different signer
     beforeAll(async () => {
       try {
-        publicClient = getPublicClient({ chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id })
+        // publicClient = getPublicClient({ chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id })
+        publicClient = getPublicClient({ chain: ANVIL_CONFIG.ACTIVE_CHAIN })
 
         // Pass in the Anvil test walletClient + publicClient
         tokenboundClient = new TokenboundClient({
-          chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+          // chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
+          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
           walletClient,
           signer,
           publicClient,
@@ -156,6 +163,8 @@ describe.each(ENABLED_TESTS)(
 
     it('can get the SDK version', () => {
       const sdkVersion: string = tokenboundClient.getSDKVersion()
+      console.log(`SDK Version → \x1b[94m ${sdkVersion} \x1b[0m`)
+      // console.log('SDK Version:', sdkVersion)
       expect(sdkVersion).toBeDefined()
     })
 
@@ -234,7 +243,7 @@ describe.each(ENABLED_TESTS)(
           walletAddress: ANVIL_USER_0,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(mintLogs.length).toBe(zora721.quantity)
           expect(mintTxHash).toMatch(ADDRESS_REGEX)
           expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
@@ -253,9 +262,9 @@ describe.each(ENABLED_TESTS)(
           tokenContract: zora721.proxyContractAddress,
           tokenId: '1',
         })
-  
+
         if (!preparedAccount.to) return false
-  
+
         expect(isAddress(preparedAccount.to)).toEqual(true)
         expect(typeof preparedAccount.value).toEqual('bigint')
         expect(isHex(preparedAccount.data)).toEqual(true)
@@ -275,7 +284,7 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS = account
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
@@ -297,7 +306,7 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS_CUSTOM_SALT = account
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
@@ -344,7 +353,7 @@ describe.each(ENABLED_TESTS)(
 
         // Perform a simple ERC20 balanceOf call to test the appended multicall transaction
         const encodedBalanceOfFunctionData = encodeFunctionData({
-          abi: erc20ABI,
+          abi: erc20Abi,
           functionName: 'balanceOf',
           args: [multicallTBAAddress],
         })
@@ -373,7 +382,7 @@ describe.each(ENABLED_TESTS)(
         })
 
         ZORA721_TBA_ADDRESS_MULTICALL = account
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(account).toMatch(ADDRESS_REGEX)
           expect(createdAccountTxReceipt.status).toBe('success')
         })
@@ -426,10 +435,10 @@ describe.each(ENABLED_TESTS)(
       expect(erc1167Header).toEqual(TEST_CONFIG.ERC1167_HEADER)
       // expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
 
-      if(isV2) {
+      if (isV2) {
         expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS)
       }
-      if(isV3) {
+      if (isV3) {
         expect(implementationAddress).toEqual(ERC6551_DEPLOYMENT.ACCOUNT_PROXY?.ADDRESS)
       }
 
@@ -441,7 +450,7 @@ describe.each(ENABLED_TESTS)(
 
     it('can getAccount', async () => {
       const getAccount = tokenboundClient.getAccount(NFT_IN_EOA)
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(getAccount).toMatch(ADDRESS_REGEX)
         expect(getAccount).toEqual(ZORA721_TBA_ADDRESS)
       })
@@ -449,7 +458,7 @@ describe.each(ENABLED_TESTS)(
 
     it('can getAccount with a custom salt', async () => {
       const getAccount = tokenboundClient.getAccount({ ...NFT_IN_EOA, salt: CUSTOM_SALT })
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(getAccount).toMatch(ADDRESS_REGEX)
         expect(getAccount).toEqual(ZORA721_TBA_ADDRESS_CUSTOM_SALT)
       })
@@ -504,7 +513,7 @@ describe.each(ENABLED_TESTS)(
         })
         console.log('# of NFTs in TBA: ', tbaNFTBalance.toString())
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
           expect(tbaNFTBalance).toBe(1n)
@@ -558,7 +567,7 @@ describe.each(ENABLED_TESTS)(
         })
         console.log('# of NFTs in TBA: ', tbaNFTBalance.toString())
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
           expect(tbaNFTBalance).toBe(2n)
@@ -600,7 +609,7 @@ describe.each(ENABLED_TESTS)(
           address: ZORA721_TBA_ADDRESS,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(transferHash).toMatch(ADDRESS_REGEX)
           expect(balanceAfter).toBe(ethAmountWei)
         })
@@ -609,7 +618,6 @@ describe.each(ENABLED_TESTS)(
     )
 
     it(isV2 ? 'can prepareExecuteCall' : 'can prepareExecution', async () => {
-
       const execution = {
         account: ZORA721_TBA_ADDRESS,
         to: TEST_CONFIG.RECIPIENT_ADDRESS,
@@ -618,8 +626,8 @@ describe.each(ENABLED_TESTS)(
       }
 
       const preparedCall = isV3
-      ? await tokenboundClient.prepareExecution(execution)
-      : await tokenboundClient.prepareExecuteCall(execution)
+        ? await tokenboundClient.prepareExecution(execution)
+        : await tokenboundClient.prepareExecuteCall(execution)
 
       expect(isAddress(preparedCall.to)).toEqual(true)
       expect(typeof preparedCall.value).toEqual('bigint')
@@ -645,7 +653,7 @@ describe.each(ENABLED_TESTS)(
           hash: executedCallTxHash,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
         })
@@ -669,7 +677,7 @@ describe.each(ENABLED_TESTS)(
           hash: executedCallTxHash,
         })
 
-        await waitFor(() => {
+        await vi.waitFor(() => {
           expect(executedCallTxHash).toMatch(ADDRESS_REGEX)
           expect(transactionReceipt.status).toBe('success')
         })
@@ -677,8 +685,9 @@ describe.each(ENABLED_TESTS)(
       TIMEOUT
     )
 
-    // The other methods in the SDK implement executeCall,
-    // so they provide further reinforcement that executeCall works.
+    // Other methods in the SDK implement executeCall, like transferETH, transferNFT, etc.
+    // so they provide further assurance that executeCall is working as expected:
+
     it('can transferETH with the TBA', async () => {
       const EXPECTED_BALANCE_BEFORE = parseUnits('1', 18)
       const EXPECTED_BALANCE_AFTER = parseUnits('0.75', 18)
@@ -707,8 +716,9 @@ describe.each(ENABLED_TESTS)(
         formatEther(balanceAfter)
       )
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(ethTransferHash).toMatch(ADDRESS_REGEX)
+        expect(transactionReceipt.status).toBe('success')
         expect(balanceBefore).toBe(EXPECTED_BALANCE_BEFORE)
         expect(balanceAfter).toBe(EXPECTED_BALANCE_AFTER)
       })
@@ -737,7 +747,7 @@ describe.each(ENABLED_TESTS)(
         formatEther(balanceAfter)
       )
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(ethTransferHash).toMatch(ADDRESS_REGEX)
         expect(balanceBefore).toBe(EXPECTED_BALANCE_BEFORE)
         expect(balanceAfter).toBe(EXPECTED_BALANCE_AFTER)
@@ -773,7 +783,7 @@ describe.each(ENABLED_TESTS)(
         walletAddress: ANVIL_USER_1,
       })
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1NFTBalance).toBe(1n)
       })
@@ -795,7 +805,7 @@ describe.each(ENABLED_TESTS)(
         walletAddress: addr,
       })
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1NFTBalance).toBe(1n)
       })
@@ -826,7 +836,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('721s MINTED TO TBA: ', zoraBalanceInTBA.toString())
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(mintToTBATxHash).toMatch(ADDRESS_REGEX)
         expect(NFT_IN_EOA.tokenId).toBe(TOKENID_IN_EOA)
         expect(zoraBalanceInTBA).toBe(4n)
@@ -870,7 +880,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('1155 Balance', zora1155BalanceInTBA)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(mint1155TxHash).toMatch(ADDRESS_REGEX)
         expect(zora1155BalanceInTBA).toBe(5n)
       })
@@ -895,7 +905,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('1155 Balance', anvilAccount1_1155Balance)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(transferNFTHash).toMatch(ADDRESS_REGEX)
         expect(anvilAccount1_1155Balance).toBe(BigInt(transferAmount))
       })
@@ -909,7 +919,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('isValidSigner?', isValidSigner)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(isValidSigner).toBe(true)
       })
     })
@@ -923,7 +933,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('SIGNED MESSAGE: ', signedMessageHash)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(signedMessageHash).toMatch(ADDRESS_REGEX)
       })
     })
@@ -936,7 +946,7 @@ describe.each(ENABLED_TESTS)(
 
       console.log('HEX SIGNED MESSAGE: ', hexSignedMessageHash)
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(hexSignedMessageHash).toMatch(ADDRESS_REGEX)
       })
     })
@@ -949,7 +959,7 @@ describe.each(ENABLED_TESTS)(
         message: { raw: uint8ArrayMessage },
       })
 
-      await waitFor(() => {
+      await vi.waitFor(() => {
         expect(rawUint8Hash).toMatch(ADDRESS_REGEX)
       })
     })
@@ -983,128 +993,134 @@ describe.each(ENABLED_TESTS)(
       }
     )
 
-    it('can transferERC20 with the TBA', async () => {
-      const depositEthValue = 0.2
-      const depositWeiValue = ethToWei(depositEthValue)
-      const transferEthValue = 0.1
-      const transferWeiValue = ethToWei(transferEthValue)
-      let wethDepositHash: `0x${string}`
-      let wethTransferHash: `0x${string}`
+    it(
+      'can transferERC20 with the TBA',
+      async () => {
+        const depositEthValue = 0.2
+        const depositWeiValue = ethToWei(depositEthValue)
+        const transferEthValue = 0.1
+        const transferWeiValue = ethToWei(transferEthValue)
+        let wethDepositHash: `0x${string}`
+        let wethTransferHash: `0x${string}`
 
-      const tbaWETHInitial = await getWETHBalance({
-        publicClient,
-        walletAddress: ZORA721_TBA_ADDRESS,
-      })
+        const tbaWETHInitial = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-      // Prepare encoded WETH transfer to TBA
-      const wethTransferCallData = encodeFunctionData({
-        abi: wethABI,
-        functionName: 'transfer',
-        args: [ZORA721_TBA_ADDRESS, depositWeiValue],
-      })
-
-      if (walletClient) {
-        const wethContract = getContract({
-          address: WETH_CONTRACT_ADDRESS,
+        // Prepare encoded WETH transfer to TBA
+        const wethTransferCallData = encodeFunctionData({
           abi: wethABI,
-          walletClient,
+          functionName: 'transfer',
+          args: [ZORA721_TBA_ADDRESS, depositWeiValue],
         })
 
-        // Convert ETH to WETH in ANVIL_USER_0 wallet
-        wethDepositHash = await wethContract.write.deposit({
-          account: ANVIL_USER_0,
-          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-          value: depositWeiValue,
-        })
+        if (walletClient) {
+          const wethContract = getContract({
+            address: WETH_CONTRACT_ADDRESS,
+            abi: wethABI,
+            client: {
+              wallet: walletClient,
+            },
+          })
 
-        // Transfer WETH from ANVIL_USER_0 to TBA
-        wethTransferHash = await walletClient.sendTransaction({
-          account: walletClient.account!,
-          chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-          to: WETH_CONTRACT_ADDRESS,
-          value: 0n,
-          data: wethTransferCallData,
-        })
-      } else if (signer) {
-        // Convert ETH to WETH in ANVIL_USER_0 wallet
-        wethDepositHash = await signer
-          .sendTransaction({
-            to: WETH_CONTRACT_ADDRESS,
+          // Convert ETH to WETH in ANVIL_USER_0 wallet
+          wethDepositHash = await wethContract.write.deposit({
+            account: ANVIL_USER_0,
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
             value: depositWeiValue,
           })
-          .then((tx: providers.TransactionResponse) => tx.hash)
 
-        // Transfer WETH from ANVIL_USER_0 to TBA
-        wethTransferHash = await signer
-          .sendTransaction({
+          // Transfer WETH from ANVIL_USER_0 to TBA
+          wethTransferHash = await walletClient.sendTransaction({
+            account: walletClient.account!,
+            chain: ANVIL_CONFIG.ACTIVE_CHAIN,
             to: WETH_CONTRACT_ADDRESS,
-            value: BigInt(0),
+            value: 0n,
             data: wethTransferCallData,
           })
-          .then((tx: providers.TransactionResponse) => tx.hash)
-      }
+        } else if (signer) {
+          // Convert ETH to WETH in ANVIL_USER_0 wallet
+          wethDepositHash = await signer
+            .sendTransaction({
+              to: WETH_CONTRACT_ADDRESS,
+              value: depositWeiValue,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
 
-      const tbaWETHReceived = await getWETHBalance({
-        publicClient,
-        walletAddress: ZORA721_TBA_ADDRESS,
-      })
+          // Transfer WETH from ANVIL_USER_0 to TBA
+          wethTransferHash = await signer
+            .sendTransaction({
+              to: WETH_CONTRACT_ADDRESS,
+              value: BigInt(0),
+              data: wethTransferCallData,
+            })
+            .then((tx: providers.TransactionResponse) => tx.hash)
+        }
 
-      // Transfer WETH from TBA to ANVIL_USER_1
-      const transferredERC20Hash = await tokenboundClient.transferERC20({
-        account: ZORA721_TBA_ADDRESS,
-        amount: transferEthValue,
-        recipientAddress: ANVIL_USER_1,
-        erc20tokenAddress: WETH_CONTRACT_ADDRESS,
-        erc20tokenDecimals: 18,
-      })
+        const tbaWETHReceived = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-      // Transfer WETH from TBA to jeebay.eth
-      const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
-        account: ZORA721_TBA_ADDRESS,
-        amount: transferEthValue,
-        recipientAddress: 'jeebay.eth',
-        erc20tokenAddress: WETH_CONTRACT_ADDRESS,
-        erc20tokenDecimals: 18,
-      })
+        // Transfer WETH from TBA to ANVIL_USER_1
+        const transferredERC20Hash = await tokenboundClient.transferERC20({
+          account: ZORA721_TBA_ADDRESS,
+          amount: transferEthValue,
+          recipientAddress: ANVIL_USER_1,
+          erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+          erc20tokenDecimals: 18,
+        })
 
-      const tbaWETHFinal = await getWETHBalance({
-        publicClient,
-        walletAddress: ZORA721_TBA_ADDRESS,
-      })
+        // Transfer WETH from TBA to jeebay.eth
+        const ensTransferredERC20Hash = await tokenboundClient.transferERC20({
+          account: ZORA721_TBA_ADDRESS,
+          amount: transferEthValue,
+          recipientAddress: 'jeebay.eth',
+          erc20tokenAddress: WETH_CONTRACT_ADDRESS,
+          erc20tokenDecimals: 18,
+        })
 
-      const anvilUser1WETHBalance = await getWETHBalance({
-        publicClient,
-        walletAddress: ANVIL_USER_1,
-      })
+        const tbaWETHFinal = await getWETHBalance({
+          publicClient,
+          walletAddress: ZORA721_TBA_ADDRESS,
+        })
 
-      const ensWETHBalance = await getWETHBalance({
-        publicClient,
-        walletAddress: 'jeebay.eth',
-      })
+        const anvilUser1WETHBalance = await getWETHBalance({
+          publicClient,
+          walletAddress: ANVIL_USER_1,
+        })
 
-      console.log(
-        'TBA WETH INITIAL: ',
-        formatEther(tbaWETHInitial),
-        'TBA RECEIVED: ',
-        formatEther(tbaWETHReceived),
-        'AFTER: ',
-        formatEther(tbaWETHFinal),
-        'ANVIL USER 1 BALANCE: ',
-        formatEther(anvilUser1WETHBalance),
-        'ENS BALANCE: ',
-        formatEther(ensWETHBalance)
-      )
+        const ensWETHBalance = await getWETHBalance({
+          publicClient,
+          walletAddress: 'jeebay.eth',
+        })
 
-      await waitFor(() => {
-        expect(wethDepositHash).toMatch(ADDRESS_REGEX)
-        expect(wethTransferHash).toMatch(ADDRESS_REGEX)
-        expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
-        expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
-        expect(tbaWETHReceived).toBe(depositWeiValue)
-        expect(anvilUser1WETHBalance).toBe(transferWeiValue)
-        expect(ensWETHBalance).toBe(transferWeiValue)
-      })
-    })
+        console.log(
+          'TBA WETH INITIAL: ',
+          formatEther(tbaWETHInitial),
+          'TBA RECEIVED: ',
+          formatEther(tbaWETHReceived),
+          'AFTER: ',
+          formatEther(tbaWETHFinal),
+          'ANVIL USER 1 BALANCE: ',
+          formatEther(anvilUser1WETHBalance),
+          'ENS BALANCE: ',
+          formatEther(ensWETHBalance)
+        )
+
+        await vi.waitFor(() => {
+          expect(wethDepositHash).toMatch(ADDRESS_REGEX)
+          expect(wethTransferHash).toMatch(ADDRESS_REGEX)
+          expect(transferredERC20Hash).toMatch(ADDRESS_REGEX)
+          expect(ensTransferredERC20Hash).toMatch(ADDRESS_REGEX)
+          expect(tbaWETHReceived).toBe(depositWeiValue)
+          expect(anvilUser1WETHBalance).toBe(transferWeiValue)
+          expect(ensWETHBalance).toBe(transferWeiValue)
+        })
+      },
+      TIMEOUT
+    )
   }
 )
 
@@ -1112,12 +1128,12 @@ describe('Custom client configurations', () => {
   it('can use a custom publicClient RPC URL', async () => {
     const customPublicClientRPCUrl = 'https://cloudflare-eth.com'
     const tokenboundClient = new TokenboundClient({
-      chainId: 1,
+      chain: mainnet,
       walletClient,
       publicClientRPCUrl: customPublicClientRPCUrl,
     })
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(tokenboundClient.publicClient?.transport?.url).toBe(customPublicClientRPCUrl)
     })
   })
@@ -1129,7 +1145,7 @@ describe('Custom client configurations', () => {
       chain: zora,
     })
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(tokenboundClient.publicClient?.chain?.id).toBe(ZORA_CHAIN_ID)
     })
   })

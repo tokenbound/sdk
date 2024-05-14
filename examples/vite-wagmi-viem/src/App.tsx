@@ -1,5 +1,9 @@
-import { ConnectKitButton } from 'connectkit'
-import { useAccount, WindowProvider } from 'wagmi'
+// import { ConnectKitButton } from 'connectkit'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import {
+  useAccount,
+  // WindowProvider
+} from 'wagmi'
 
 import { Account } from './components'
 
@@ -16,9 +20,15 @@ import { TokenboundClient } from '@tokenbound/sdk'
 
 import { useCallback, useEffect } from 'react'
 
+// interface WindowProvider {
+//   request: (...args: any[]) => Promise<any>
+//   // Add other properties and methods you expect to use
+// }
+
 declare global {
   interface Window {
-    ethereum?: WindowProvider
+    // ethereum?: WindowProvider
+    ethereum?: any // CoinbaseWalletSDK also defines window.ethereum, so we have to work around that :(
   }
 }
 
@@ -37,6 +47,7 @@ export function App() {
   const walletClient: WalletClient = createWalletClient({
     chain: goerli,
     account: address,
+    // transport: http(),
     transport: window.ethereum ? custom(window.ethereum) : http(),
   })
 
@@ -114,7 +125,7 @@ export function App() {
   return (
     <>
       <h1>viem walletClient + ConnectKit + Vite</h1>
-      <ConnectKitButton />
+      <ConnectButton />
       {isConnected && <Account />}
       {address && (
         <div

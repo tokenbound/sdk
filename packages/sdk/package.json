@@ -1,6 +1,6 @@
 {
   "name": "@tokenbound/sdk",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "files": [
     "dist"
@@ -22,43 +22,45 @@
     "test": "vitest --watch=false",
     "coverage": "vitest run --coverage",
     "clean": "rm -rf node_modules/ dist/",
-    "wagmi": "wagmi generate"
+    "wagmi": "wagmi generate",
+    "prep": "pnpm clean && pnpm i && pnpm wagmi && pnpm build"
   },
   "dependencies": {
-    "@layerzerolabs/lz-v2-utilities": "^2.1.18",
-    "viem": "^1.21.4"
+    "@layerzerolabs/lz-v2-utilities": "^2.3.3",
+    "viem": "^2.10.5"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
     "@tanstack/react-query": "4.29.1",
-    "@testing-library/dom": "^9.3.1",
-    "@testing-library/jest-dom": "^6.1.3",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.4.3",
+    "@testing-library/dom": "^10.1.0",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^15.0.4",
+    "@testing-library/user-event": "^14.5.2",
     "@tokenbound/sdk": "workspace:^",
-    "@types/react": "^18.2.21",
+    "@types/react": "^18.3.2",
     "@types/testing-library__jest-dom": "^5.14.9",
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^6.7.2",
-    "@viem/anvil": "^0.0.9",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.9.0",
+    "@viem/anvil": "^0.0.10",
     "@vitest/coverage-c8": "^0.33.0",
     "@wagmi/cli": "^1.5.2",
-    "connectkit": "^1.5.3",
-    "eslint": "^8.50.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-unused-imports": "^3.0.0",
+    "connectkit": "^1.7.3",
+    "eslint": "^9.1.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
     "ethers": "^5.7.2",
     "prettier": "^2.8.8",
     "forge-std": "1.1.2",
-    "ethers6": "npm:ethers@^6.11.1",
+    "ethers6": "npm:ethers@^6.12.1",
     "jsdom": "^24.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "typescript": "^5.4.2",
-    "viem": "^1.21.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.4.5",
+    "viem": "^2.10.5",
+    "wagmi": "^2.8.7",
     "vite": "^4.4.9",
-    "vite-plugin-dts": "^3.5.1",
-    "vitest": "^0.34.2",
-    "wagmi": "^1.4.7"
+    "vite-plugin-dts": "^3.9.0",
+    "vitest": "^1.6.0",
+    "rollup-plugin-visualizer": "^5.12.0"
   }
 }

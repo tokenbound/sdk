@@ -197,10 +197,9 @@ class TokenboundClient {
    * @param {string} params.tokenId The token ID.
    * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
    */
-  public async prepareCreateAccount(params: PrepareCreateAccountParams): Promise<
-    | MultiCallTx
-    | CallData
-  > {
+  public async prepareCreateAccount(
+    params: PrepareCreateAccountParams
+  ): Promise<MultiCallTx | CallData> {
     const {
       tokenContract,
       tokenId,
@@ -421,10 +420,8 @@ class TokenboundClient {
    * @param {string} params.data The encoded operation calldata to send
    * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
    */
-  public async prepareExecution(params: PrepareExecutionParams): Promise<
-    CallData
-    // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
-  > {
+  public async prepareExecution(params: PrepareExecutionParams): Promise<CallData> {
+  // operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
     const { account, to, value, data, chainId = this.chainId } = params
     const operation = CALL_OPERATIONS.CALL
 
@@ -463,7 +460,7 @@ class TokenboundClient {
     })
 
     return {
-      to: account as `0x${string}`,
+      to: account,
       value: executionValue,
       data: executionData,
     }

@@ -1,5 +1,6 @@
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
+import { PluginOption, defineConfig } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 import dts from 'vite-plugin-dts'
 
 // https://vitejs.dev/config/
@@ -25,8 +26,19 @@ export default defineConfig({
       },
     },
   },
-  plugins: [dts()],
+  plugins: [
+    dts(),
+    visualizer({
+      // Run 'pnpm build' to generate a stats.html file, which will automatically open
+      // in your default browser. This lets us visualize bundle sizes and dependencies.
+      open: true,
+      template: 'treemap',
+      filename: './dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }) as PluginOption,
+  ],
   optimizeDeps: {
-    exclude: ['**/__test__/**', '**/*.test.ts', '**/*.spec.ts'],
+    exclude: ['**/__test__/**', '**/*.test.ts', '**/*.spec.ts', './test/**/'],
   },
 })
