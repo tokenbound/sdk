@@ -12,6 +12,8 @@ export const LZ_MAINNET_EXECUTORS: { [originChainId: number]: `0x${string}` } = 
   8453: LZ_MAINNET_EXECUTOR,
   // linea
   59144: LZ_MAINNET_EXECUTOR,
+  // arbitrum
+  42161: LZ_MAINNET_EXECUTOR,
 }
 
 export const LZ_TESTNET_EXECUTORS: { [originChainId: number]: `0x${string}` } = {
@@ -25,6 +27,8 @@ export const LZ_TESTNET_EXECUTORS: { [originChainId: number]: `0x${string}` } = 
   84532: LZ_TESTNET_EXECUTOR,
   // linea testnet
   59140: LZ_TESTNET_EXECUTOR,
+  // arbitrum sepolia
+  421614: LZ_TESTNET_EXECUTOR,
 }
 
 export const LZ_EXECUTORS: { [originChainId: number]: `0x${string}` } = {
@@ -43,6 +47,8 @@ export const LZ_MAINNET_EIDS: { [chainId: number]: number } = {
   8453: 30184,
   // linea
   59144: 30183,
+  // arbitrum
+  42161: 30110,
 }
 
 export const LZ_TESTNET_EIDS: { [chainId: number]: number } = {
@@ -56,6 +62,8 @@ export const LZ_TESTNET_EIDS: { [chainId: number]: number } = {
   84532: 40245,
   // linea testnet
   59140: 40157,
+  // arbitrum sepolia
+  421614: 40231,
 }
 
 export const LZ_EIDS: { [chainId: number]: number } = {
