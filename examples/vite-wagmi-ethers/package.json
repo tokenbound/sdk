@@ -1,6 +1,6 @@
 {
   "name": "vite-wagmi-ethers",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -18,7 +18,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "util": "^0.12.5",
-    "viem": "^2.9.26",
+    "viem": "^2.10.5",
     "wagmi": "^2.3.1"
   },
   "devDependencies": {

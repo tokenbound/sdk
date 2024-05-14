@@ -1,5 +1,11 @@
 # @tokenbound/sdk
 
+## 0.5.4
+
+### Patch Changes
+
+- transition to viem 2
+
 ## 0.5.2
 
 ### Patch Changes

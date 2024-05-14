@@ -1,6 +1,6 @@
 {
   "name": "@tokenbound/sdk",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "files": [
     "dist"
@@ -26,7 +26,7 @@
     "prep": "pnpm clean && pnpm i && pnpm wagmi && pnpm build"
   },
   "dependencies": {
-    "@layerzerolabs/lz-v2-utilities": "^2.3.3",
+    "@layerzerolabs/lz-v2-utilities": "^2.3.7",
     "viem": "^2.10.5"
   },
   "devDependencies": {

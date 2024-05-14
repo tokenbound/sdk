@@ -1,5 +1,12 @@
 # vite-wagmi-ethers6
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @tokenbound/sdk@0.5.4
+
 ## 0.0.5
 
 ### Patch Changes
