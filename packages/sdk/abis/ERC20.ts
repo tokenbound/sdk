@@ -1,4 +1,4 @@
-import { Abi } from "viem";
+import { Abi } from "viem"
 
 export const erc20Abi = [
 	{
@@ -95,4 +95,4 @@ export const erc20Abi = [
 		name: "transferFrom",
 		outputs: [{ name: "", type: "bool" }],
 	},
-] as Abi;
+] as Abi

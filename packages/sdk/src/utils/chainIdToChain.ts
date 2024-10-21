@@ -1,4 +1,4 @@
-import { Chain } from "viem";
+import { Chain } from "viem"
 import {
 	mainnet,
 	goerli,
@@ -16,7 +16,7 @@ import {
 	gnosis,
 	zora,
 	zoraTestnet,
-} from "viem/chains";
+} from "viem/chains"
 
 const enabledChains = {
 	mainnet,
@@ -35,7 +35,7 @@ const enabledChains = {
 	linea,
 	zora,
 	zoraTestnet,
-};
+}
 
 /**
  * Gets the chain object for the given chain id.
@@ -46,9 +46,9 @@ const enabledChains = {
 export function chainIdToChain(chainId: number): Chain {
 	for (const chain of Object.values(enabledChains)) {
 		if (chain.id === chainId) {
-			return chain;
+			return chain
 		}
 	}
 
-	throw new Error(`Chain with id ${chainId} not found`);
+	throw new Error(`Chain with id ${chainId} not found`)
 }

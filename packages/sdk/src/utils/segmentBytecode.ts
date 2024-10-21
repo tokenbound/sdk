@@ -11,14 +11,14 @@
  * console.log(segments); // ["0x", "1234", "567890ab"]
  */
 export function segmentBytecode(input: string, ...lengths: number[]): string[] {
-	let position = 0;
-	const segments: string[] = [];
-	const cleanInput = input.startsWith("0x") ? input.substring(2) : input; // Remove "0x" prefix if present
+	let position = 0
+	const segments: string[] = []
+	const cleanInput = input.startsWith("0x") ? input.substring(2) : input // Remove "0x" prefix if present
 
 	for (const length of lengths) {
-		segments.push(cleanInput.substr(position, length * 2));
-		position += length * 2;
+		segments.push(cleanInput.substr(position, length * 2))
+		position += length * 2
 	}
 
-	return segments;
+	return segments
 }

@@ -8,17 +8,17 @@ import {
 	encodeAbiParameters,
 	pad,
 	getAddress,
-} from "viem";
+} from "viem"
 
-import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../../abis";
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../../abis"
 import {
 	erc6551AccountProxyV3ABI,
 	erc6551AccountV3ABI,
 	erc6551RegistryV3ABI,
-} from "../../src/test/wagmi-cli-hooks/generated";
-import { addressToUint8Array } from "../utils";
-import { ERC_6551_LEGACY_V2 } from "../constants";
-import { CallData } from "../types";
+} from "../../src/test/wagmi-cli-hooks/generated"
+import { addressToUint8Array } from "../utils"
+import { ERC_6551_LEGACY_V2 } from "../constants"
+import { CallData } from "../types"
 
 export {
 	erc6551AccountAbiV2,
@@ -26,7 +26,7 @@ export {
 	erc6551AccountProxyV3ABI,
 	erc6551AccountV3ABI,
 	erc6551RegistryV3ABI,
-};
+}
 
 /**
  * @deprecated Direct consumption of this function is deprecated. Consume via TokenboundClient instead.
@@ -41,7 +41,7 @@ export async function getAccount(
 ): Promise<`0x${string}`> {
 	const erc6551registry = registryAddress
 		? getAddress(registryAddress)
-		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS;
+		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
 	const registry = getContract({
 		address: erc6551registry,
@@ -49,9 +49,9 @@ export async function getAccount(
 		client: {
 			public: client as PublicClient,
 		},
-	});
+	})
 
-	const chainId = await client.getChainId();
+	const chainId = await client.getChainId()
 
 	const account = await registry.read.account([
 		implementationAddress
@@ -61,9 +61,9 @@ export async function getAccount(
 		tokenContract,
 		tokenId,
 		0,
-	]);
+	])
 
-	return account as `0x${string}`;
+	return account as `0x${string}`
 }
 
 /**
@@ -78,13 +78,13 @@ export async function prepareCreateAccount(
 	registryAddress?: `0x${string}`,
 	salt?: number,
 ): Promise<CallData> {
-	salt = salt ?? 0;
+	salt = salt ?? 0
 	const implementation = implementationAddress
 		? getAddress(implementationAddress)
-		: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS;
+		: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
 	const erc6551registry = registryAddress
 		? getAddress(registryAddress)
-		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS;
+		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
 	const initData = encodeFunctionData({
 		abi: [
@@ -97,7 +97,7 @@ export async function prepareCreateAccount(
 			},
 		],
 		functionName: "initialize",
-	});
+	})
 
 	return {
 		to: erc6551registry,
@@ -107,7 +107,7 @@ export async function prepareCreateAccount(
 			functionName: "createAccount",
 			args: [implementation, chainId, tokenContract, tokenId, salt, initData],
 		}),
-	};
+	}
 }
 
 /**
@@ -123,13 +123,13 @@ export async function createAccount(
 	salt?: number,
 	chainId?: number,
 ): Promise<`0x${string}`> {
-	salt = salt ?? 0;
+	salt = salt ?? 0
 	const implementation = implementationAddress
 		? getAddress(implementationAddress)
-		: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS;
+		: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
 	const erc6551registry = registryAddress
 		? getAddress(registryAddress)
-		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS;
+		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
 	const registry = getContract({
 		address: erc6551registry,
@@ -137,9 +137,9 @@ export async function createAccount(
 		client: {
 			wallet: client,
 		},
-	});
+	})
 
-	const _chainId = chainId || (await client.getChainId());
+	const _chainId = chainId || (await client.getChainId())
 
 	const initData = encodeFunctionData({
 		abi: [
@@ -152,7 +152,7 @@ export async function createAccount(
 			},
 		],
 		functionName: "initialize",
-	});
+	})
 
 	return registry.write.createAccount([
 		implementation,
@@ -161,7 +161,7 @@ export async function createAccount(
 		tokenId,
 		salt,
 		initData,
-	]);
+	])
 }
 
 /**
@@ -182,7 +182,7 @@ export async function prepareExecuteCall(
 			functionName: "executeCall",
 			args: [to as `0x${string}`, value, data as `0x${string}`],
 		}),
-	};
+	}
 }
 
 /**
@@ -202,13 +202,13 @@ export async function executeCall(
 		client: {
 			wallet: client,
 		},
-	});
+	})
 
 	return registry.write.executeCall([
 		to as `0x${string}`,
 		value,
 		data as `0x${string}`,
-	]);
+	])
 }
 
 /**
@@ -223,13 +223,13 @@ export function computeAccount(
 	registryAddress?: `0x${string}`,
 	salt?: number,
 ): `0x${string}` {
-	salt = salt ?? 0;
+	salt = salt ?? 0
 	const implementation = implementationAddress
 		? getAddress(implementationAddress)
-		: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS;
+		: ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
 	const erc6551registry = registryAddress
 		? getAddress(registryAddress)
-		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS;
+		: ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
 
 	const code = getCreationCode(
 		implementation,
@@ -237,17 +237,17 @@ export function computeAccount(
 		tokenContract,
 		tokenId,
 		salt.toString(),
-	);
+	)
 
-	const bigIntSalt = BigInt(salt).toString(16) as `0x${string}`;
-	const saltHex = pad(bigIntSalt, { size: 32 });
+	const bigIntSalt = BigInt(salt).toString(16) as `0x${string}`
+	const saltHex = pad(bigIntSalt, { size: 32 })
 
 	return getContractAddress({
 		bytecode: code,
 		from: erc6551registry,
 		opcode: "CREATE2",
 		salt: saltHex,
-	});
+	})
 }
 
 /**
@@ -266,24 +266,24 @@ export function getCreationCode(
 		{ type: "uint256" },
 		{ type: "address" },
 		{ type: "uint256" },
-	];
+	]
 	const values: (string | bigint)[] = [
 		salt_,
 		BigInt(chainId_),
 		tokenContract_,
 		tokenId_,
-	];
-	const encodedABI = encodeAbiParameters(types, values);
-	const hexImplementation = implementation_ as `0x${string}`;
+	]
+	const encodedABI = encodeAbiParameters(types, values)
+	const hexImplementation = implementation_ as `0x${string}`
 
 	const hexCreationCode = concat([
 		"0x3d60ad80600a3d3981f3363d3d373d3d3d363d73",
 		hexImplementation,
 		"0x5af43d82803e903d91602b57fd5bf3",
 		encodedABI,
-	]);
+	])
 
-	const creationCode = addressToUint8Array(hexCreationCode);
+	const creationCode = addressToUint8Array(hexCreationCode)
 
-	return creationCode;
+	return creationCode
 }

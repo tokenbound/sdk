@@ -3,7 +3,7 @@ export const CALL_OPERATIONS = {
 	DELEGATECALL: 1,
 	CREATE: 2,
 	CREATE2: 3,
-} as const;
+} as const
 
 export type CallOperation =
-	(typeof CALL_OPERATIONS)[keyof typeof CALL_OPERATIONS];
+	(typeof CALL_OPERATIONS)[keyof typeof CALL_OPERATIONS]

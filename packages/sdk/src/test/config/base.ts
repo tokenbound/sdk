@@ -4,4 +4,4 @@ export const TEST_CONFIG = {
 	),
 	ERC1167_HEADER: <string>"363d3d373d3d3d363d73",
 	ERC1167_FOOTER: <string>"5af43d82803e903d91602b57fd5bf3",
-};
+}

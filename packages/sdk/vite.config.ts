@@ -1,7 +1,7 @@
-import { resolve } from "path";
-import { PluginOption, defineConfig } from "vite";
-import { visualizer } from "rollup-plugin-visualizer";
-import dts from "vite-plugin-dts";
+import { resolve } from "path"
+import { PluginOption, defineConfig } from "vite"
+import { visualizer } from "rollup-plugin-visualizer"
+import dts from "vite-plugin-dts"
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -41,4 +41,4 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ["**/__test__/**", "**/*.test.ts", "**/*.spec.ts", "./test/**/"],
 	},
-});
+})

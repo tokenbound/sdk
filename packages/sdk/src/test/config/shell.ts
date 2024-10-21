@@ -4,4 +4,4 @@ export const SHELL_COMMANDS = {
 	// DEPLOY_REGISTRY:
 	//   'forge script --fork-url http://127.0.0.1:8545 6551contracts/script/DeployRegistry.s.sol --broadcast',
 	// DEPLOY_ACCOUNT_IMPLEMENTATION: `forge create 6551contracts/src/examples/simple/SimpleERC6551Account.sol:SimpleERC6551Account --rpc-url=$RPC_URL --private-key=$PRIVATE_KEY`,
-};
+}

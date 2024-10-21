@@ -5,17 +5,17 @@ import {
 	createWalletClient,
 	http,
 	Chain,
-} from "viem";
-import { foundry } from "viem/chains";
+} from "viem"
+import { foundry } from "viem/chains"
 // import { chainIdToChain } from '../../utils'
-import { ANVIL_RPC_URL, ANVIL_ACCOUNTS } from "../constants";
+import { ANVIL_RPC_URL, ANVIL_ACCOUNTS } from "../constants"
 
 export const getPublicClient = ({
 	// chainId = foundry.id,
 	chain,
 }: {
 	// chainId?: number
-	chain: Chain;
+	chain: Chain
 }): PublicClient => {
 	// const chain = chainIdToChain(chainId)
 
@@ -25,5 +25,5 @@ export const getPublicClient = ({
 		transport: http(ANVIL_RPC_URL),
 		chain,
 		pollingInterval: 100,
-	});
-};
+	})
+}

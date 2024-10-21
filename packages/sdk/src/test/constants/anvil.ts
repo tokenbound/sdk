@@ -1,8 +1,8 @@
-import { foundry } from "viem/chains";
-import { AnvilAccount } from "../../types";
-import { getAddress } from "viem";
+import { foundry } from "viem/chains"
+import { AnvilAccount } from "../../types"
+import { getAddress } from "viem"
 
-export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0];
+export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]
 
 // Anvil Accounts for local testing
 export const ANVIL_ACCOUNTS: AnvilAccount[] = [
@@ -50,4 +50,4 @@ export const ANVIL_ACCOUNTS: AnvilAccount[] = [
 	// (7) 0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356
 	// (8) 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97
 	// (9) 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
-];
+]

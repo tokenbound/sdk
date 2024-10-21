@@ -1,4 +1,4 @@
-import { exec } from "child_process"; // Node.js child_process module
+import { exec } from "child_process" // Node.js child_process module
 
 /**
  * Executes a shell command and returns the output as a promise.
@@ -16,11 +16,11 @@ export function shellCommand(cmd: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		exec(cmd, (error, stdout, stderr) => {
 			if (error) {
-				console.warn(`Error executing command: ${cmd}`);
-				reject(error);
-				return;
+				console.warn(`Error executing command: ${cmd}`)
+				reject(error)
+				return
 			}
-			resolve(stdout || stderr);
-		});
-	});
+			resolve(stdout || stderr)
+		})
+	})
 }

@@ -1,20 +1,20 @@
-import { Abi, getAddress } from "viem";
+import { Abi, getAddress } from "viem"
 
-import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../../abis";
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../../abis"
 
 import {
 	erc6551AccountV3ABI,
 	erc6551AccountProxyV3ABI,
 	erc6551RegistryV3ABI,
-} from "../../src/test/wagmi-cli-hooks/generated";
+} from "../../src/test/wagmi-cli-hooks/generated"
 
-import { ContractABIPair } from "../types";
+import { ContractABIPair } from "../types"
 
 type Standard6551Deployment = {
-	IMPLEMENTATION: ContractABIPair;
-	REGISTRY: ContractABIPair;
-	ACCOUNT_PROXY?: ContractABIPair;
-};
+	IMPLEMENTATION: ContractABIPair
+	REGISTRY: ContractABIPair
+	ACCOUNT_PROXY?: ContractABIPair
+}
 
 export const ERC_6551_LEGACY_V2: Standard6551Deployment = {
 	IMPLEMENTATION: {
@@ -25,7 +25,7 @@ export const ERC_6551_LEGACY_V2: Standard6551Deployment = {
 		ADDRESS: getAddress("0x02101dfB77FDE026414827Fdc604ddAF224F0921"),
 		ABI: erc6551RegistryAbiV2 as Abi,
 	},
-};
+}
 
 export const ERC_6551_DEFAULT: Standard6551Deployment = {
 	ACCOUNT_PROXY: {
@@ -40,4 +40,4 @@ export const ERC_6551_DEFAULT: Standard6551Deployment = {
 		ADDRESS: getAddress("0x000000006551c19487814612e58FE06813775758"),
 		ABI: erc6551RegistryV3ABI,
 	},
-};
+}

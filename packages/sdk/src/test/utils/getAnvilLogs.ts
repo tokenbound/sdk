@@ -4,7 +4,7 @@ export async function getAnvilLogs(url: string, id: number): Promise<string[]> {
 		headers: {
 			"Content-Type": "application/json",
 		},
-	});
+	})
 
-	return response.json();
+	return response.json()
 }

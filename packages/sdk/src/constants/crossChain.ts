@@ -1,5 +1,5 @@
-export const LZ_TESTNET_EXECUTOR = "0xEF7B07Db21d449C50b00De4563FfFe4C9dd33f1f";
-export const LZ_MAINNET_EXECUTOR = "0x0F220412Bf22E05EBcC5070D60fd7136A08aF22C";
+export const LZ_TESTNET_EXECUTOR = "0xEF7B07Db21d449C50b00De4563FfFe4C9dd33f1f"
+export const LZ_MAINNET_EXECUTOR = "0x0F220412Bf22E05EBcC5070D60fd7136A08aF22C"
 
 export const LZ_MAINNET_EXECUTORS: { [originChainId: number]: `0x${string}` } =
 	{
@@ -15,7 +15,7 @@ export const LZ_MAINNET_EXECUTORS: { [originChainId: number]: `0x${string}` } =
 		59144: LZ_MAINNET_EXECUTOR,
 		// arbitrum
 		42161: LZ_MAINNET_EXECUTOR,
-	};
+	}
 
 export const LZ_TESTNET_EXECUTORS: { [originChainId: number]: `0x${string}` } =
 	{
@@ -31,12 +31,12 @@ export const LZ_TESTNET_EXECUTORS: { [originChainId: number]: `0x${string}` } =
 		59140: LZ_TESTNET_EXECUTOR,
 		// arbitrum sepolia
 		421614: LZ_TESTNET_EXECUTOR,
-	};
+	}
 
 export const LZ_EXECUTORS: { [originChainId: number]: `0x${string}` } = {
 	...LZ_TESTNET_EXECUTORS,
 	...LZ_MAINNET_EXECUTORS,
-};
+}
 
 export const LZ_MAINNET_EIDS: { [chainId: number]: number } = {
 	// ethereum
@@ -51,7 +51,7 @@ export const LZ_MAINNET_EIDS: { [chainId: number]: number } = {
 	59144: 30183,
 	// arbitrum
 	42161: 30110,
-};
+}
 
 export const LZ_TESTNET_EIDS: { [chainId: number]: number } = {
 	// sepolia
@@ -66,9 +66,9 @@ export const LZ_TESTNET_EIDS: { [chainId: number]: number } = {
 	59140: 40157,
 	// arbitrum sepolia
 	421614: 40231,
-};
+}
 
 export const LZ_EIDS: { [chainId: number]: number } = {
 	...LZ_TESTNET_EIDS,
 	...LZ_MAINNET_EIDS,
-};
+}

@@ -1,4 +1,4 @@
-import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../abis";
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../abis"
 
 import {
 	getAccount,
@@ -8,7 +8,7 @@ import {
 	prepareExecuteCall,
 	executeCall,
 	prepareCreateAccount,
-} from "./functions";
+} from "./functions"
 
 import {
 	TokenboundAccountNFT,
@@ -33,14 +33,14 @@ import {
 	CALL_OPERATIONS,
 	SegmentedERC6551Bytecode,
 	CallData,
-} from "./types";
+} from "./types"
 
 import {
 	TokenboundClient,
 	erc6551AccountAbiV3,
 	erc6551AccountProxyAbiV3,
 	erc6551RegistryAbiV3,
-} from "./TokenboundClient";
+} from "./TokenboundClient"
 
 export {
 	TokenboundClient,
@@ -58,7 +58,7 @@ export {
 	prepareExecuteCall,
 	executeCall,
 	CALL_OPERATIONS,
-};
+}
 
 export type {
 	TokenboundClientOptions,
@@ -81,4 +81,4 @@ export type {
 	Call3,
 	CallData,
 	SegmentedERC6551Bytecode,
-};
+}

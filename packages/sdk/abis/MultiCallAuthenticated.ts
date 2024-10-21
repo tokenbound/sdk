@@ -1,4 +1,4 @@
-import { Abi } from "viem";
+import { Abi } from "viem"
 
 export const multicall3AuthenticatedABI = [
 	{
@@ -237,4 +237,4 @@ export const multicall3AuthenticatedABI = [
 		stateMutability: "payable",
 		type: "function",
 	},
-] as Abi;
+] as Abi

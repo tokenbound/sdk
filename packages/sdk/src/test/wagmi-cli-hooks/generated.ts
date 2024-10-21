@@ -77,7 +77,7 @@ export const erc6551AccountProxyV3ABI = [
 		outputs: [],
 	},
 	{ stateMutability: "payable", type: "receive" },
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
@@ -86,7 +86,7 @@ export const erc6551AccountProxyV3ABI = [
 export const erc6551AccountProxyV3Address = {
 	1: "0x55266d75D1a14E4572138116aF39863Ed6596E7F",
 	5: "0x55266d75D1a14E4572138116aF39863Ed6596E7F",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F)
@@ -95,7 +95,7 @@ export const erc6551AccountProxyV3Address = {
 export const erc6551AccountProxyV3Config = {
 	address: erc6551AccountProxyV3Address,
 	abi: erc6551AccountProxyV3ABI,
-} as const;
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ERC6551Account_V2_
@@ -171,7 +171,7 @@ export const erc6551AccountV2ABI = [
 		outputs: [],
 	},
 	{ stateMutability: "payable", type: "receive" },
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
@@ -180,7 +180,7 @@ export const erc6551AccountV2ABI = [
 export const erc6551AccountV2Address = {
 	1: "0x2D25602551487C3f3354dD80D76D54383A243358",
 	5: "0x2D25602551487C3f3354dD80D76D54383A243358",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x2D25602551487C3f3354dD80D76D54383A243358)
@@ -189,7 +189,7 @@ export const erc6551AccountV2Address = {
 export const erc6551AccountV2Config = {
 	address: erc6551AccountV2Address,
 	abi: erc6551AccountV2ABI,
-} as const;
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ERC6551Account_V3_
@@ -675,7 +675,7 @@ export const erc6551AccountV3ABI = [
 		],
 	},
 	{ stateMutability: "payable", type: "receive" },
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
@@ -684,7 +684,7 @@ export const erc6551AccountV3ABI = [
 export const erc6551AccountV3Address = {
 	1: "0x41C8f39463A868d3A88af00cd0fe7102F30E44eC",
 	5: "0x41C8f39463A868d3A88af00cd0fe7102F30E44eC",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x41C8f39463A868d3A88af00cd0fe7102F30E44eC)
@@ -693,7 +693,7 @@ export const erc6551AccountV3Address = {
 export const erc6551AccountV3Config = {
 	address: erc6551AccountV3Address,
 	abi: erc6551AccountV3ABI,
-} as const;
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ERC6551Registry_V2_
@@ -775,7 +775,7 @@ export const erc6551RegistryV2ABI = [
 		name: "createAccount",
 		outputs: [{ name: "", internalType: "address", type: "address" }],
 	},
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
@@ -784,7 +784,7 @@ export const erc6551RegistryV2ABI = [
 export const erc6551RegistryV2Address = {
 	1: "0x02101dfB77FDE026414827Fdc604ddAF224F0921",
 	5: "0x02101dfB77FDE026414827Fdc604ddAF224F0921",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x02101dfB77FDE026414827Fdc604ddAF224F0921)
@@ -793,7 +793,7 @@ export const erc6551RegistryV2Address = {
 export const erc6551RegistryV2Config = {
 	address: erc6551RegistryV2Address,
 	abi: erc6551RegistryV2ABI,
-} as const;
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ERC6551Registry_V3_
@@ -874,7 +874,7 @@ export const erc6551RegistryV3ABI = [
 		name: "createAccount",
 		outputs: [{ name: "", internalType: "address", type: "address" }],
 	},
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
@@ -883,7 +883,7 @@ export const erc6551RegistryV3ABI = [
 export const erc6551RegistryV3Address = {
 	1: "0x000000006551c19487814612e58FE06813775758",
 	5: "0x000000006551c19487814612e58FE06813775758",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x000000006551c19487814612e58FE06813775758)
@@ -892,7 +892,7 @@ export const erc6551RegistryV3Address = {
 export const erc6551RegistryV3Config = {
 	address: erc6551RegistryV3Address,
 	abi: erc6551RegistryV3ABI,
-} as const;
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WETH_
@@ -1054,7 +1054,7 @@ export const wethABI = [
 		],
 		name: "Withdrawal",
 	},
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
@@ -1063,13 +1063,13 @@ export const wethABI = [
 export const wethAddress = {
 	1: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
 	5: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2)
  * - [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6)
  */
-export const wethConfig = { address: wethAddress, abi: wethABI } as const;
+export const wethConfig = { address: wethAddress, abi: wethABI } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Zora1155_
@@ -2479,7 +2479,7 @@ export const zora1155ABI = [
 		name: "withdrawRewards",
 		outputs: [],
 	},
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
@@ -2488,7 +2488,7 @@ export const zora1155ABI = [
 export const zora1155Address = {
 	1: "0x4482c5929618b848a46E3DA830A3D71085A5DE07",
 	5: "0x455c9D3188A3Cd94aCDE8E5Ec90cA92FC10805EA",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x4482c5929618b848a46e3da830a3d71085a5de07)
@@ -2497,7 +2497,7 @@ export const zora1155Address = {
 export const zora1155Config = {
 	address: zora1155Address,
 	abi: zora1155ABI,
-} as const;
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Zora721Drop_
@@ -3802,7 +3802,7 @@ export const zora721DropABI = [
 		],
 	},
 	{ stateMutability: "payable", type: "receive" },
-] as const;
+] as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
@@ -3811,7 +3811,7 @@ export const zora721DropABI = [
 export const zora721DropAddress = {
 	1: "0x7C74dfe39976dc395529c14e54a597809980e01C",
 	5: "0xe4c17055048aEe01D0d122804816fEe5E6ac4A67",
-} as const;
+} as const
 
 /**
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x7c74dfe39976dc395529c14e54a597809980e01c)
@@ -3820,4 +3820,4 @@ export const zora721DropAddress = {
 export const zora721DropConfig = {
 	address: zora721DropAddress,
 	abi: zora721DropABI,
-} as const;
+} as const

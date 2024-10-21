@@ -1,4 +1,4 @@
-import { PublicClient } from "viem";
+import { PublicClient } from "viem"
 
 /**
  * Emits console output related to the given transaction hash for debugging purposes.
@@ -11,14 +11,14 @@ export async function debugTransaction({
 	publicClient,
 	hash,
 }: { publicClient: PublicClient; hash: `0x${string}` }) {
-	console.log("DEBUGGING TRANSACTION: ", hash);
+	console.log("DEBUGGING TRANSACTION: ", hash)
 	const transactionReceipt = await publicClient.getTransactionReceipt({
 		hash,
-	});
-	console.log("transactionReceipt", transactionReceipt);
+	})
+	console.log("transactionReceipt", transactionReceipt)
 
 	const transaction = await publicClient.getTransaction({
 		hash,
-	});
-	console.log("transaction", transaction);
+	})
+	console.log("transaction", transaction)
 }

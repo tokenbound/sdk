@@ -1,8 +1,8 @@
-import { RenderOptions, RenderResult, render } from "@testing-library/react";
-import { default as userEvent } from "@testing-library/user-event";
-import * as React from "react";
+import { RenderOptions, RenderResult, render } from "@testing-library/react"
+import { default as userEvent } from "@testing-library/user-event"
+import * as React from "react"
 
-import { WalletClient, PublicClient } from "viem";
+import { WalletClient, PublicClient } from "viem"
 
 import {
 	CreateConfigParameters,
@@ -11,7 +11,7 @@ import {
 	// WalletClient,
 	// PublicClient,
 	createConfig,
-} from "wagmi";
+} from "wagmi"
 // import { createPublicClient, WalletClient, PublicClient, createWalletClient, http } from 'viem'
 // import { MockConnector } from 'wagmi/connectors/mock'
 
@@ -48,11 +48,11 @@ import {
 //   options?: RenderOptions
 // ): RenderResult => render(ui, { wrapper: Providers, ...options })
 
-export * from "@testing-library/react";
+export * from "@testing-library/react"
 // export { renderWithWagmiConfig }
 
-export type UserEvent = ReturnType<typeof userEvent.setup>;
-export { default as userEvent } from "@testing-library/user-event";
+export type UserEvent = ReturnType<typeof userEvent.setup>
+export { default as userEvent } from "@testing-library/user-event"
 
-export { getMockWalletClient } from "./utils";
-export { ADDRESS_REGEX } from "./constants";
+export { getMockWalletClient } from "./utils"
+export { ADDRESS_REGEX } from "./constants"
