@@ -1,1 +1,1 @@
-export type PossibleENSAddress = `0x${string}` | `${string}.eth`
+export type PossibleENSAddress = `0x${string}` | `${string}.eth`;

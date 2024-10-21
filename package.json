@@ -14,25 +14,9 @@
     "directory": "packages/sdk"
   },
   "devDependencies": {
+		"@biomejs/biome": "1.9.4",
     "@changesets/cli": "^2.26.2",
-    "eslint": "^8.50.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-unused-imports": "^3.0.0",
-    "prettier": "^2.8.8",
-    "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
     "husky": "^8.0.3",
-    "typescript": "^5.2.2",
-    "@typescript-eslint/parser": "^6.7.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "lint-staged": "^14.0.1"
-  },
-  "lint-staged": {
-    "./**/*.{js,ts,jsx,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.json": [
-      "prettier --write"
-    ]
+    "typescript": "^5.6.3"
   }
 }

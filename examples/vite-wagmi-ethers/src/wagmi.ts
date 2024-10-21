@@ -1,8 +1,10 @@
 import { getDefaultConfig } from "connectkit";
 import { createConfig } from "wagmi";
-import { goerli } from 'wagmi/chains'
+import { baseSepolia } from 'wagmi/chains'
 
-const chains = [goerli]
+import { Chain } from 'viem'
+
+const chains: readonly [Chain, ...Chain[]] = [baseSepolia]
 
 export const wagmiConfig = createConfig(
   getDefaultConfig({

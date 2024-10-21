@@ -2,24 +2,38 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { WagmiConfig } from 'wagmi'
-import { wagmiConfig, chains } from './wagmi'
+import { WagmiProvider } from 'wagmi';
+
+import {
+  mainnet,
+  baseSepolia,
+} from 'wagmi/chains';
+import {
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
 
 import { App } from './App'
+import {
+  getDefaultConfig,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit'
+const queryClient = new QueryClient();
+
+const config = getDefaultConfig({
+  appName: 'My RainbowKit App',
+  projectId: 'YOUR_PROJECT_ID',
+  chains: [baseSepolia],
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider
-        chains={chains}
-        appInfo={{
-          appName: 'Rainbowkit Demo',
-          learnMoreUrl: 'https://learnaboutcryptowallets.example',
-        }}
-      >
-        <App />
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <App />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>
 )

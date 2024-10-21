@@ -8,8 +8,14 @@ import { parseUnits, getAddress } from 'viem'
 import { useCallback, useEffect } from 'react'
 import { useEthersSigner } from './hooks'
 
-// const sendingTBA = '0x047A2F5c8C97948675786e9a1A12EB172CF802a1'  // Sapienz #5 on Goerli w/ V2 contract: https://tokenbound.org/assets/goerli/0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2/5
-const sendingTBA = '0xa2221cc0f5012D60d0bF91B840A4Ef990D44Ae39' // Sapienz #5 on Goerli w/ V3 contract
+// Origin NFT: MoonTrees #0 on Base Sepolia
+const originNFT = {
+  tokenContract: getAddress('0xcf7ea35b7421a8ff2ff460a939e294ac13a05342'),
+  tokenId: '0',
+}
+
+// TBA: Tokenbound Account derived from MoonTrees #0 on Base Sepolia
+const sendingTBA = '0x5F50CAf6244d10C32965354F8c4d84D84503D42D'
 const recipientAddress = getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4')
 const ethAmount = 0.005
 const ethAmountWei = parseUnits(`${ethAmount}`, 18)
@@ -23,9 +29,9 @@ export function App() {
 
   useEffect(() => {
     async function testTokenboundClass() {
-      const account = await tokenboundClient.getAccount({
-        tokenContract: '0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb',
-        tokenId: '9',
+      const account = tokenboundClient.getAccount({
+        tokenContract: originNFT.tokenContract,
+        tokenId: originNFT.tokenId,
       })
 
       const preparedExecution = await tokenboundClient.prepareExecution({

@@ -1,8 +1,6 @@
-// import { ConnectKitButton } from 'connectkit'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import {
   useAccount,
-  // WindowProvider
 } from 'wagmi'
 
 import { Account } from './components'
@@ -15,45 +13,40 @@ import {
   parseUnits,
   getAddress,
 } from 'viem'
-import { goerli } from 'viem/chains'
+import { baseSepolia } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
-
 import { useCallback, useEffect } from 'react'
-
-// interface WindowProvider {
-//   request: (...args: any[]) => Promise<any>
-//   // Add other properties and methods you expect to use
-// }
 
 declare global {
   interface Window {
-    // ethereum?: WindowProvider
     ethereum?: any // CoinbaseWalletSDK also defines window.ethereum, so we have to work around that :(
   }
 }
 
-// const sendingTBA = '0x047A2F5c8C97948675786e9a1A12EB172CF802a1'  // Sapienz #5 on Goerli w/ V2 contract: https://tokenbound.org/assets/goerli/0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2/5
-const sendingTBA = '0xa2221cc0f5012D60d0bF91B840A4Ef990D44Ae39' // Sapienz #5 on Goerli w/ V3 contract
+// Origin NFT: MoonTrees #0 on Base Sepolia
+const originNFT = {
+  tokenContract: getAddress('0xcf7ea35b7421a8ff2ff460a939e294ac13a05342'),
+  tokenId: '0',
+}
+
+// TBA: Tokenbound Account derived from MoonTrees #0 on Base Sepolia
+const sendingTBA = '0x5F50CAf6244d10C32965354F8c4d84D84503D42D'
 const recipientAddress = getAddress('0x9FefE8a875E7a9b0574751E191a2AF205828dEA4')
 const ethAmount = 0.005
 const ethAmountWei = parseUnits(`${ethAmount}`, 18)
-
-const TOKEN_CONTRACT = `0x26c55c8d83d657b2fc1df497f0c991e3612bc6b2`
-const TOKEN_ID = '5'
 
 export function App() {
   const { isConnected, address } = useAccount()
 
   const walletClient: WalletClient = createWalletClient({
-    chain: goerli,
+    chain: baseSepolia,
     account: address,
-    // transport: http(),
     transport: window.ethereum ? custom(window.ethereum) : http(),
   })
 
   const tokenboundClient = new TokenboundClient({
     walletClient,
-    chainId: goerli.id,
+    chainId: baseSepolia.id,
     // implementationAddress: '0x2d25602551487c3f3354dd80d76d54383a243358',
   })
 
@@ -62,8 +55,8 @@ export function App() {
       if (!tokenboundClient) return
 
       const tokenboundAccount = tokenboundClient.getAccount({
-        tokenContract: TOKEN_CONTRACT,
-        tokenId: TOKEN_ID,
+        tokenContract: originNFT.tokenContract,
+        tokenId: originNFT.tokenId,
       })
 
       const preparedExecution = await tokenboundClient.prepareExecution({
@@ -74,8 +67,8 @@ export function App() {
       })
 
       const preparedCreateAccount = await tokenboundClient.prepareCreateAccount({
-        tokenContract: TOKEN_CONTRACT,
-        tokenId: TOKEN_ID,
+        tokenContract: originNFT.tokenContract,
+        tokenId: originNFT.tokenId,
       })
 
       console.log('getAccount', tokenboundAccount)
@@ -94,8 +87,8 @@ export function App() {
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const createdAccount = await tokenboundClient.createAccount({
-      tokenContract: TOKEN_CONTRACT,
-      tokenId: TOKEN_ID,
+        tokenContract: originNFT.tokenContract,
+        tokenId: originNFT.tokenId,
     })
     console.log(`new account: ${createdAccount}`)
     alert(`new account: ${createdAccount}`)
