@@ -1,8 +1,10 @@
 {
 	"name": "@tokenbound/sdk",
-	"version": "0.5.4",
+	"version": "0.5.5",
 	"type": "module",
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"types": "./dist/src/index.d.ts",
 	"main": "./dist/tokenbound-sdk.umd.cjs",
 	"module": "./dist/tokenbound-sdk.js",
