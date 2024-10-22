@@ -1,11 +1,25 @@
-import { ConnectKitButton } from "connectkit"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useAccount } from "wagmi"
-import { TokenboundClient } from "@tokenbound/sdk"
 
 import { Account } from "./components"
-import { parseUnits, getAddress } from "viem"
+
+import {
+	createWalletClient,
+	http,
+	custom,
+	parseUnits,
+	getAddress,
+	type WalletClient,
+} from "viem"
+import { baseSepolia, baseGoerli } from "viem/chains"
+import { TokenboundClient } from "@tokenbound/sdk"
 import { useCallback, useEffect } from "react"
-import { useEthersSigner } from "./hooks"
+
+declare global {
+	interface Window {
+		ethereum?: any // CoinbaseWalletSDK also defines window.ethereum, so we have to work around that :(
+	}
+}
 
 // Origin NFT: MoonTrees #0 on Base Sepolia
 const originNFT = {
@@ -23,16 +37,20 @@ const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 
 export function App() {
 	const { isConnected, address } = useAccount()
-	const signer = useEthersSigner({ chainId: 5 })
-	// or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()
+
+	const walletClient: WalletClient = createWalletClient({
+		chain: baseSepolia,
+		account: address,
+		transport: window.ethereum ? custom(window.ethereum) : http(),
+	})
 
 	const tokenboundClient = new TokenboundClient({
-		signer,
-		chainId: 5,
+		walletClient,
+		chainId: baseSepolia.id,
+		// implementationAddress: '0x2d25602551487c3f3354dd80d76d54383a243358',
 	})
 
 	useEffect(() => {
-		console.log("signer", signer)
 		async function testTokenboundClass() {
 			if (!tokenboundClient) return
 
@@ -56,7 +74,7 @@ export function App() {
 			)
 
 			console.log("getAccount", tokenboundAccount)
-			console.log("preparedExecuteCall", preparedExecution)
+			console.log("preparedExecution", preparedExecution)
 			console.log("preparedAccount", preparedCreateAccount)
 
 			// if (address) {
@@ -66,7 +84,7 @@ export function App() {
 		}
 
 		testTokenboundClass()
-	}, [tokenboundClient, signer])
+	}, [tokenboundClient])
 
 	const createAccount = useCallback(async () => {
 		if (!tokenboundClient || !address) return
@@ -99,10 +117,27 @@ export function App() {
 		executedTransfer && alert(`Sent ${ethAmount} ETH to ${recipientAddress}`)
 	}, [tokenboundClient, address])
 
+	const crossChainTransferETH = useCallback(async () => {
+		if (!tokenboundClient || !address) return
+
+		const execution = {
+			account: sendingTBA,
+			to: originNFT.tokenContract,
+			value: 0n,
+			data: "",
+			chain: baseGoerli,
+		}
+
+		const executedCallTxHash = await tokenboundClient.execute(execution)
+
+		executedCallTxHash &&
+			alert(`Sent blank tx on ${baseGoerli.name}: ${executedCallTxHash}`)
+	}, [tokenboundClient, address])
+
 	return (
 		<>
-			<h1>Ethers 5 Signer + ConnectKit + Vite</h1>
-			<ConnectKitButton />
+			<h1>viem walletClient + ConnectKit + Vite</h1>
+			<ConnectButton />
 			{isConnected && <Account />}
 			{address && (
 				<div
@@ -122,6 +157,9 @@ export function App() {
 					</button>
 					<button type="button" onClick={() => transferETH()}>
 						TRANSFER ETH
+					</button>
+					<button type="button" onClick={() => crossChainTransferETH()}>
+						CROSS-CHAIN TRANSFER ETH
 					</button>
 				</div>
 			)}
