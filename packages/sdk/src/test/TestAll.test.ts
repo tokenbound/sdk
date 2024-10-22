@@ -51,7 +51,7 @@ import { JsonRpcSigner, JsonRpcProvider } from "ethers6"
 import { erc20Abi } from "viem"
 import { type CreateAccountParams, TokenboundClient } from "../"
 
-export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
+const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
 const TIMEOUT = 60000 // default 10000
 const ANVIL_USER_0 = getAddress(ANVIL_ACCOUNTS[0].address)
@@ -79,7 +79,7 @@ type TestConfig = {
 	version?: TBImplementationVersion
 }
 
-export const ENABLED_TESTS: Array<TestConfig> = [
+const ENABLED_TESTS: Array<TestConfig> = [
 	{
 		testName: "viem v2",
 		walletClient,
@@ -515,6 +515,9 @@ describe.each(ENABLED_TESTS)(
 				let transferHash: `0x${string}`
 
 				if (walletClient) {
+					if (!walletClient.account?.address) {
+						throw new Error("walletClient.account.address is undefined")
+					}
 					transferHash = await walletClient.sendTransaction({
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
 						account: walletClient.account?.address,
@@ -572,6 +575,9 @@ describe.each(ENABLED_TESTS)(
 				let transferHash: `0x${string}`
 
 				if (walletClient) {
+					if (!walletClient.account?.address) {
+						throw new Error("walletClient.account.address is undefined")
+					}
 					transferHash = await walletClient.sendTransaction({
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
 						account: walletClient.account?.address,
@@ -621,6 +627,9 @@ describe.each(ENABLED_TESTS)(
 
 				let transferHash: `0x${string}`
 				if (walletClient) {
+					if (!walletClient.account?.address) {
+						throw new Error("walletClient.account.address is undefined")
+					}
 					transferHash = await walletClient.sendTransaction({
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
 						account: walletClient.account?.address,
@@ -1053,6 +1062,10 @@ describe.each(ENABLED_TESTS)(
 				})
 
 				if (walletClient) {
+					if (!walletClient.account?.address) {
+						throw new Error("walletClient.account is undefined")
+					}
+
 					const wethContract = getContract({
 						address: WETH_CONTRACT_ADDRESS,
 						abi: wethABI,
@@ -1070,7 +1083,7 @@ describe.each(ENABLED_TESTS)(
 
 					// Transfer WETH from ANVIL_USER_0 to TBA
 					wethTransferHash = await walletClient.sendTransaction({
-						account: walletClient.account!,
+						account: walletClient.account,
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
 						to: WETH_CONTRACT_ADDRESS,
 						value: 0n,

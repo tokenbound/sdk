@@ -374,14 +374,14 @@ class TokenboundClient {
 	 * @param {bigint} params.value The value to send, in wei
 	 * @param {string} params.data The data to send
 	 * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
-	 * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecute() instead.
+	 * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecution() instead.
 	 */
 	public async prepareExecuteCall(
 		params: PrepareExecuteCallParams,
 	): Promise<CallData> {
 		if (this.supportsV3) {
 			throw new Error(
-				"prepareExecuteCall() is not supported on V3 implementation deployments, use prepareExecute() instead.",
+				"prepareExecuteCall() is not supported on V3 implementation deployments, use prepareExecution() instead.",
 			)
 		}
 
