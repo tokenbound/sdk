@@ -5,7 +5,11 @@
   "scripts": {
     "clean": "rm -rf node_modules",
     "test": "cd packages/sdk && pnpm test",
-    "prepare": "husky install"
+    "prepare": "husky install",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write --unsafe .",
+		"format": "biome format .",
+		"format:fix": "biome format --write ."
   },
   "keywords": [],
   "author": "",
