@@ -1,6 +1,6 @@
 import { normalize } from "viem/ens"
-import { PossibleENSAddress } from "../types"
-import { PublicClient, getAddress } from "viem"
+import type { PossibleENSAddress } from "../types"
+import { type PublicClient, getAddress } from "viem"
 
 export async function resolvePossibleENS(
 	publicClient: PublicClient,

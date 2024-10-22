@@ -1,17 +1,5 @@
-import { RenderOptions, RenderResult, render } from "@testing-library/react"
-import { default as userEvent } from "@testing-library/user-event"
-import * as React from "react"
 
-import { WalletClient, PublicClient } from "viem"
-
-import {
-	CreateConfigParameters,
-	// WagmiConfig,
-	// WagmiConfigProps,
-	// WalletClient,
-	// PublicClient,
-	createConfig,
-} from "wagmi"
+import type { default as userEvent } from "@testing-library/user-event"
 // import { createPublicClient, WalletClient, PublicClient, createWalletClient, http } from 'viem'
 // import { MockConnector } from 'wagmi/connectors/mock'
 

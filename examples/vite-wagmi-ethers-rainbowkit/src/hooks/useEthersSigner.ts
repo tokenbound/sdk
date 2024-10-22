@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useWalletClient } from 'wagmi'
-import { type WalletClient } from 'viem'
+import type { WalletClient } from 'viem'
 import { providers } from 'ethers'
 
 // Ethers.js Adapters for Wagmi Wallet Client

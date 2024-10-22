@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import { CreateAnvilOptions } from "@viem/anvil"
+import type { CreateAnvilOptions } from "@viem/anvil"
 import { mainnet } from "viem/chains"
 
 const ACTIVE_CHAIN = mainnet

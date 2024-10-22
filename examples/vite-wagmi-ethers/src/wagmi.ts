@@ -2,7 +2,7 @@ import { getDefaultConfig } from "connectkit";
 import { createConfig } from "wagmi";
 import { baseSepolia } from 'wagmi/chains'
 
-import { Chain } from 'viem'
+import type { Chain } from 'viem'
 
 const chains: readonly [Chain, ...Chain[]] = [baseSepolia]
 

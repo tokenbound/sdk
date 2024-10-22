@@ -1,14 +1,11 @@
 import {
 	createPublicClient,
-	WalletClient,
-	PublicClient,
-	createWalletClient,
+	type PublicClient,
 	http,
-	Chain,
+	type Chain,
 } from "viem"
-import { foundry } from "viem/chains"
 // import { chainIdToChain } from '../../utils'
-import { ANVIL_RPC_URL, ANVIL_ACCOUNTS } from "../constants"
+import { ANVIL_RPC_URL, } from "../constants"
 
 export const getPublicClient = ({
 	// chainId = foundry.id,

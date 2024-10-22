@@ -1,5 +1,5 @@
-import { resolve } from "path"
-import { PluginOption, defineConfig } from "vite"
+import { resolve } from "node:path"
+import { type PluginOption, defineConfig } from "vite"
 import { visualizer } from "rollup-plugin-visualizer"
 import dts from "vite-plugin-dts"
 

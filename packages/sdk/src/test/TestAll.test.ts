@@ -3,16 +3,16 @@
 
 import { zora, mainnet } from "viem/chains"
 import { describe, beforeAll, afterAll, expect, it, vi } from "vitest"
-import { ethers, providers } from "ethers"
+import { ethers, type providers } from "ethers"
 import { createAnvil } from "@viem/anvil"
 import {
-	WalletClient,
-	PublicClient,
+	type WalletClient,
+	type PublicClient,
 	createWalletClient,
 	http,
 	getAddress,
 	encodeFunctionData,
-	Log,
+	type Log,
 	parseUnits,
 	formatEther,
 	getContract,
@@ -46,10 +46,10 @@ import {
 } from "./config"
 import { wethABI } from "./wagmi-cli-hooks/generated"
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "../constants"
-import { Call3, TBImplementationVersion, TBVersion } from "../types"
+import { type Call3, type TBImplementationVersion, TBVersion } from "../types"
 import { JsonRpcSigner, JsonRpcProvider } from "ethers6"
 import { erc20Abi } from "viem"
-import { CreateAccountParams, TokenboundClient } from "../"
+import { type CreateAccountParams, TokenboundClient } from "../"
 
 export const pool = Number(process.env.VITEST_POOL_ID ?? 1)
 
@@ -517,7 +517,7 @@ describe.each(ENABLED_TESTS)(
 				if (walletClient) {
 					transferHash = await walletClient.sendTransaction({
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: walletClient.account!.address,
+						account: walletClient.account?.address,
 						...preparedNFTTransfer,
 					})
 				} else {
@@ -574,7 +574,7 @@ describe.each(ENABLED_TESTS)(
 				if (walletClient) {
 					transferHash = await walletClient.sendTransaction({
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: walletClient.account!.address,
+						account: walletClient.account?.address,
 						...preparedNFTTransfer,
 					})
 				} else {
@@ -623,7 +623,7 @@ describe.each(ENABLED_TESTS)(
 				if (walletClient) {
 					transferHash = await walletClient.sendTransaction({
 						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: walletClient.account!.address,
+						account: walletClient.account?.address,
 						...preparedETHTransfer,
 					})
 				} else {
@@ -666,7 +666,7 @@ describe.each(ENABLED_TESTS)(
 
 		// Execute a basic call with no value with the TBA to see if it works.
 		it(
-			isV2 ? `can executeCall with the TBA` : `can execute with the TBA`,
+			isV2 ? "can executeCall with the TBA" : "can execute with the TBA",
 			async () => {
 				const execution = {
 					account: ZORA721_TBA_ADDRESS,
@@ -692,7 +692,7 @@ describe.each(ENABLED_TESTS)(
 		)
 
 		it(
-			`can fall back to executeCall from execute for V2`,
+			"can fall back to executeCall from execute for V2",
 			async () => {
 				const execution = {
 					account: ZORA721_TBA_ADDRESS,

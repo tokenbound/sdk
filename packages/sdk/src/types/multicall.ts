@@ -1,4 +1,4 @@
-import { TransactionRequestEIP1559 } from "viem"
+import type { TransactionRequestEIP1559 } from "viem"
 
 export type Call3 = {
 	target: `0x${string}` // The target contract

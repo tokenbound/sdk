@@ -1,4 +1,4 @@
-import { exec } from "child_process" // Node.js child_process module
+import { exec } from "node:child_process" // Node.js child_process module
 
 /**
  * Executes a shell command and returns the output as a promise.

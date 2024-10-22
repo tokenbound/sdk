@@ -3,7 +3,7 @@ import '@rainbow-me/rainbowkit/styles.css'
 import { http } from 'viem';
 import { createConfig, WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { RainbowKitProvider, getDefaultConfig, lightTheme } from '@rainbow-me/rainbowkit'
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit'
 import { baseSepolia } from 'wagmi/chains';
 
 import * as React from 'react'

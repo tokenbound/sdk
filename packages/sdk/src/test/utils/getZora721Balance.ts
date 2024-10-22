@@ -1,8 +1,8 @@
-import { PublicClient, getAddress } from "viem"
+import type { PublicClient, } from "viem"
 import { zora721 } from "../config"
 import { zora721DropABI } from "../wagmi-cli-hooks/generated"
 import { resolvePossibleENS } from "../../utils"
-import { PossibleENSAddress } from "../../types"
+import type { PossibleENSAddress } from "../../types"
 
 export async function getZora721Balance({
 	publicClient,

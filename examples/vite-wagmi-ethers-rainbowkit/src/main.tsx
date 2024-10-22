@@ -5,7 +5,6 @@ import * as ReactDOM from 'react-dom/client'
 import { WagmiProvider } from 'wagmi';
 
 import {
-  mainnet,
   baseSepolia,
 } from 'wagmi/chains';
 import {

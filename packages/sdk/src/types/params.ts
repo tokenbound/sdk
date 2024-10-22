@@ -1,8 +1,8 @@
-import { WalletClient, PublicClient, Chain } from "viem"
-import { Prettify } from "./prettify"
-import { UniversalSignableMessage, CallOperation, Call3 } from "."
-import { PossibleENSAddress } from "./addresses"
-import { ERC_6551_LEGACY_V2 } from "../constants"
+import type { WalletClient, PublicClient, Chain } from "viem"
+import type { Prettify } from "./prettify"
+import type { UniversalSignableMessage, CallOperation, Call3 } from "."
+import type { PossibleENSAddress } from "./addresses"
+import type { ERC_6551_LEGACY_V2 } from "../constants"
 
 export const NFTTokenType = {
 	ERC721: "ERC721",

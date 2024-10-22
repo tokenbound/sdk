@@ -1,4 +1,4 @@
-import { Abi, getAddress } from "viem"
+import { type Abi, getAddress } from "viem"
 
 import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../../abis"
 
@@ -8,7 +8,7 @@ import {
 	erc6551RegistryV3ABI,
 } from "../../src/test/wagmi-cli-hooks/generated"
 
-import { ContractABIPair } from "../types"
+import type { ContractABIPair } from "../types"
 
 type Standard6551Deployment = {
 	IMPLEMENTATION: ContractABIPair

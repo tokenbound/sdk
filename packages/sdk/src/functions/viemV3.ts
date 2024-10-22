@@ -2,7 +2,7 @@ import {
 	getContract,
 	getContractAddress,
 	concat,
-	WalletClient,
+	type WalletClient,
 	encodeFunctionData,
 	encodeAbiParameters,
 	pad,
@@ -24,7 +24,7 @@ import {
 	ERC_6551_DEFAULT,
 	STANDARD_EIP_1167_IMPLEMENTATION,
 } from "../constants"
-import { CallData } from "../types"
+import type { CallData } from "../types"
 export { erc6551AccountProxyV3ABI, erc6551AccountV3ABI, erc6551RegistryV3ABI }
 
 /**
@@ -39,9 +39,13 @@ export async function prepareCreateTokenboundV3Account(
 	registryAddress?: `0x${string}`,
 	salt?: number,
 ): Promise<CallData> {
-	salt = salt ?? 0
+	if (!ERC_6551_DEFAULT.ACCOUNT_PROXY) {
+		throw new Error("ERC_6551_DEFAULT.ACCOUNT_PROXY is undefined")
+	}
+
+	const saltValue = salt ?? 0
 	const erc6551implementation =
-		implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
+		implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS
 	const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
 	return {
@@ -52,7 +56,7 @@ export async function prepareCreateTokenboundV3Account(
 			functionName: "createAccount",
 			args: [
 				getAddress(erc6551implementation),
-				bytesToHex(numberToBytes(salt, { size: 32 })),
+				bytesToHex(numberToBytes(saltValue, { size: 32 })),
 				chainId,
 				tokenContract,
 				tokenId,
@@ -73,9 +77,13 @@ export async function createTokenboundV3Account(
 	registryAddress?: `0x${string}`,
 	salt?: number,
 ): Promise<`0x${string}`> {
-	salt = salt ?? 0
+	if (!ERC_6551_DEFAULT.ACCOUNT_PROXY) {
+		throw new Error("ERC_6551_DEFAULT.ACCOUNT_PROXY is undefined")
+	}
+
+	const saltValue = salt ?? 0
 	const erc6551implementation =
-		implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
+		implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS
 	const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 
 	const registry = getContract({
@@ -91,7 +99,7 @@ export async function createTokenboundV3Account(
 	return await registry.write.createAccount([
 		erc6551implementation,
 		encodeAbiParameters(parseAbiParameters(["bytes32"]), [
-			numberToHex(salt, { size: 32 }),
+			numberToHex(saltValue, { size: 32 }),
 		]),
 		chainId,
 		tokenContract,
@@ -158,9 +166,14 @@ export function getTokenboundV3Account(
 	registryAddress?: `0x${string}`,
 	salt?: number,
 ): `0x${string}` {
-	salt = salt ?? 0
+	const saltValue = salt ?? 0
+
+	if (!ERC_6551_DEFAULT.ACCOUNT_PROXY) {
+		throw new Error("ERC_6551_DEFAULT.ACCOUNT_PROXY is undefined")
+	}
+
 	const erc6551implementation =
-		implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY!.ADDRESS
+		implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY.ADDRESS
 	const erc6551registry = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
 	const types = [
 		{ type: "uint256" }, // salt
@@ -170,7 +183,7 @@ export function getTokenboundV3Account(
 	]
 
 	const values: (string | bigint)[] = [
-		salt.toString(),
+		saltValue.toString(),
 		BigInt(chainId),
 		tokenContract,
 		tokenId,
@@ -185,7 +198,7 @@ export function getTokenboundV3Account(
 	])
 
 	const creationCode = addressToUint8Array(hexCreationCode)
-	const bigIntSalt = BigInt(salt).toString(16) as `0x${string}`
+	const bigIntSalt = BigInt(saltValue).toString(16) as `0x${string}`
 	const saltHex = pad(bigIntSalt, { size: 32 })
 
 	return getContractAddress({

@@ -1,5 +1,5 @@
 import { foundry } from "viem/chains"
-import { AnvilAccount } from "../../types"
+import type { AnvilAccount } from "../../types"
 import { getAddress } from "viem"
 
 export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]

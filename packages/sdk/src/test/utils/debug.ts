@@ -1,4 +1,4 @@
-import { PublicClient } from "viem"
+import type { PublicClient } from "viem"
 
 /**
  * Emits console output related to the given transaction hash for debugging purposes.

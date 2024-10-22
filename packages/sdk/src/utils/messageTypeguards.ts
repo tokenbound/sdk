@@ -1,5 +1,5 @@
-import { SignableMessage } from "viem"
-import {
+import type { SignableMessage } from "viem"
+import type {
 	Ethers5SignableMessage,
 	Ethers6SignableMessage,
 	UniversalSignableMessage,

@@ -2,8 +2,8 @@ import {
 	getContract,
 	getContractAddress,
 	concat,
-	PublicClient,
-	WalletClient,
+	type PublicClient,
+	type WalletClient,
 	encodeFunctionData,
 	encodeAbiParameters,
 	pad,
@@ -18,7 +18,7 @@ import {
 } from "../../src/test/wagmi-cli-hooks/generated"
 import { addressToUint8Array } from "../utils"
 import { ERC_6551_LEGACY_V2 } from "../constants"
-import { CallData } from "../types"
+import type { CallData } from "../types"
 
 export {
 	erc6551AccountAbiV2,

@@ -1,4 +1,4 @@
-import { Bytes } from "../types"
+import type { Bytes } from "../types"
 
 // The types Bytes | string in Ethers 5 and string | Uint8Array in Ethers 6 are somewhat compatible but not entirely.
 // This function normalizes the message type to Uint8Array so we can sign using the AbstractEthersSigner without knowing the Ethers version.

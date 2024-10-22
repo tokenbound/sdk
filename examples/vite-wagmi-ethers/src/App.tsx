@@ -67,8 +67,8 @@ export function App() {
   const createAccount = useCallback(async () => {
     if (!tokenboundClient || !address) return
     const createdAccount = await tokenboundClient.createAccount({
-      tokenContract: TOKEN_CONTRACT,
-      tokenId: TOKEN_ID,
+        tokenContract: originNFT.tokenContract,
+        tokenId: originNFT.tokenId,
     })
     console.log(`new account: ${createdAccount}`)
     alert(`new account: ${createdAccount}`)
