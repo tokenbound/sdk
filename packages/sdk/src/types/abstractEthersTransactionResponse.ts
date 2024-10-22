@@ -3,5 +3,5 @@
 // This type assures that there is at least some degree of type safety on the Ethers implementation of the TokenboundClient.
 
 export type AbstractEthersTransactionResponse = {
-  hash: string
+	hash: string
 } & Record<string, any>

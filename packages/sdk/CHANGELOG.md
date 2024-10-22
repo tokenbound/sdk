@@ -1,5 +1,11 @@
 # @tokenbound/sdk
 
+## 0.5.5
+
+### Patch Changes
+
+- version bump viem + update examples
+
 ## 0.5.4
 
 ### Patch Changes

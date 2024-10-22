@@ -1,5 +1,5 @@
-import { parseUnits } from 'viem'
+import { parseUnits } from "viem"
 
 export function ethToWei(eth: number) {
-  return parseUnits(eth.toString(), 18)
+	return parseUnits(eth.toString(), 18)
 }

@@ -3,5 +3,5 @@
 // This type assures that there is at least some degree of type safety on the Ethers implementation of the TokenboundClient.
 
 export type AbstractEthersSigner = {
-  readonly _isSigner: boolean
+	readonly _isSigner: boolean
 } & Record<string, any>
