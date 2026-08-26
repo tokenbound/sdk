@@ -1,6 +1,6 @@
-import type { WalletClient, PublicClient, Chain } from "viem"
+import type { WalletClient, PublicClient, Chain, SignableMessage } from "viem"
 import type { Prettify } from "./prettify"
-import type { UniversalSignableMessage, CallOperation, Call3 } from "."
+import type { CallOperation, Call3 } from "."
 import type { PossibleENSAddress } from "./addresses"
 import type { ERC_6551_LEGACY_V2 } from "../constants"
 
@@ -66,7 +66,6 @@ type ImplementationAddress =
 export type TokenboundClientOptions = Prettify<{
 	chainId?: number
 	chain?: Chain
-	signer?: any
 	walletClient?: WalletClient
 	publicClient?: PublicClient
 	publicClientRPCUrl?: string
@@ -137,5 +136,5 @@ export type BytecodeParams = Prettify<{
 }>
 
 export type SignMessageParams = Prettify<{
-	message: UniversalSignableMessage
+	message: SignableMessage
 }>

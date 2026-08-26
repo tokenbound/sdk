@@ -20,13 +20,6 @@ import { goerli } from 'viem/chains'
 const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id });
 ```
 
-or, with a legacy Wagmi / Ethers signer:
-
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk";
-const tokenboundClient = new TokenboundClient({ signer, chainId: 1 });
-```
-
 ### Get account address
 
 ```javascript

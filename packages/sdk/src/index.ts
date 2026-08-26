@@ -1,4 +1,4 @@
-import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../abis"
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "./abis"
 
 import {
 	getAccount,

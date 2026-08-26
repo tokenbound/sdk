@@ -19,7 +19,7 @@ import {
 	erc721Abi,
 	erc20Abi,
 	multicall3AuthenticatedABI,
-} from "../abis"
+} from "./abis"
 import {
 	getAccount,
 	computeAccount,
@@ -33,8 +33,6 @@ import {
 	encodeCrossChainCall,
 } from "./functions"
 import {
-	type AbstractEthersSigner,
-	type AbstractEthersTransactionResponse,
 	type BytecodeParams,
 	type CreateAccountParams,
 	type ERC20TransferParams,
@@ -50,7 +48,6 @@ import {
 	type SegmentedERC6551Bytecode,
 	type TokenboundAccountNFT,
 	type TokenboundClientOptions,
-	type EthersSignableMessage,
 	type ExecuteParams,
 	CALL_OPERATIONS,
 	type PrepareExecutionParams,
@@ -61,9 +58,6 @@ import {
 import {
 	chainIdToChain,
 	segmentBytecode,
-	normalizeMessage,
-	isEthers5SignableMessage,
-	isEthers6SignableMessage,
 	isViemSignableMessage,
 	resolvePossibleENS,
 	getImplementationName,
@@ -87,7 +81,6 @@ class TokenboundClient {
 	public isInitialized = false
 	public publicClient: PublicClient
 	private supportsV3 = true // Default to V3 implementation
-	private signer?: AbstractEthersSigner
 	private walletClient?: WalletClient
 	private implementationAddress: `0x${string}`
 	private registryAddress: `0x${string}`
@@ -96,7 +89,6 @@ class TokenboundClient {
 		const {
 			chainId,
 			chain,
-			signer,
 			walletClient,
 			publicClient,
 			implementationAddress,
@@ -107,12 +99,6 @@ class TokenboundClient {
 
 		if (!chainId && !chain) {
 			throw new Error("chain or chainId required.")
-		}
-
-		if (signer && walletClient) {
-			throw new Error(
-				"Only one of `signer` or `walletClient` should be provided.",
-			)
 		}
 
 		if (publicClient && publicClientRPCUrl) {
@@ -128,9 +114,7 @@ class TokenboundClient {
 		this.chainId = chainId ?? (chain?.id as number)
 		this.chain = chain ?? chainIdToChain(this.chainId)
 
-		if (signer) {
-			this.signer = signer
-		} else if (walletClient) {
+		if (walletClient) {
 			this.walletClient = walletClient
 		}
 
@@ -205,7 +189,7 @@ class TokenboundClient {
 	 * Returns the prepared transaction to create a tokenbound account for a given token contract and token ID.
 	 * @param {`0x${string}`} params.tokenContract The address of the token contract.
 	 * @param {string} params.tokenId The token ID.
-	 * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
+	 * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient.
 	 */
 	public async prepareCreateAccount(
 		params: PrepareCreateAccountParams,
@@ -333,13 +317,7 @@ class TokenboundClient {
 			appendedCalls,
 		})
 
-		if (this.signer) {
-			txHash = (await this.signer
-				.sendTransaction(preparedCreateAccount)
-				.then(
-					(tx: AbstractEthersTransactionResponse) => tx.hash,
-				)) as `0x${string}`
-		} else if (this.walletClient) {
+		if (this.walletClient) {
 			txHash = this.supportsV3
 				? await this.walletClient.sendTransaction({
 						...preparedCreateAccount,
@@ -364,7 +342,7 @@ class TokenboundClient {
 				txHash,
 			}
 		}
-		throw new Error("No wallet client or signer available.")
+		throw new Error("No wallet client available.")
 	}
 
 	/**
@@ -373,7 +351,7 @@ class TokenboundClient {
 	 * @param {string} params.to The recipient address
 	 * @param {bigint} params.value The value to send, in wei
 	 * @param {string} params.data The data to send
-	 * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+	 * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient.
 	 * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecution() instead.
 	 */
 	public async prepareExecuteCall(
@@ -406,13 +384,6 @@ class TokenboundClient {
 				"executeCall() is not supported on V3 implementation deployments, use execute() instead.",
 			)
 		}
-		if (this.signer) {
-			return (await this.signer
-				.sendTransaction(preparedExecuteCall)
-				.then(
-					(tx: AbstractEthersTransactionResponse) => tx.hash,
-				)) as `0x${string}`
-		}
 		if (this.walletClient) {
 			return await this.walletClient.sendTransaction({
 				// chain and account need to be added explicitly
@@ -423,7 +394,7 @@ class TokenboundClient {
 				...preparedExecuteCall,
 			})
 		}
-		throw new Error("No wallet client or signer available.")
+		throw new Error("No wallet client available.")
 	}
 
 	/**
@@ -432,7 +403,7 @@ class TokenboundClient {
 	 * @param {string} params.to The contract address to execute the call on
 	 * @param {bigint} params.value The value to send, in wei
 	 * @param {string} params.data The encoded operation calldata to send
-	 * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+	 * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient.
 	 */
 	public async prepareExecution(
 		params: PrepareExecutionParams,
@@ -498,13 +469,6 @@ class TokenboundClient {
 
 		const preparedExecution = await this.prepareExecution(params)
 
-		if (this.signer) {
-			return (await this.signer
-				.sendTransaction(preparedExecution)
-				.then(
-					(tx: AbstractEthersTransactionResponse) => tx.hash,
-				)) as `0x${string}`
-		}
 		if (this.walletClient) {
 			return await this.walletClient.sendTransaction({
 				// chain and account need to be added explicitly
@@ -515,7 +479,7 @@ class TokenboundClient {
 				...preparedExecution,
 			})
 		}
-		throw new Error("No wallet client or signer available.")
+		throw new Error("No wallet client available.")
 	}
 
 	/**
@@ -524,13 +488,18 @@ class TokenboundClient {
 	 * @returns a Promise that resolves to true if the account is a valid signer, otherwise false
 	 */
 	public async isValidSigner({ account }: ValidSignerParams): Promise<boolean> {
-		const { signer, walletClient } = this
+		const { walletClient } = this
 		const data = numberToHex(0, { size: 32 })
 		const VALID_SIGNER_MAGIC_VALUE = "0x523e3260" // isValidSigner MUST return this bytes4 magic value if the given signer is valid
-		const walletAddress: `0x${string}` =
-			walletClient?.account?.address ?? signer?.address
-		if (!signer && !walletClient) {
-			throw new Error("No signer or wallet client available.")
+
+		if (!walletClient) {
+			throw new Error("No wallet client available.")
+		}
+
+		const walletAddress = walletClient.account?.address
+
+		if (!walletAddress) {
+			throw new Error("No account available on the wallet client.")
 		}
 
 		if (!this.supportsV3) {
@@ -815,16 +784,6 @@ class TokenboundClient {
 		const { message } = params
 
 		try {
-			if (this.signer) {
-				// Normalize message for Ethers 5 and 6 compatibility
-				if (!isEthers5SignableMessage && !isEthers6SignableMessage) {
-					throw new Error("Message is not a valid Ethers signable message.")
-				}
-				const normalizedMessage = normalizeMessage(
-					message as EthersSignableMessage,
-				)
-				return await this.signer.signMessage(normalizedMessage)
-			}
 			if (this.walletClient) {
 				if (!isViemSignableMessage(message)) {
 					throw new Error("Message is not a valid viem signable message.")
@@ -835,7 +794,7 @@ class TokenboundClient {
 					message: message as SignableMessage,
 				})
 			}
-			throw new Error("No wallet client or signer available.")
+			throw new Error("No wallet client available.")
 		} catch (error) {
 			console.log(error)
 			throw error

@@ -10,7 +10,7 @@ import {
 	getAddress,
 } from "viem"
 
-import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../../abis"
+import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../abis"
 import {
 	erc6551AccountProxyV3ABI,
 	erc6551AccountV3ABI,

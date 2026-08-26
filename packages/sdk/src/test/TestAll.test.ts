@@ -1,14 +1,14 @@
 // This suite tests Tokenbound SDK methods with
-// viem walletClient + publicClient and Ethers 5/6.
+// a viem walletClient + publicClient.
 
 import { zora, mainnet } from "viem/chains"
 import { describe, beforeAll, afterAll, expect, it, vi } from "vitest"
-import { ethers, type providers } from "ethers"
 import { createAnvil } from "@viem/anvil"
 import {
 	type WalletClient,
 	type PublicClient,
 	createWalletClient,
+	createTestClient,
 	http,
 	getAddress,
 	encodeFunctionData,
@@ -47,7 +47,6 @@ import {
 import { wethABI } from "./wagmi-cli-hooks/generated"
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "../constants"
 import { type Call3, type TBImplementationVersion, TBVersion } from "../types"
-import { JsonRpcSigner, JsonRpcProvider } from "ethers6"
 import { erc20Abi } from "viem"
 import { type CreateAccountParams, TokenboundClient } from "../"
 
@@ -63,19 +62,16 @@ const walletClient = createWalletClient({
 	account: privateKeyToAccount(ANVIL_ACCOUNTS[0].privateKey),
 })
 
-const ethers5Provider = new ethers.providers.JsonRpcProvider(ANVIL_RPC_URL)
-const ethers5Signer = new ethers.Wallet(
-	ANVIL_ACCOUNTS[0].privateKey,
-	ethers5Provider,
-)
-
-const ethers6Provider = new JsonRpcProvider(ANVIL_RPC_URL)
-const ethers6Signer = new JsonRpcSigner(ethers6Provider, ANVIL_USER_0)
+// Anvil cheatcode client, used to normalize forked mainnet state
+const testClient = createTestClient({
+	transport: http(ANVIL_RPC_URL),
+	chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+	mode: "anvil",
+})
 
 type TestConfig = {
 	testName: string
-	walletClient?: WalletClient
-	signer?: any
+	walletClient: WalletClient
 	version?: TBImplementationVersion
 }
 
@@ -86,35 +82,16 @@ const ENABLED_TESTS: Array<TestConfig> = [
 		version: TBVersion.V2,
 	},
 	{
-		testName: "ethers@5 v2",
-		signer: ethers5Signer,
-		version: TBVersion.V2,
-	},
-	{
-		testName: "ethers@6 v2",
-		signer: ethers6Signer,
-		version: TBVersion.V2,
-	},
-	{
 		testName: "viem v3",
 		walletClient,
-	},
-	{
-		testName: "ethers@5 v3",
-		signer: ethers5Signer,
-	},
-	{
-		testName: "ethers@6 v3",
-		signer: ethers6Signer,
 	},
 ]
 
 describe.each(ENABLED_TESTS)(
 	"$testName",
-	({ testName, walletClient, signer, version }) => {
+	({ testName, walletClient, version }) => {
 		const isV2 = version === TBVersion.V2
 		const isV3 = isV2 === false
-		const viemOnlyIt = walletClient ? it : it.skip // Skip tests that are non-functional in Ethers
 		const v3OnlyIt = isV3 ? it : it.skip
 		// Set up Anvil instance + clients
 		const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
@@ -133,7 +110,7 @@ describe.each(ENABLED_TESTS)(
 
 		const ERC6551_DEPLOYMENT = isV2 ? ERC_6551_LEGACY_V2 : ERC_6551_DEFAULT
 
-		// Spin up a fresh anvil instance each time we run the test suite against a different signer
+		// Spin up a fresh anvil instance each time we run the test suite against a different configuration
 		beforeAll(async () => {
 			try {
 				// publicClient = getPublicClient({ chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id })
@@ -144,7 +121,6 @@ describe.each(ENABLED_TESTS)(
 					// chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
 					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
 					walletClient,
-					signer,
 					publicClient,
 					implementationAddress: isV3
 						? undefined
@@ -155,6 +131,13 @@ describe.each(ENABLED_TESTS)(
 				})
 
 				await anvil.start()
+
+				// The fork inherits mainnet state for Anvil's well-known default accounts,
+				// including an EIP-7702 delegation on ANVIL_USER_1. That makes it look like a
+				// contract, so safeTransferFrom calls a receiver hook it doesn't implement.
+				// Clear it so the account behaves as a plain EOA.
+				await testClient.setCode({ address: ANVIL_USER_1, bytecode: "0x" })
+
 				console.log(`START → \x1b[94m ${testName} \x1b[0m`)
 			} catch (err) {
 				console.error("Error during setup:", err)
@@ -226,22 +209,11 @@ describe.each(ENABLED_TESTS)(
 					data: encodedMintFunctionData,
 				}
 
-				let mintTxHash: `0x${string}`
-
-				if (walletClient) {
-					mintTxHash = await walletClient.sendTransaction({
-						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: ANVIL_USER_0,
-						...prepared721Mint,
-					})
-				} else if (signer) {
-					mintTxHash = await signer
-						.sendTransaction({
-							chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-							...prepared721Mint,
-						})
-						.then((tx: providers.TransactionResponse) => tx.hash)
-				}
+				const mintTxHash = await walletClient.sendTransaction({
+					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+					account: ANVIL_USER_0,
+					...prepared721Mint,
+				})
 
 				const zoraBalanceInAnvilWallet = await getZora721Balance({
 					publicClient,
@@ -512,25 +484,15 @@ describe.each(ENABLED_TESTS)(
 					data: transferCallData,
 				}
 
-				let transferHash: `0x${string}`
-
-				if (walletClient) {
-					if (!walletClient.account?.address) {
-						throw new Error("walletClient.account.address is undefined")
-					}
-					transferHash = await walletClient.sendTransaction({
-						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: walletClient.account?.address,
-						...preparedNFTTransfer,
-					})
-				} else {
-					const tx = await signer.sendTransaction({
-						chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-						...preparedNFTTransfer,
-					})
-
-					transferHash = tx.hash
+				if (!walletClient.account?.address) {
+					throw new Error("walletClient.account.address is undefined")
 				}
+
+				const transferHash = await walletClient.sendTransaction({
+					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+					account: walletClient.account.address,
+					...preparedNFTTransfer,
+				})
 
 				const transactionReceipt = await publicClient.waitForTransactionReceipt(
 					{
@@ -572,24 +534,15 @@ describe.each(ENABLED_TESTS)(
 					data: transferCallData,
 				}
 
-				let transferHash: `0x${string}`
-
-				if (walletClient) {
-					if (!walletClient.account?.address) {
-						throw new Error("walletClient.account.address is undefined")
-					}
-					transferHash = await walletClient.sendTransaction({
-						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: walletClient.account?.address,
-						...preparedNFTTransfer,
-					})
-				} else {
-					const tx = await signer.sendTransaction({
-						chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-						...preparedNFTTransfer,
-					})
-					transferHash = tx.hash
+				if (!walletClient.account?.address) {
+					throw new Error("walletClient.account.address is undefined")
 				}
+
+				const transferHash = await walletClient.sendTransaction({
+					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+					account: walletClient.account.address,
+					...preparedNFTTransfer,
+				})
 
 				const transactionReceipt = await publicClient.waitForTransactionReceipt(
 					{
@@ -625,24 +578,15 @@ describe.each(ENABLED_TESTS)(
 					// data is optional if nil
 				}
 
-				let transferHash: `0x${string}`
-				if (walletClient) {
-					if (!walletClient.account?.address) {
-						throw new Error("walletClient.account.address is undefined")
-					}
-					transferHash = await walletClient.sendTransaction({
-						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						account: walletClient.account?.address,
-						...preparedETHTransfer,
-					})
-				} else {
-					transferHash = await signer
-						.sendTransaction({
-							chainId: ANVIL_CONFIG.ACTIVE_CHAIN.id,
-							...preparedETHTransfer,
-						})
-						.then((tx: providers.TransactionResponse) => tx.hash)
+				if (!walletClient.account?.address) {
+					throw new Error("walletClient.account.address is undefined")
 				}
+
+				const transferHash = await walletClient.sendTransaction({
+					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+					account: walletClient.account.address,
+					...preparedETHTransfer,
+				})
 
 				const balanceAfter = await publicClient.getBalance({
 					address: ZORA721_TBA_ADDRESS,
@@ -966,9 +910,7 @@ describe.each(ENABLED_TESTS)(
 			},
 		)
 
-		// Test signing in viem only.
-		// Ethers 5/6 don't appear to support signing messages via personal_sign with this testing configuration.
-		viemOnlyIt("can sign a message", async () => {
+		it("can sign a message", async () => {
 			const signedMessageHash = await tokenboundClient.signMessage({
 				message: "Sign me",
 			})
@@ -980,8 +922,8 @@ describe.each(ENABLED_TESTS)(
 			})
 		})
 
-		// Test signing hex message in viem only.
-		viemOnlyIt("can sign a hexified message", async () => {
+		// Test signing a hex message.
+		it("can sign a hexified message", async () => {
 			const hexSignedMessageHash = await tokenboundClient.signMessage({
 				message: { raw: "0x68656c6c6f20776f726c64" },
 			})
@@ -993,8 +935,8 @@ describe.each(ENABLED_TESTS)(
 			})
 		})
 
-		// Test signing Uint8Array message as raw in viem only.
-		viemOnlyIt("can sign a Uint8Array message as raw", async () => {
+		// Test signing a Uint8Array message as raw.
+		it("can sign a Uint8Array message as raw", async () => {
 			const uint8ArrayMessage: Uint8Array = new Uint8Array([
 				72, 101, 108, 108, 111,
 			]) // "Hello" in ASCII
@@ -1008,8 +950,8 @@ describe.each(ENABLED_TESTS)(
 			})
 		})
 
-		// Test signing ArrayLike message in viem only.
-		viemOnlyIt(
+		// Test signing an ArrayLike message.
+		it(
 			"throws when viem incorrectly receives an ArrayLike message for signing",
 			async () => {
 				vi.spyOn(console, "error")
@@ -1023,8 +965,8 @@ describe.each(ENABLED_TESTS)(
 			},
 		)
 
-		// Test signing Uint8Array message in viem only.
-		viemOnlyIt(
+		// Test signing a bare Uint8Array message.
+		it(
 			"throws when viem incorrectly receives an Uint8Array message for signing",
 			async () => {
 				const uint8ArrayMessage: Uint8Array = new Uint8Array([
@@ -1046,9 +988,6 @@ describe.each(ENABLED_TESTS)(
 				const depositWeiValue = ethToWei(depositEthValue)
 				const transferEthValue = 0.1
 				const transferWeiValue = ethToWei(transferEthValue)
-				let wethDepositHash: `0x${string}`
-				let wethTransferHash: `0x${string}`
-
 				const tbaWETHInitial = await getWETHBalance({
 					publicClient,
 					walletAddress: ZORA721_TBA_ADDRESS,
@@ -1061,52 +1000,33 @@ describe.each(ENABLED_TESTS)(
 					args: [ZORA721_TBA_ADDRESS, depositWeiValue],
 				})
 
-				if (walletClient) {
-					if (!walletClient.account?.address) {
-						throw new Error("walletClient.account is undefined")
-					}
-
-					const wethContract = getContract({
-						address: WETH_CONTRACT_ADDRESS,
-						abi: wethABI,
-						client: {
-							wallet: walletClient,
-						},
-					})
-
-					// Convert ETH to WETH in ANVIL_USER_0 wallet
-					wethDepositHash = await wethContract.write.deposit({
-						account: ANVIL_USER_0,
-						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						value: depositWeiValue,
-					})
-
-					// Transfer WETH from ANVIL_USER_0 to TBA
-					wethTransferHash = await walletClient.sendTransaction({
-						account: walletClient.account,
-						chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-						to: WETH_CONTRACT_ADDRESS,
-						value: 0n,
-						data: wethTransferCallData,
-					})
-				} else if (signer) {
-					// Convert ETH to WETH in ANVIL_USER_0 wallet
-					wethDepositHash = await signer
-						.sendTransaction({
-							to: WETH_CONTRACT_ADDRESS,
-							value: depositWeiValue,
-						})
-						.then((tx: providers.TransactionResponse) => tx.hash)
-
-					// Transfer WETH from ANVIL_USER_0 to TBA
-					wethTransferHash = await signer
-						.sendTransaction({
-							to: WETH_CONTRACT_ADDRESS,
-							value: BigInt(0),
-							data: wethTransferCallData,
-						})
-						.then((tx: providers.TransactionResponse) => tx.hash)
+				if (!walletClient.account?.address) {
+					throw new Error("walletClient.account is undefined")
 				}
+
+				const wethContract = getContract({
+					address: WETH_CONTRACT_ADDRESS,
+					abi: wethABI,
+					client: {
+						wallet: walletClient,
+					},
+				})
+
+				// Convert ETH to WETH in ANVIL_USER_0 wallet
+				const wethDepositHash = await wethContract.write.deposit({
+					account: ANVIL_USER_0,
+					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+					value: depositWeiValue,
+				})
+
+				// Transfer WETH from ANVIL_USER_0 to TBA
+				const wethTransferHash = await walletClient.sendTransaction({
+					account: walletClient.account,
+					chain: ANVIL_CONFIG.ACTIVE_CHAIN,
+					to: WETH_CONTRACT_ADDRESS,
+					value: 0n,
+					data: wethTransferCallData,
+				})
 
 				const tbaWETHReceived = await getWETHBalance({
 					publicClient,

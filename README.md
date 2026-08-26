@@ -4,14 +4,11 @@ This repo houses the Tokenbound SDK, a front-end library for interacting with [E
 
 ### Packages
 
-- **[@tokenbound/sdk](https://github.com/tokenbound/sdk/tree/main/packages/sdk)** - SDK client for all projects, signing enabled via either Ethers Signer or viem WalletClient.
+- **[@tokenbound/sdk](https://github.com/tokenbound/sdk/tree/main/packages/sdk)** - SDK client for all projects, signing enabled via a viem WalletClient.
 
 ### Examples
 
 - **[examples/vite-wagmi-viem](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-viem)** - An example app using the tokenbound SDK in a vite project with wagmi
-- **[examples/vite-wagmi-ethers](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers)** - An example app using the tokenbound SDK in a vite project with ethers v5
-- **[examples/vite-wagmi-ethers6](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers6)** - An example app using the tokenbound SDK in a vite project with ethers v6
-- **[examples/vite-wagmi-ethers-rainbowkit](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-rainbowkit)** - An example app using the tokenbound SDK in a vite project with ethers v5
 
 ### Development
 
@@ -39,7 +36,7 @@ Tests are using [Vitest](https://vitest.dev), and can be performed via multiple 
 - Unit tests spin up a local Anvil instance using [viem/anvil](https://www.npmjs.com/package/@viem/anvil) and transact against a local fork of mainnet.
 - Integration tests are rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library that integrates with Anvil. See usage of `renderWithWagmiConfig` in `packages/sdk/src/tests`.
 
-Both pipelines use [wagmi's Ethers adaptors](https://wagmi.sh/react/ethers-adapters) to convert the viem walletClient to Ethers 5 and Ethers 6 signers so the entire test suite is run against all 3 implementations.
+The test suite is run against both the V2 and V3 ERC-6551 contract deployments.
 
 These tests require a local Anvil node so test transactions can be run against a mainnet fork.
 
@@ -94,12 +91,12 @@ The TokenboundClient class provides an interface for interacting with tokenbound
 
 The client is instantiated with an object containing two parameters:
 
-| Parameter                               |           |
-| --------------------------------------- | --------- |
-| One of **signer** _or_ **walletClient** | mandatory |
-| One of **chainId** _or_ **chain**       | mandatory |
+| Parameter                         |           |
+| --------------------------------- | --------- |
+| **walletClient**                  | mandatory |
+| One of **chainId** _or_ **chain** | mandatory |
 
-Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) _or_ an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
+Use a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) for transactions that require a user to sign.
 
 The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default.
 
@@ -130,15 +127,6 @@ If your chain isn't listed on the [deployments page →](https://docs.tokenbound
 ```ts copy
 import { zora } from 'viem/chains'
 const tokenboundClient = new TokenboundClient({ walletClient, chain: zora })
-```
-
-### Using Ethers.js
-
-Ethers 5 / 6 are supported as an alternative to viem.
-
-```ts copy
-const { data: signer } = useSigner()
-const tokenboundClient = new TokenboundClient({ signer, chainId: 1 })
 ```
 
 ### Making your first call
@@ -298,7 +286,7 @@ Prepares an arbitrary contract call for execution against any contract.
 
 **Note**: this method replaces the deprecated V2 method `prepareExecuteCall`.
 
-**Returns** A Promise with prepared transaction to execute a call on a Tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or via WalletClient.
+**Returns** A Promise with prepared transaction to execute a call on a Tokenbound account. Can be sent via `sendTransaction` on a WalletClient.
 
 ```typescript
 const preparedExecution = await tokenboundClient.prepareExecution({
@@ -513,17 +501,9 @@ Gets an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) formatted signature fo
 
 **Returns** a Promise that resolves to a signed Hex string
 
-The message to be signed is typed as `UniversalSignableMessage` so that it can elegantly handle Ethers 5, Ethers 6, and viem's expected types for all signable formats. Check the types associated with signMessage for [viem](https://viem.sh/docs/actions/wallet/signMessage.html), [Ethers 5](https://docs.ethers.org/v5/api/signer/#Signer-signMessage), and [Ethers 6](https://docs.ethers.org/v6/api/providers/#Signer-signMessage) as needed.
+The message to be signed is typed as viem's `SignableMessage`, which is either a string or a `{ raw }` object wrapping a hex string or `Uint8Array`. See the [viem signMessage docs](https://viem.sh/docs/actions/wallet/signMessage.html) for details.
 
-```ts
-// Ethers 5
-const arrayMessage: ArrayLike<number> = [72, 101, 108, 108, 111] // "Hello" in ASCII
-
-// Ethers 5 or Ethers 6
-const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
-```
-
-Note that this method is just for convenience. Since your EOA wallet is responsible for signing, messages can also be signed explicitly using your EOA wallet address in viem or Ethers.
+Note that this method is just for convenience. Since your EOA wallet is responsible for signing, messages can also be signed explicitly using your EOA wallet address in viem.
 
 ```ts
 const signedMessage = await tokenboundClient.signMessage({
@@ -532,24 +512,19 @@ const signedMessage = await tokenboundClient.signMessage({
 
 console.log(signedMessage)
 
-// Works in Ethers 5 or 6, throws in viem
-const signedUint8Message = await tokenboundClient.signMessage({
-  message: uint8ArrayMessage,
-})
+// Raw bytes must be wrapped in a `raw` object
+const uint8ArrayMessage: Uint8Array = new Uint8Array([72, 101, 108, 108, 111]) // "Hello" in ASCII
 
-console.log(signedUint8Message)
-
-// Works in viem
 const signedRawUint8Message = await tokenboundClient.signMessage({
   message: { raw: uint8ArrayMessage },
 })
 
-console.log(signedUint8Message)
+console.log(signedRawUint8Message)
 ```
 
-| Parameter   | Description               | Type                     |
-| ----------- | ------------------------- | ------------------------ |
-| **message** | The message to be signed. | UniversalSignableMessage |
+| Parameter   | Description               | Type            |
+| ----------- | ------------------------- | --------------- |
+| **message** | The message to be signed. | SignableMessage |
 
 ---
 
