@@ -1,4 +1,4 @@
-import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "../constants"
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "../protocol/constants"
 
 export function getImplementationName(
 	implementationAddress?: `0x${string}`,

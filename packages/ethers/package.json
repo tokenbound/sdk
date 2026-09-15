@@ -1,0 +1,68 @@
+{
+	"name": "@tokenbound/ethers",
+	"version": "0.1.0",
+	"description": "Ethers v5/v6 compatibility layer for the Tokenbound ERC-6551 SDK",
+	"keywords": [
+		"ethereum",
+		"erc6551",
+		"erc-6551",
+		"tokenbound",
+		"nft",
+		"ethers",
+		"web3"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tokenbound/sdk.git",
+		"directory": "packages/ethers"
+	},
+	"homepage": "https://github.com/tokenbound/sdk/tree/main/packages/ethers#readme",
+	"bugs": {
+		"url": "https://github.com/tokenbound/sdk/issues"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"files": [
+		"dist"
+	],
+	"types": "./dist/index.d.ts",
+	"main": "./dist/tokenbound-ethers.umd.cjs",
+	"module": "./dist/tokenbound-ethers.js",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/tokenbound-ethers.js",
+			"require": "./dist/tokenbound-ethers.umd.cjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsc --noEmit && vite build",
+		"test": "pnpm test:unit && pnpm test:integration && pnpm test:v2 && pnpm test:transfer",
+		"clean": "rm -rf node_modules/ dist/",
+		"lint": "biome lint .",
+		"format": "biome format .",
+		"test:unit": "vitest --watch=false run src/test/adapter.test.ts",
+		"test:integration": "vitest --watch=false run src/test/integration.test.ts",
+		"test:transfer": "vitest --watch=false run src/test/transfer.test.ts",
+		"test:v2": "vitest --watch=false run src/test/v2.test.ts"
+	},
+	"dependencies": {
+		"@tokenbound/sdk": "workspace:^"
+	},
+	"peerDependencies": {
+		"ethers": "^5.7.2 || ^6.0.0",
+		"viem": "^2.56.5"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.13",
+		"@viem/anvil": "^0.0.10",
+		"ethers": "^5.8.0",
+		"ethers6": "npm:ethers@^6.17.0",
+		"typescript": "^5.6.3",
+		"viem": "^2.56.5",
+		"vite": "^4.4.9",
+		"vite-plugin-dts": "^3.9.0",
+		"vitest": "^1.6.1"
+	}
+}

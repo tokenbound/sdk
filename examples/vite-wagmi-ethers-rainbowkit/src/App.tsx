@@ -1,10 +1,11 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useAccount } from "wagmi"
-import { TokenboundClient } from "@tokenbound/sdk"
+import { TokenboundClient } from "@tokenbound/ethers"
 
 import { Account } from "./components"
 
 import { parseUnits, getAddress } from "viem"
+import { sepolia } from "viem/chains"
 import { useCallback, useEffect } from "react"
 import { useEthersSigner } from "./hooks"
 
@@ -24,10 +25,10 @@ const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 
 export function App() {
 	const { isConnected, address } = useAccount()
-	const signer = useEthersSigner({ chainId: 5 })
+	const signer = useEthersSigner({ chainId: sepolia.id })
 	// or useSigner() from legacy wagmi versions: const { data: signer } = useSigner()
 
-	const tokenboundClient = new TokenboundClient({ signer, chainId: 5 })
+	const tokenboundClient = new TokenboundClient({ signer, chain: sepolia })
 
 	useEffect(() => {
 		async function testTokenboundClass() {
@@ -40,7 +41,7 @@ export function App() {
 				account: account,
 				to: account,
 				value: 0n,
-				data: "",
+				data: "0x",
 			})
 
 			const preparedAccount = await tokenboundClient.prepareCreateAccount({

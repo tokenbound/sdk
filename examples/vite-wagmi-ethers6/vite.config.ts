@@ -11,9 +11,6 @@ export default defineConfig({
       target: "es2020",
     },
   },
-  define: {
-    global: "globalThis",
-  },
   resolve: {
     alias: {
       process: "process/browser",

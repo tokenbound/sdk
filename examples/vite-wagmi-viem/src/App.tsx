@@ -9,10 +9,9 @@ import {
 	custom,
 	parseUnits,
 	getAddress,
-	type WalletClient,
 } from "viem"
 import { baseSepolia, baseGoerli } from "viem/chains"
-import { TokenboundClient } from "@tokenbound/sdk"
+import { tokenboundActions } from "@tokenbound/sdk/viem"
 import { useCallback, useEffect } from "react"
 
 declare global {
@@ -38,35 +37,32 @@ const ethAmountWei = parseUnits(`${ethAmount}`, 18)
 export function App() {
 	const { isConnected, address } = useAccount()
 
-	const walletClient: WalletClient = createWalletClient({
+	// The modern viem-first API: extend a viem client and call through
+	// `client.tokenbound.*`. The extension reuses the same protocol logic as the
+	// standalone functions, and preserves viem's type inference.
+	const tokenboundClient = createWalletClient({
 		chain: baseSepolia,
 		account: address,
 		transport: window.ethereum ? custom(window.ethereum) : http(),
-	})
-
-	const tokenboundClient = new TokenboundClient({
-		walletClient,
-		chainId: baseSepolia.id,
-		// implementationAddress: '0x2d25602551487c3f3354dd80d76d54383a243358',
-	})
+	}).extend(tokenboundActions())
 
 	useEffect(() => {
 		async function testTokenboundClass() {
 			if (!tokenboundClient) return
 
-			const tokenboundAccount = tokenboundClient.getAccount({
+			const tokenboundAccount = tokenboundClient.tokenbound.getAccount({
 				tokenContract: originNFT.tokenContract,
 				tokenId: originNFT.tokenId,
 			})
 
-			const preparedExecution = await tokenboundClient.prepareExecution({
+			const preparedExecution = await tokenboundClient.tokenbound.prepareExecution({
 				account: tokenboundAccount,
 				to: recipientAddress,
 				value: 0n,
-				data: "",
+				data: "0x",
 			})
 
-			const preparedCreateAccount = await tokenboundClient.prepareCreateAccount(
+			const preparedCreateAccount = await tokenboundClient.tokenbound.prepareCreateAccount(
 				{
 					tokenContract: originNFT.tokenContract,
 					tokenId: originNFT.tokenId,
@@ -88,7 +84,7 @@ export function App() {
 
 	const createAccount = useCallback(async () => {
 		if (!tokenboundClient || !address) return
-		const createdAccount = await tokenboundClient.createAccount({
+		const createdAccount = await tokenboundClient.tokenbound.createAccount({
 			tokenContract: originNFT.tokenContract,
 			tokenId: originNFT.tokenId,
 		})
@@ -98,7 +94,7 @@ export function App() {
 
 	const execute = useCallback(async () => {
 		if (!tokenboundClient || !address) return
-		const executedCall = await tokenboundClient.execute({
+		const executedCall = await tokenboundClient.tokenbound.execute({
 			account: sendingTBA,
 			to: recipientAddress,
 			value: ethAmountWei,
@@ -109,7 +105,7 @@ export function App() {
 
 	const transferETH = useCallback(async () => {
 		if (!tokenboundClient || !address) return
-		const executedTransfer = await tokenboundClient.transferETH({
+		const executedTransfer = await tokenboundClient.tokenbound.transferETH({
 			account: sendingTBA,
 			recipientAddress,
 			amount: ethAmount,
@@ -124,11 +120,11 @@ export function App() {
 			account: sendingTBA,
 			to: originNFT.tokenContract,
 			value: 0n,
-			data: "",
-			chain: baseGoerli,
+			data: "0x" as const,
+			chainId: baseGoerli.id,
 		}
 
-		const executedCallTxHash = await tokenboundClient.execute(execution)
+		const executedCallTxHash = await tokenboundClient.tokenbound.execute(execution)
 
 		executedCallTxHash &&
 			alert(`Sent blank tx on ${baseGoerli.name}: ${executedCallTxHash}`)
@@ -136,7 +132,7 @@ export function App() {
 
 	return (
 		<>
-			<h1>viem walletClient + ConnectKit + Vite</h1>
+			<h1>viem .extend(tokenboundActions()) + RainbowKit + Vite</h1>
 			<ConnectButton />
 			{isConnected && <Account />}
 			{address && (

@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { type WalletClient, useWalletClient } from 'wagmi'
+import { useWalletClient } from 'wagmi'
+import type { WalletClient } from 'viem'
 import { providers } from 'ethers'
 
 // Ethers.js Adapters for Wagmi Wallet Client
@@ -7,6 +8,8 @@ import { providers } from 'ethers'
 
 export function walletClientToSigner(walletClient: WalletClient) {
   const { account, chain, transport } = walletClient
+  if (!chain) throw new Error('Wallet client has no chain')
+  if (!account) throw new Error('Wallet client has no account')
   const network = {
     chainId: chain.id,
     name: chain.name,

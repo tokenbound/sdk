@@ -1,8 +1,8 @@
-import type { WalletClient, PublicClient, Chain } from "viem"
-import type { Prettify } from "./prettify"
-import type { UniversalSignableMessage, CallOperation, Call3 } from "."
+import type { Chain, PublicClient, SignableMessage, WalletClient } from "viem"
+import type { ERC_6551_LEGACY_V2 } from "../protocol/constants"
+import type { Call3, CallOperation } from "."
 import type { PossibleENSAddress } from "./addresses"
-import type { ERC_6551_LEGACY_V2 } from "../constants"
+import type { Prettify } from "./prettify"
 
 export const NFTTokenType = {
 	ERC721: "ERC721",
@@ -64,9 +64,12 @@ type ImplementationAddress =
 	| typeof ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS
 
 export type TokenboundClientOptions = Prettify<{
-	chainId?: number
-	chain?: Chain
-	signer?: any
+	/**
+	 * The viem Chain to operate on. Required: the SDK no longer maps a bare
+	 * chainId to a Chain, because doing so pulled every viem chain into
+	 * consumer bundles. Import the chain you need from `viem/chains`.
+	 */
+	chain: Chain
 	walletClient?: WalletClient
 	publicClient?: PublicClient
 	publicClientRPCUrl?: string
@@ -137,5 +140,5 @@ export type BytecodeParams = Prettify<{
 }>
 
 export type SignMessageParams = Prettify<{
-	message: UniversalSignableMessage
+	message: SignableMessage
 }>

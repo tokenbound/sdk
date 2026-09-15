@@ -4,7 +4,11 @@ This repo houses the Tokenbound SDK, a front-end library for interacting with [E
 
 ### Packages
 
-- **[@tokenbound/sdk](https://github.com/tokenbound/sdk/tree/main/packages/sdk)** - SDK client for all projects, signing enabled via either Ethers Signer or viem WalletClient.
+- **[@tokenbound/sdk](https://github.com/tokenbound/sdk/tree/main/packages/sdk)** — the canonical, **viem-first** SDK. Signing via a viem `WalletClient`, plus an idiomatic `.extend(tokenboundActions())` client decorator.
+- **[@tokenbound/ethers](https://github.com/tokenbound/sdk/tree/main/packages/ethers)** — ethers v5/v6 compatibility layer. Depends on `@tokenbound/sdk` and reuses its ERC-6551 protocol logic.
+
+`@tokenbound/sdk` has no ethers dependency, so viem consumers never pull ethers
+into their bundle. Migrating from a previous release? See **[MIGRATION.md](./MIGRATION.md)**.
 
 ### Examples
 
@@ -39,7 +43,7 @@ Tests are using [Vitest](https://vitest.dev), and can be performed via multiple 
 - Unit tests spin up a local Anvil instance using [viem/anvil](https://www.npmjs.com/package/@viem/anvil) and transact against a local fork of mainnet.
 - Integration tests are rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library that integrates with Anvil. See usage of `renderWithWagmiConfig` in `packages/sdk/src/tests`.
 
-Both pipelines use [wagmi's Ethers adaptors](https://wagmi.sh/react/ethers-adapters) to convert the viem walletClient to Ethers 5 and Ethers 6 signers so the entire test suite is run against all 3 implementations.
+`@tokenbound/sdk`'s suite is viem-only. `@tokenbound/ethers` runs its own suite, exercising ethers v5 and ethers v6 independently against separate Anvil forks, so a behavioural difference in one major version can't be masked by the other. Both packages cover the ERC-6551 V2 (legacy) and V3 deployments.
 
 These tests require a local Anvil node so test transactions can be run against a mainnet fork.
 
@@ -94,12 +98,14 @@ The TokenboundClient class provides an interface for interacting with tokenbound
 
 The client is instantiated with an object containing two parameters:
 
-| Parameter                               |           |
-| --------------------------------------- | --------- |
-| One of **signer** _or_ **walletClient** | mandatory |
-| One of **chainId** _or_ **chain**       | mandatory |
+| Parameter        |           |
+| ---------------- | --------- |
+| **walletClient** | required for transactions that need a signature |
+| **chain**        | mandatory |
 
-Use either a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) _or_ an Ethers `signer` [(see signer docs)](https://docs.ethers.org/v5/api/signer/) for transactions that require a user to sign. Note that viem is an SDK dependency, so walletClient is preferable for most use cases. _Use of Ethers signer is recommended only for legacy projects_.
+Use a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) for transactions that require a user to sign.
+
+Ethers users should install **[@tokenbound/ethers](./packages/ethers)** instead, which accepts an ethers v5 or v6 `Signer` and exposes the same API.
 
 The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default.
 
@@ -107,38 +113,62 @@ For instructions about using a **Custom Account Implementation** and/or a **Lega
 
 ### Standard configuration
 
-If you're using one of the [standard V2/V3 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments), you can simply pass the`chainId`. This will set `Chain` internally using imports from [`viem/chains`](https://viem.sh/docs/clients/chains.html). To keep the bundle size to a minimum, only standard chains are included in the SDK package.
+Pass the viem `Chain` you're operating on. Import it from [`viem/chains`](https://viem.sh/docs/clients/chains.html) — the SDK no longer maps a bare `chainId` to a `Chain`, since that required eagerly importing every chain into your bundle.
 
 ```ts copy
-import { useAccount, WalletClient } from 'wagmi'
+import { useAccount } from 'wagmi'
+import { createWalletClient, http, type WalletClient } from 'viem'
+import { mainnet } from 'viem/chains'
 import { TokenboundClient } from '@tokenbound/sdk'
 
 const { address } = useAccount()
 const walletClient: WalletClient = createWalletClient({
-  chainId: goerli,
+  chain: mainnet,
   account: address,
   transport: http(),
 })
 
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: 5 })
+const tokenboundClient = new TokenboundClient({ walletClient, chain: mainnet })
 ```
 
-### Custom chain
-
-If your chain isn't listed on the [deployments page →](https://docs.tokenbound.org/contracts/deployments), you'll need to pass the full `Chain` object from the [`viem/chains`](https://viem.sh/docs/clients/chains.html) package using the `chain` parameter.
+Any viem `Chain` works, including ones not on the [deployments page →](https://docs.tokenbound.org/contracts/deployments):
 
 ```ts copy
 import { zora } from 'viem/chains'
 const tokenboundClient = new TokenboundClient({ walletClient, chain: zora })
 ```
 
-### Using Ethers.js
+### Using the viem client extension (recommended)
 
-Ethers 5 / 6 are supported as an alternative to viem.
+The idiomatic viem API decorates a client, namespacing everything under `.tokenbound`:
 
 ```ts copy
-const { data: signer } = useSigner()
-const tokenboundClient = new TokenboundClient({ signer, chainId: 1 })
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+import { tokenboundActions } from '@tokenbound/sdk/viem'
+
+const client = createWalletClient({
+  chain: mainnet,
+  account: address,
+  transport: custom(window.ethereum),
+}).extend(tokenboundActions())
+
+const account = client.tokenbound.getAccount({ tokenContract, tokenId })
+await client.tokenbound.createAccount({ tokenContract, tokenId })
+await client.tokenbound.execute({ account, to, value, data })
+```
+
+Public clients receive only the read-only actions; clients carrying an account get the full set. The extension reuses exactly the same protocol code as the class API.
+
+### Using Ethers.js
+
+Ethers 5 / 6 are supported through the separate `@tokenbound/ethers` package:
+
+```ts copy
+import { TokenboundClient } from '@tokenbound/ethers'
+import { mainnet } from 'viem/chains'
+
+const tokenboundClient = new TokenboundClient({ signer, chain: mainnet })
 ```
 
 ### Making your first call
@@ -146,7 +176,7 @@ const tokenboundClient = new TokenboundClient({ signer, chainId: 1 })
 Now you can use the TokenboundClient to interact with the Tokenbound contracts:
 
 ```ts copy
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: 1 })
+const tokenboundClient = new TokenboundClient({ walletClient, chain: mainnet })
 
 const tokenboundAccount = tokenboundClient.getAccount({
   tokenContract: '<token_contract_address>',
@@ -513,7 +543,7 @@ Gets an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) formatted signature fo
 
 **Returns** a Promise that resolves to a signed Hex string
 
-The message to be signed is typed as `UniversalSignableMessage` so that it can elegantly handle Ethers 5, Ethers 6, and viem's expected types for all signable formats. Check the types associated with signMessage for [viem](https://viem.sh/docs/actions/wallet/signMessage.html), [Ethers 5](https://docs.ethers.org/v5/api/signer/#Signer-signMessage), and [Ethers 6](https://docs.ethers.org/v6/api/providers/#Signer-signMessage) as needed.
+In `@tokenbound/sdk` the message is typed as viem's `SignableMessage` (`string | { raw }`). In `@tokenbound/ethers` it is typed as `EthersSignableMessage`, which covers both ethers majors and is normalized internally. Check the types associated with signMessage for [viem](https://viem.sh/docs/actions/wallet/signMessage.html), [Ethers 5](https://docs.ethers.org/v5/api/signer/#Signer-signMessage), and [Ethers 6](https://docs.ethers.org/v6/api/providers/#Signer-signMessage) as needed.
 
 ```ts
 // Ethers 5

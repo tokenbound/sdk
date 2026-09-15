@@ -1,79 +1,54 @@
 import {
-	type WalletClient,
-	type PublicClient,
+	type Address,
 	type Chain,
 	createPublicClient,
-	http,
-	type GetBytecodeReturnType,
-	hexToNumber,
-	getAddress,
-	encodeFunctionData,
-	parseUnits,
-	type SignableMessage,
-	isAddressEqual,
-	numberToHex,
 	custom,
+	encodeFunctionData,
+	type GetCodeReturnType,
+	type Hex,
+	http,
+	numberToHex,
+	type PublicClient,
+	type SignableMessage,
+	type WalletClient,
 } from "viem"
+import { version as TB_SDK_VERSION } from "../package.json"
 import {
-	erc1155Abi,
-	erc721Abi,
-	erc20Abi,
-	multicall3AuthenticatedABI,
-} from "../abis"
+	deconstructBytecode as deconstructBytecodeFromHex,
+	encodeERC20Transfer,
+	encodeETHTransfer,
+	encodeExecuteCall,
+	encodeNFTTransfer,
+	getAccountAddress,
+	prepareCreateAccountTx,
+	type ResolvedDeployment,
+	resolveDeployment,
+	VALID_SIGNER_MAGIC_VALUE,
+} from "./protocol"
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "./protocol/constants"
+import { createAccount, encodeCrossChainCall } from "./protocol/functions"
 import {
-	getAccount,
-	computeAccount,
-	createAccount,
-	getCreationCode,
-	prepareExecuteCall,
-	executeCall,
-	prepareCreateAccount,
-	getTokenboundV3Account,
-	prepareCreateTokenboundV3Account,
-	encodeCrossChainCall,
-} from "./functions"
-import {
-	type AbstractEthersSigner,
-	type AbstractEthersTransactionResponse,
 	type BytecodeParams,
+	CALL_OPERATIONS,
+	type CallData,
 	type CreateAccountParams,
 	type ERC20TransferParams,
-	type SignMessageParams,
 	type ETHTransferParams,
 	type ExecuteCallParams,
+	type ExecuteParams,
 	type GetAccountParams,
-	NFTTokenType,
+	type MultiCallTx,
 	type NFTTransferParams,
-	TBVersion,
 	type PrepareCreateAccountParams,
 	type PrepareExecuteCallParams,
+	type PrepareExecutionParams,
 	type SegmentedERC6551Bytecode,
+	type SignMessageParams,
 	type TokenboundAccountNFT,
 	type TokenboundClientOptions,
-	type EthersSignableMessage,
-	type ExecuteParams,
-	CALL_OPERATIONS,
-	type PrepareExecutionParams,
 	type ValidSignerParams,
-	type MultiCallTx,
-	type CallData,
 } from "./types"
-import {
-	chainIdToChain,
-	segmentBytecode,
-	normalizeMessage,
-	isEthers5SignableMessage,
-	isEthers6SignableMessage,
-	isViemSignableMessage,
-	resolvePossibleENS,
-	getImplementationName,
-} from "./utils"
-import {
-	ERC_6551_DEFAULT,
-	ERC_6551_LEGACY_V2,
-	MULTICALL_AUTHENTICATED_ADDRESS,
-} from "./constants"
-import { version as TB_SDK_VERSION } from "../package.json"
+import { getImplementationName, resolvePossibleENS } from "./utils"
 
 declare global {
 	interface Window {
@@ -86,17 +61,12 @@ class TokenboundClient {
 	private chain: Chain
 	public isInitialized = false
 	public publicClient: PublicClient
-	private supportsV3 = true // Default to V3 implementation
-	private signer?: AbstractEthersSigner
 	private walletClient?: WalletClient
-	private implementationAddress: `0x${string}`
-	private registryAddress: `0x${string}`
+	private deployment: ResolvedDeployment
 
 	constructor(options: TokenboundClientOptions) {
 		const {
-			chainId,
 			chain,
-			signer,
 			walletClient,
 			publicClient,
 			implementationAddress,
@@ -105,13 +75,9 @@ class TokenboundClient {
 			version,
 		} = options
 
-		if (!chainId && !chain) {
-			throw new Error("chain or chainId required.")
-		}
-
-		if (signer && walletClient) {
+		if (!chain) {
 			throw new Error(
-				"Only one of `signer` or `walletClient` should be provided.",
+				"`chain` is required. Pass a viem Chain (e.g. `import { mainnet } from 'viem/chains'`). Passing only `chainId` is no longer supported: it forced every viem chain into consumer bundles.",
 			)
 		}
 
@@ -121,22 +87,14 @@ class TokenboundClient {
 			)
 		}
 
-		if (!ERC_6551_DEFAULT.ACCOUNT_PROXY) {
-			throw new Error("ERC_6551_DEFAULT.ACCOUNT_PROXY is undefined")
-		}
+		this.chainId = chain.id
+		this.chain = chain
+		this.walletClient = walletClient
 
-		this.chainId = chainId ?? (chain?.id as number)
-		this.chain = chain ?? chainIdToChain(this.chainId)
-
-		if (signer) {
-			this.signer = signer
-		} else if (walletClient) {
-			this.walletClient = walletClient
-		}
-
-		// Use a custom publicClient if provided
-		// If a walletClient is provided, use its transport so publicClient can share the connection
-		// Otherwise create a new one, specifying a custom RPC URL if provided but defaulting to the default viem http() RPC URL
+		// Use a custom publicClient if provided.
+		// If a walletClient is provided, use its transport so publicClient can share the connection.
+		// Otherwise create a new one, specifying a custom RPC URL if provided but
+		// defaulting to the default viem http() RPC URL.
 		this.publicClient =
 			publicClient ??
 			createPublicClient({
@@ -147,24 +105,11 @@ class TokenboundClient {
 						: http(publicClientRPCUrl ?? undefined),
 			})
 
-		this.registryAddress = registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS
-		this.implementationAddress =
-			implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS
-
-		// If legacy V2 implementation is in use, use V2 registry (unless custom registry is provided)
-		const isV2 =
-			(version && version === TBVersion.V2) ||
-			(implementationAddress &&
-				isAddressEqual(
-					implementationAddress,
-					ERC_6551_LEGACY_V2.IMPLEMENTATION.ADDRESS,
-				))
-
-		if (isV2) {
-			this.supportsV3 = false
-			if (!registryAddress)
-				this.registryAddress = ERC_6551_LEGACY_V2.REGISTRY.ADDRESS
-		}
+		this.deployment = resolveDeployment({
+			implementationAddress,
+			registryAddress,
+			version,
+		})
 
 		this.isInitialized = true
 
@@ -172,6 +117,30 @@ class TokenboundClient {
 			const implementationName = getImplementationName(implementationAddress)
 			window.tokenboundSDK = `Tokenbound SDK ${TB_SDK_VERSION} - ${implementationName}`
 		}
+	}
+
+	/** Throws unless a walletClient was supplied. */
+	private requireWalletClient(): WalletClient {
+		if (!this.walletClient) {
+			throw new Error("No wallet client available.")
+		}
+		return this.walletClient
+	}
+
+	/**
+	 * Sends a prepared transaction via the wallet client, filling in the chain
+	 * and account that are optional at WalletClient construction time.
+	 */
+	private async sendTransaction(tx: CallData | MultiCallTx): Promise<Hex> {
+		const walletClient = this.requireWalletClient()
+		if (!walletClient.account) {
+			throw new Error("No account available on the wallet client.")
+		}
+		return await walletClient.sendTransaction({
+			...tx,
+			chain: this.chain,
+			account: walletClient.account,
+		} as Parameters<WalletClient["sendTransaction"]>[0])
 	}
 
 	/**
@@ -188,16 +157,11 @@ class TokenboundClient {
 	 * @param {string} params.tokenId The token ID.
 	 * @returns The tokenbound account address.
 	 */
-	public getAccount(params: GetAccountParams): `0x${string}` {
+	public getAccount(params: GetAccountParams): Address {
 		const { tokenContract, tokenId, salt = 0, chainId = this.chainId } = params
-		const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
-		return getAcct(
-			tokenContract,
-			tokenId,
-			chainId,
-			this.implementationAddress,
-			this.registryAddress,
-			salt,
+		return getAccountAddress(
+			{ tokenContract, tokenId, chainId, salt },
+			this.deployment,
 		)
 	}
 
@@ -205,15 +169,11 @@ class TokenboundClient {
 	 * Returns the prepared transaction to create a tokenbound account for a given token contract and token ID.
 	 * @param {`0x${string}`} params.tokenContract The address of the token contract.
 	 * @param {string} params.tokenId The token ID.
-	 * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on an Ethers signer or viem WalletClient.
+	 * @returns The prepared transaction to create a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient.
 	 */
 	public async prepareCreateAccount(
 		params: PrepareCreateAccountParams,
 	): Promise<MultiCallTx | CallData> {
-		if (!ERC_6551_DEFAULT.ACCOUNT_PROXY) {
-			throw new Error("ERC_6551_DEFAULT.ACCOUNT_PROXY is undefined")
-		}
-
 		const {
 			tokenContract,
 			tokenId,
@@ -222,78 +182,10 @@ class TokenboundClient {
 			appendedCalls = [],
 		} = params
 
-		const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
-
-		const computedAcct = getAcct(
-			tokenContract,
-			tokenId,
-			chainId,
-			this.implementationAddress,
-			this.registryAddress,
-			salt,
+		return await prepareCreateAccountTx(
+			{ tokenContract, tokenId, chainId, salt, appendedCalls },
+			this.deployment,
 		)
-
-		const isCustomImplementation = ![
-			ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS,
-			ERC_6551_DEFAULT.IMPLEMENTATION.ADDRESS,
-		].includes(getAddress(this.implementationAddress))
-
-		const prepareBasicCreateAccount = this.supportsV3
-			? prepareCreateTokenboundV3Account
-			: prepareCreateAccount
-
-		const preparedBasicCreateAccount = await prepareBasicCreateAccount(
-			tokenContract,
-			tokenId,
-			chainId,
-			this.implementationAddress,
-			this.registryAddress,
-			salt,
-		)
-
-		if (
-			appendedCalls.length > 0 &&
-			(!this.supportsV3 || isCustomImplementation)
-		) {
-			throw new Error(
-				"Multicall via appendedCalls is not supported using the legacy V2 implementation or custom implementations",
-			)
-		}
-
-		if (isCustomImplementation) {
-			// Don't initialize for custom implementations. Allow third-party handling of initialization.
-			return preparedBasicCreateAccount
-		}
-		// For standard implementations, use the multicall3 aggregate function to create and initialize the account in one transaction
-		return {
-			to: MULTICALL_AUTHENTICATED_ADDRESS,
-			value: BigInt(0),
-			data: encodeFunctionData({
-				abi: multicall3AuthenticatedABI,
-				functionName: "aggregate3",
-				args: [
-					[
-						{
-							target: this.registryAddress,
-							allowFailure: false,
-							callData: preparedBasicCreateAccount.data,
-						},
-						{
-							target: computedAcct,
-							allowFailure: false,
-							callData: encodeFunctionData({
-								abi: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI,
-								functionName: "initialize",
-								args: [ERC_6551_DEFAULT.IMPLEMENTATION?.ADDRESS],
-							}),
-						},
-						// Append Multicall3 calls, so the newly-created Tokenbound account
-						// can be used to execute calls immediately after creation
-						...appendedCalls,
-					],
-				],
-			}),
-		} as MultiCallTx
 	}
 
 	/**
@@ -304,7 +196,7 @@ class TokenboundClient {
 	 */
 	public async createAccount(
 		params: CreateAccountParams,
-	): Promise<{ account: `0x${string}`; txHash: `0x${string}` }> {
+	): Promise<{ account: Address; txHash: Hex }> {
 		const {
 			tokenContract,
 			tokenId,
@@ -312,18 +204,15 @@ class TokenboundClient {
 			chainId = this.chainId,
 			appendedCalls = [],
 		} = params
-		let txHash: `0x${string}` | undefined
 
-		const getAcct = this.supportsV3 ? getTokenboundV3Account : computeAccount
+		const walletClient = this.requireWalletClient()
 
-		const computedAcct = getAcct(
+		const computedAcct = this.getAccount({
 			tokenContract,
 			tokenId,
 			chainId,
-			this.implementationAddress,
-			this.registryAddress,
 			salt,
-		)
+		})
 
 		const preparedCreateAccount = await this.prepareCreateAccount({
 			tokenContract,
@@ -333,38 +222,22 @@ class TokenboundClient {
 			appendedCalls,
 		})
 
-		if (this.signer) {
-			txHash = (await this.signer
-				.sendTransaction(preparedCreateAccount)
-				.then(
-					(tx: AbstractEthersTransactionResponse) => tx.hash,
-				)) as `0x${string}`
-		} else if (this.walletClient) {
-			txHash = this.supportsV3
-				? await this.walletClient.sendTransaction({
-						...preparedCreateAccount,
-						chain: this.chain,
-						// biome-ignore lint/style/noNonNullAssertion: Should exist
-						account: this.walletClient?.account?.address!,
-					}) // @BJ TODO: extract into viemV3?
-				: await createAccount(
-						tokenContract,
-						tokenId,
-						this.walletClient,
-						this.implementationAddress,
-						this.registryAddress,
-						salt,
-						chainId,
-					)
-		}
+		const txHash = this.deployment.supportsV3
+			? await this.sendTransaction(preparedCreateAccount)
+			: await createAccount(
+					tokenContract,
+					tokenId,
+					walletClient,
+					this.deployment.implementationAddress,
+					this.deployment.registryAddress,
+					salt,
+					chainId,
+				)
 
-		if (txHash) {
-			return {
-				account: computedAcct,
-				txHash,
-			}
+		return {
+			account: computedAcct,
+			txHash,
 		}
-		throw new Error("No wallet client or signer available.")
 	}
 
 	/**
@@ -373,20 +246,20 @@ class TokenboundClient {
 	 * @param {string} params.to The recipient address
 	 * @param {bigint} params.value The value to send, in wei
 	 * @param {string} params.data The data to send
-	 * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+	 * @returns a Promise with prepared transaction to execute a call on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient.
 	 * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use prepareExecution() instead.
 	 */
 	public async prepareExecuteCall(
 		params: PrepareExecuteCallParams,
 	): Promise<CallData> {
-		if (this.supportsV3) {
+		if (this.deployment.supportsV3) {
 			throw new Error(
 				"prepareExecuteCall() is not supported on V3 implementation deployments, use prepareExecution() instead.",
 			)
 		}
 
 		const { account, to, value, data } = params
-		return prepareExecuteCall(account, to, value, data)
+		return await encodeExecuteCall({ account, to, value, data })
 	}
 
 	/**
@@ -398,32 +271,9 @@ class TokenboundClient {
 	 * @returns a Promise that resolves to the transaction hash of the executed call
 	 * @deprecated this method is deprecated, but still available for use with legacy V2 deployments. Use execute() instead.
 	 */
-	public async executeCall(params: ExecuteCallParams): Promise<`0x${string}`> {
+	public async executeCall(params: ExecuteCallParams): Promise<Hex> {
 		const preparedExecuteCall = await this.prepareExecuteCall(params)
-
-		if (this.supportsV3) {
-			throw new Error(
-				"executeCall() is not supported on V3 implementation deployments, use execute() instead.",
-			)
-		}
-		if (this.signer) {
-			return (await this.signer
-				.sendTransaction(preparedExecuteCall)
-				.then(
-					(tx: AbstractEthersTransactionResponse) => tx.hash,
-				)) as `0x${string}`
-		}
-		if (this.walletClient) {
-			return await this.walletClient.sendTransaction({
-				// chain and account need to be added explicitly
-				// because they're optional when instantiating a WalletClient
-				chain: this.chain,
-				// biome-ignore lint/style/noNonNullAssertion: Should exist
-				account: this.walletClient.account!,
-				...preparedExecuteCall,
-			})
-		}
-		throw new Error("No wallet client or signer available.")
+		return await this.sendTransaction(preparedExecuteCall)
 	}
 
 	/**
@@ -432,17 +282,15 @@ class TokenboundClient {
 	 * @param {string} params.to The contract address to execute the call on
 	 * @param {bigint} params.value The value to send, in wei
 	 * @param {string} params.data The encoded operation calldata to send
-	 * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient or Ethers signer.
+	 * @returns a Promise with prepared transaction to execute on a tokenbound account. Can be sent via `sendTransaction` on a viem WalletClient.
 	 */
 	public async prepareExecution(
 		params: PrepareExecutionParams,
 	): Promise<CallData> {
-		// operation?: CallOperation // The type of operation to perform ( CALL: 0, DELEGATECALL: 1, CREATE: 2, CREATE2: 3)
 		const { account, to, value, data, chainId = this.chainId } = params
 		const operation = CALL_OPERATIONS.CALL
 
-		if (!this.supportsV3) {
-			// const { operation, ...rest } = params
+		if (!this.deployment.supportsV3) {
 			return await this.prepareExecuteCall(params)
 		}
 
@@ -460,7 +308,7 @@ class TokenboundClient {
 				account,
 				to,
 				value,
-				data: data as `0x${string}`,
+				data: data as Hex,
 				originChainId: this.chainId,
 				destinationChainId: chainId,
 			})
@@ -490,32 +338,13 @@ class TokenboundClient {
 	 * @param {string} params.data The encoded operation calldata to send
 	 * @returns a Promise that resolves to the transaction hash of the executed call
 	 */
-	public async execute(params: ExecuteParams): Promise<`0x${string}`> {
-		if (!this.supportsV3) {
-			// const { operation, ...rest } = params
+	public async execute(params: ExecuteParams): Promise<Hex> {
+		if (!this.deployment.supportsV3) {
 			return await this.executeCall(params)
 		}
 
 		const preparedExecution = await this.prepareExecution(params)
-
-		if (this.signer) {
-			return (await this.signer
-				.sendTransaction(preparedExecution)
-				.then(
-					(tx: AbstractEthersTransactionResponse) => tx.hash,
-				)) as `0x${string}`
-		}
-		if (this.walletClient) {
-			return await this.walletClient.sendTransaction({
-				// chain and account need to be added explicitly
-				// because they're optional when instantiating a WalletClient
-				chain: this.chain,
-				// biome-ignore lint/style/noNonNullAssertion: Should exist
-				account: this.walletClient.account!,
-				...preparedExecution,
-			})
-		}
-		throw new Error("No wallet client or signer available.")
+		return await this.sendTransaction(preparedExecution)
 	}
 
 	/**
@@ -524,16 +353,11 @@ class TokenboundClient {
 	 * @returns a Promise that resolves to true if the account is a valid signer, otherwise false
 	 */
 	public async isValidSigner({ account }: ValidSignerParams): Promise<boolean> {
-		const { signer, walletClient } = this
+		const walletClient = this.requireWalletClient()
 		const data = numberToHex(0, { size: 32 })
-		const VALID_SIGNER_MAGIC_VALUE = "0x523e3260" // isValidSigner MUST return this bytes4 magic value if the given signer is valid
-		const walletAddress: `0x${string}` =
-			walletClient?.account?.address ?? signer?.address
-		if (!signer && !walletClient) {
-			throw new Error("No signer or wallet client available.")
-		}
+		const walletAddress = walletClient.account?.address
 
-		if (!this.supportsV3) {
+		if (!this.deployment.supportsV3) {
 			throw new Error(
 				"isValidSigner is not supported using the V2 implementation",
 			)
@@ -558,8 +382,8 @@ class TokenboundClient {
 		accountAddress,
 	}: BytecodeParams): Promise<boolean> {
 		return await this.publicClient
-			.getBytecode({ address: accountAddress })
-			.then((bytecode: GetBytecodeReturnType) => {
+			.getCode({ address: accountAddress })
+			.then((bytecode: GetCodeReturnType) => {
 				return bytecode ? bytecode.length > 2 : false
 			})
 	}
@@ -572,45 +396,11 @@ class TokenboundClient {
 	public async deconstructBytecode({
 		accountAddress,
 	}: BytecodeParams): Promise<SegmentedERC6551Bytecode | null> {
-		const rawBytecode = await this.publicClient.getBytecode({
+		const rawBytecode = await this.publicClient.getCode({
 			address: accountAddress,
 		})
-		const bytecode = rawBytecode?.slice(2)
 
-		if (!bytecode || !rawBytecode || !(rawBytecode.length > 2)) return null
-
-		const [
-			erc1167Header,
-			rawImplementationAddress,
-			erc1167Footer,
-			rawSalt,
-			rawChainId,
-			rawTokenContract,
-			rawTokenId,
-		] = segmentBytecode(bytecode, 10, 20, 15, 32, 32, 32, 32)
-
-		const chainId = hexToNumber(`0x${rawChainId}`, { size: 32 })
-		const implementationAddress: `0x${string}` = getAddress(
-			`0x${rawImplementationAddress}`,
-		)
-		const salt = hexToNumber(`0x${rawSalt}`, { size: 32 })
-		const tokenContract: `0x${string}` = getAddress(
-			`0x${rawTokenContract.slice(
-				rawTokenContract.length - 40,
-				rawTokenContract.length,
-			)}`,
-		)
-		const tokenId = hexToNumber(`0x${rawTokenId}`, { size: 32 }).toString()
-
-		return {
-			erc1167Header,
-			implementationAddress,
-			erc1167Footer,
-			salt,
-			tokenId,
-			tokenContract,
-			chainId,
-		}
+		return deconstructBytecodeFromHex(rawBytecode)
 	}
 
 	/**
@@ -639,7 +429,7 @@ class TokenboundClient {
 	}
 
 	/**
-	 * Executes a transaction call on a tokenbound account
+	 * Executes an NFT transfer call on a tokenbound account
 	 * @param {string} params.account The tokenbound account address
 	 * @param {string} params.tokenType The type of token, either 'ERC721' or 'ERC1155'
 	 * @param {string} params.tokenContract The address of the token contract
@@ -648,7 +438,7 @@ class TokenboundClient {
 	 * @param {string} params.amount The amount of tokens to transfer, (eg. 1 NFT = 1). Defaults to 1. 1155 only.
 	 * @returns a Promise that resolves to the transaction hash of the executed call
 	 */
-	public async transferNFT(params: NFTTransferParams): Promise<`0x${string}`> {
+	public async transferNFT(params: NFTTransferParams): Promise<Hex> {
 		const {
 			account: tbAccountAddress,
 			tokenType,
@@ -659,47 +449,22 @@ class TokenboundClient {
 			chainId,
 		} = params
 
-		const is1155: boolean = tokenType === NFTTokenType.ERC1155
-
-		if (!is1155 && amount !== 1) {
-			throw new Error("ERC721 transfers can only transfer one token at a time.")
-		}
-
 		try {
 			const recipient = await resolvePossibleENS(
 				this.publicClient,
 				recipientAddress,
 			)
 
-			// Configure required args based on token type
-			// ERC1155: safeTransferFrom(address,address,uint256,uint256,bytes)
-			// ERC721: safeTransferFrom(address,address,uint256)
-			const sharedArgs = [tbAccountAddress, recipient, tokenId]
-			const transferArgs: unknown[] = is1155
-				? [...sharedArgs, amount, "0x"]
-				: sharedArgs
-
-			const transferCallData = encodeFunctionData({
-				abi: is1155 ? erc1155Abi : erc721Abi,
-				functionName: "safeTransferFrom",
-				args: transferArgs,
+			const transfer = encodeNFTTransfer({
+				account: tbAccountAddress,
+				tokenType,
+				tokenContract,
+				tokenId,
+				recipient,
+				amount,
 			})
 
-			const execution = {
-				account: tbAccountAddress,
-				to: tokenContract,
-				value: BigInt(0),
-				data: transferCallData,
-			}
-
-			if (this.supportsV3) {
-				return await this.execute({
-					...execution,
-					chainId,
-				})
-			}
-
-			return await this.executeCall(execution)
+			return await this.executeTransfer(tbAccountAddress, transfer, chainId)
 		} catch (error) {
 			console.log(error)
 			throw error
@@ -713,14 +478,13 @@ class TokenboundClient {
 	 * @param {string} params.recipientAddress The address to which the ETH should be transferred
 	 * @returns a Promise that resolves to the transaction hash of the executed call
 	 */
-	public async transferETH(params: ETHTransferParams): Promise<`0x${string}`> {
+	public async transferETH(params: ETHTransferParams): Promise<Hex> {
 		const {
 			account: tbAccountAddress,
 			amount,
 			recipientAddress,
 			chainId,
 		} = params
-		const weiValue = parseUnits(`${amount}`, 18) // convert ETH to wei
 
 		try {
 			const recipient = await resolvePossibleENS(
@@ -728,20 +492,9 @@ class TokenboundClient {
 				recipientAddress,
 			)
 
-			const execution = {
-				account: tbAccountAddress,
-				to: recipient,
-				value: weiValue,
-				data: "0x",
-			}
+			const transfer = encodeETHTransfer({ recipient, amount })
 
-			if (this.supportsV3) {
-				return await this.execute({
-					...execution,
-					chainId,
-				})
-			}
-			return await this.executeCall(execution)
+			return await this.executeTransfer(tbAccountAddress, transfer, chainId)
 		} catch (err) {
 			console.log(err)
 			throw err
@@ -757,9 +510,7 @@ class TokenboundClient {
 	 * @param {string} params.erc20tokenDecimals The decimal specification of the ERC-20 token
 	 * @returns a Promise that resolves to the transaction hash of the executed call
 	 */
-	public async transferERC20(
-		params: ERC20TransferParams,
-	): Promise<`0x${string}`> {
+	public async transferERC20(params: ERC20TransferParams): Promise<Hex> {
 		const {
 			account: tbAccountAddress,
 			amount,
@@ -769,10 +520,9 @@ class TokenboundClient {
 			chainId,
 		} = params
 
+		// Validate decimals before any network access, preserving prior behavior.
 		if (erc20tokenDecimals < 0 || erc20tokenDecimals > 18)
 			throw new Error("Decimal value out of range. Should be between 0 and 18.")
-
-		const amountBaseUnit = parseUnits(`${amount}`, erc20tokenDecimals)
 
 		try {
 			const recipient = await resolvePossibleENS(
@@ -780,30 +530,32 @@ class TokenboundClient {
 				recipientAddress,
 			)
 
-			const callData = encodeFunctionData({
-				abi: erc20Abi,
-				functionName: "transfer",
-				args: [recipient, amountBaseUnit],
+			const transfer = encodeERC20Transfer({
+				recipient,
+				amount,
+				erc20tokenAddress,
+				erc20tokenDecimals,
 			})
 
-			const execution = {
-				account: tbAccountAddress,
-				to: erc20tokenAddress,
-				value: 0n,
-				data: callData,
-			}
-
-			if (this.supportsV3) {
-				return await this.execute({
-					...execution,
-					chainId,
-				})
-			}
-			return await this.executeCall(execution)
+			return await this.executeTransfer(tbAccountAddress, transfer, chainId)
 		} catch (error) {
 			console.log(error)
 			throw error
 		}
+	}
+
+	/** Routes an encoded transfer through execute() or the legacy executeCall(). */
+	private async executeTransfer(
+		account: Address,
+		transfer: { to: Address; value: bigint; data: Hex },
+		chainId?: number,
+	): Promise<Hex> {
+		const execution = { account, ...transfer }
+
+		if (this.deployment.supportsV3) {
+			return await this.execute({ ...execution, chainId })
+		}
+		return await this.executeCall(execution)
 	}
 
 	/**
@@ -811,37 +563,25 @@ class TokenboundClient {
 	 * @param {string} params.message The message to be signed
 	 * @returns a Promise that resolves to a signed Hex string
 	 */
-	public async signMessage(params: SignMessageParams): Promise<`0x${string}`> {
+	public async signMessage(params: SignMessageParams): Promise<Hex> {
 		const { message } = params
+		const walletClient = this.requireWalletClient()
 
 		try {
-			if (this.signer) {
-				// Normalize message for Ethers 5 and 6 compatibility
-				if (!isEthers5SignableMessage && !isEthers6SignableMessage) {
-					throw new Error("Message is not a valid Ethers signable message.")
-				}
-				const normalizedMessage = normalizeMessage(
-					message as EthersSignableMessage,
-				)
-				return await this.signer.signMessage(normalizedMessage)
+			if (!walletClient.account) {
+				throw new Error("No account available on the wallet client.")
 			}
-			if (this.walletClient) {
-				if (!isViemSignableMessage(message)) {
-					throw new Error("Message is not a valid viem signable message.")
-				}
-				return await this.walletClient.signMessage({
-					// biome-ignore lint/style/noNonNullAssertion: Should exist
-					account: this.walletClient.account!,
-					message: message as SignableMessage,
-				})
-			}
-			throw new Error("No wallet client or signer available.")
+			return await walletClient.signMessage({
+				account: walletClient.account,
+				message: message as SignableMessage,
+			})
 		} catch (error) {
 			console.log(error)
 			throw error
 		}
 	}
 }
+
 const erc6551AccountAbiV2 = ERC_6551_LEGACY_V2.IMPLEMENTATION.ABI
 const erc6551RegistryAbiV2 = ERC_6551_LEGACY_V2.REGISTRY.ABI
 const erc6551AccountAbiV3 = ERC_6551_DEFAULT.IMPLEMENTATION.ABI
@@ -849,16 +589,10 @@ const erc6551AccountProxyAbiV3 = ERC_6551_DEFAULT.ACCOUNT_PROXY?.ABI
 const erc6551RegistryAbiV3 = ERC_6551_DEFAULT.REGISTRY.ABI
 
 export {
-	TokenboundClient,
 	erc6551AccountAbiV2,
-	erc6551RegistryAbiV2,
 	erc6551AccountAbiV3,
 	erc6551AccountProxyAbiV3,
+	erc6551RegistryAbiV2,
 	erc6551RegistryAbiV3,
-	getAccount,
-	createAccount,
-	getCreationCode,
-	computeAccount,
-	prepareExecuteCall,
-	executeCall,
+	TokenboundClient,
 }

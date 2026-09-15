@@ -1,5 +1,5 @@
-import { Buffer } from 'node:buffer'
-import process from 'node:process'
+import { Buffer } from 'buffer'
+import process from 'process'
 
 window.global = window
 window.process = process

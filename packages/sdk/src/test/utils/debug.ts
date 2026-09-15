@@ -10,7 +10,10 @@ import type { PublicClient } from "viem"
 export async function debugTransaction({
 	publicClient,
 	hash,
-}: { publicClient: PublicClient; hash: `0x${string}` }) {
+}: {
+	publicClient: PublicClient
+	hash: `0x${string}`
+}) {
 	console.log("DEBUGGING TRANSACTION: ", hash)
 	const transactionReceipt = await publicClient.getTransactionReceipt({
 		hash,

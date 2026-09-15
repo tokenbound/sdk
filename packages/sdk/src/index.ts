@@ -1,84 +1,68 @@
-import { erc6551AccountAbiV2, erc6551RegistryAbiV2 } from "../abis"
+// @tokenbound/sdk — viem-first ERC-6551 SDK.
+//
+// Ethers v5/v6 support lives in the separate @tokenbound/ethers package, which
+// builds on the same library-independent protocol layer exported here.
 
-import {
-	getAccount,
-	computeAccount,
-	createAccount,
-	getCreationCode,
-	prepareExecuteCall,
-	executeCall,
-	prepareCreateAccount,
-} from "./functions"
-
-import {
-	type TokenboundAccountNFT,
-	type TokenboundClientOptions,
-	type GetAccountParams,
-	type TBAccountParams,
-	type PrepareCreateAccountParams,
-	type CreateAccountParams,
-	type PrepareExecuteCallParams,
-	type ExecuteCallParams,
-	type SignMessageParams,
-	type ComputeAccountParams,
-	type GetCreationCodeParams,
-	type ERC20TransferParams,
-	type ETHTransferParams,
-	type NFTTransferParams,
-	type BytecodeParams,
-	type TBImplementationVersion,
-	TBVersion,
-	type MultiCallTx,
-	type Call3,
-	CALL_OPERATIONS,
-	type SegmentedERC6551Bytecode,
-	type CallData,
-} from "./types"
-
-import {
-	TokenboundClient,
-	erc6551AccountAbiV3,
-	erc6551AccountProxyAbiV3,
-	erc6551RegistryAbiV3,
-} from "./TokenboundClient"
-
+// Library-independent protocol layer: deterministic derivation and pure
+// calldata encoding, usable without any client.
 export {
-	TokenboundClient,
-	TBVersion,
+	computeAccount,
+	deconstructBytecode,
+	encodeERC20Transfer,
+	encodeETHTransfer,
+	encodeExecuteCall,
+	encodeExecution,
+	encodeNFTTransfer,
+	getAccountAddress,
+	getCreationCode,
+	isCustomImplementation,
+	prepareCreateAccountTx,
+	type ResolvedDeployment,
+	resolveDeployment,
+	VALID_SIGNER_MAGIC_VALUE,
+} from "./protocol"
+export { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "./protocol/constants"
+
+// Legacy standalone functions, retained for backwards compatibility.
+export {
+	createAccount,
+	executeCall,
+	getAccount,
+	prepareCreateAccount,
+	prepareExecuteCall,
+} from "./protocol/functions"
+export {
 	erc6551AccountAbiV2,
-	erc6551RegistryAbiV2,
 	erc6551AccountAbiV3,
 	erc6551AccountProxyAbiV3,
+	erc6551RegistryAbiV2,
 	erc6551RegistryAbiV3,
-	getAccount,
-	computeAccount,
-	prepareCreateAccount,
-	createAccount,
-	getCreationCode,
-	prepareExecuteCall,
-	executeCall,
-	CALL_OPERATIONS,
-}
-
+	TokenboundClient,
+} from "./TokenboundClient"
 export type {
-	TokenboundClientOptions,
-	TokenboundAccountNFT,
-	GetAccountParams,
-	TBAccountParams,
-	PrepareCreateAccountParams,
-	CreateAccountParams,
-	PrepareExecuteCallParams,
-	ExecuteCallParams,
-	ComputeAccountParams,
-	GetCreationCodeParams,
 	BytecodeParams,
-	SignMessageParams,
-	ERC20TransferParams,
-	ETHTransferParams,
-	NFTTransferParams,
-	TBImplementationVersion,
-	MultiCallTx,
 	Call3,
 	CallData,
+	ComputeAccountParams,
+	CreateAccountParams,
+	ERC20TransferParams,
+	ETHTransferParams,
+	ExecuteCallParams,
+	ExecuteParams,
+	GetAccountParams,
+	GetCreationCodeParams,
+	MultiCallTx,
+	NFTTransferParams,
+	PrepareCreateAccountParams,
+	PrepareExecuteCallParams,
+	PrepareExecutionParams,
+	Prettify,
 	SegmentedERC6551Bytecode,
-}
+	SignMessageParams,
+	TBAccountParams,
+	TBImplementationVersion,
+	TokenboundAccountNFT,
+	TokenboundClientOptions,
+	ValidSignerParams,
+} from "./types"
+export { CALL_OPERATIONS, TBVersion } from "./types"
