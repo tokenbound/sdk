@@ -1,13 +1,13 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ConnectKitProvider } from "connectkit"
 import * as React from "react"
 import * as ReactDOM from "react-dom/client"
-import { createConfig, WagmiProvider } from "wagmi"
-
-import { baseSepolia } from "wagmi/chains"
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { http } from "viem"
+import { createConfig, WagmiProvider } from "wagmi"
+import { baseSepolia } from "wagmi/chains"
 
 import { App } from "./App"
+
 const queryClient = new QueryClient()
 
 export const config = createConfig({

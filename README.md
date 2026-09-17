@@ -12,10 +12,10 @@ into their bundle. Migrating from a previous release? See **[MIGRATION.md](./MIG
 
 ### Examples
 
-- **[examples/vite-wagmi-viem](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-viem)** - An example app using the tokenbound SDK in a vite project with wagmi
-- **[examples/vite-wagmi-ethers](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers)** - An example app using the tokenbound SDK in a vite project with ethers v5
-- **[examples/vite-wagmi-ethers6](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers6)** - An example app using the tokenbound SDK in a vite project with ethers v6
-- **[examples/vite-wagmi-ethers-rainbowkit](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-rainbowkit)** - An example app using the tokenbound SDK in a vite project with ethers v5
+- **[examples/vite-wagmi-viem](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-viem)** - `@tokenbound/sdk` with viem's `.extend(tokenboundActions())` API, wagmi 2 + RainbowKit
+- **[examples/vite-wagmi-ethers](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers)** - `@tokenbound/ethers` with an ethers v5 `Signer`, wagmi 2 + ConnectKit
+- **[examples/vite-wagmi-ethers6](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi-ethers6)** - `@tokenbound/ethers` with an ethers v6 `Signer`, wagmi 2 + ConnectKit
+- **[examples/vite-wagmi3-viem](https://github.com/tokenbound/sdk/tree/main/examples/vite-wagmi3-viem)** - the same viem app on **wagmi 3**, using wagmi's own `useConnect` instead of a connect-modal library
 
 ### Development
 
@@ -86,6 +86,38 @@ pnpm test
 
 All unit tests will be executed.
 
+#### Running one package's tests
+
+From the repository root:
+
+```bash copy
+pnpm test         # both packages
+pnpm test:viem    # @tokenbound/sdk only
+pnpm test:ethers  # @tokenbound/ethers only
+pnpm test:unit    # the SDK's unit tests only (no Anvil fork needed)
+```
+
+The ethers suites are split one file per command, so the v5 and v6 forks never
+share a process. `pnpm test:ethers` runs all four in sequence; to run just one,
+use these from `packages/ethers`:
+
+```bash copy
+pnpm test:all       # ethers v5 + v6 against the V3 deployment
+pnpm test:v2        # ethers v5 + v6 against the legacy V2 deployment
+pnpm test:versions  # version detection and message normalization (no chain)
+pnpm test:fixtures  # shared fixtures are wired up correctly
+```
+
+#### Verbose test output
+
+The fork-backed suites log derived addresses, balances and transaction hashes,
+which is what you want when a mainnet-fork test fails but noise otherwise. It is
+off by default — set `USE_VERBOSE_TESTS` to turn it on:
+
+```bash copy
+USE_VERBOSE_TESTS=1 pnpm test
+```
+
 ### Pre-commit Hooks
 
 Husky has been configured to run a pre-commit hook to ensure tests pass.
@@ -105,7 +137,7 @@ The client is instantiated with an object containing two parameters:
 
 Use a viem `walletClient` [(see walletClient docs)](https://viem.sh/docs/clients/wallet.html) for transactions that require a user to sign.
 
-Ethers users should install **[@tokenbound/ethers](./packages/ethers)** instead, which accepts an ethers v5 or v6 `Signer` and exposes the same API.
+Ethers users should install **[@tokenbound/ethers](./packages/ethers)** instead, which accepts an ethers v5 or v6 `Signer` and exposes the same API. It depends on `@tokenbound/sdk`, so installing it pulls in everything you need — there's no need to install both.
 
 The TokenboundClient is configured to use the [Version 3.1 ERC-6551 contract deployments →](https://docs.tokenbound.org/contracts/deployments) by default.
 
@@ -131,7 +163,7 @@ const walletClient: WalletClient = createWalletClient({
 const tokenboundClient = new TokenboundClient({ walletClient, chain: mainnet })
 ```
 
-Any viem `Chain` works, including ones not on the [deployments page →](https://docs.tokenbound.org/contracts/deployments):
+Any viem `Chain` works, as long as an ERC-6551 deployment exists on that chain — see the [deployments page →](https://docs.tokenbound.org/contracts/deployments):
 
 ```ts copy
 import { zora } from 'viem/chains'

@@ -1,11 +1,10 @@
-import { ConnectKitButton } from "connectkit"
-import { useAccount } from "wagmi"
 import { TokenboundClient } from "@tokenbound/ethers"
-
-import { Account } from "./components"
-import { parseUnits, getAddress } from "viem"
-import { sepolia } from "viem/chains"
+import { ConnectKitButton } from "connectkit"
 import { useCallback, useEffect } from "react"
+import { getAddress, parseUnits } from "viem"
+import { sepolia } from "viem/chains"
+import { useAccount } from "wagmi"
+import { Account } from "./components"
 import { useEthersSigner } from "./hooks"
 
 // Origin NFT: MoonTrees #0 on Base Sepolia

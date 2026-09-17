@@ -1,10 +1,10 @@
 import { defineConfig } from "@wagmi/cli"
 import { etherscan } from "@wagmi/cli/plugins"
-import { mainnet, goerli } from "viem/chains"
+import { goerli, mainnet } from "viem/chains"
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "./src/protocol/constants"
 
 export default defineConfig({
-	out: "src/test/wagmi-cli-hooks/generated.ts",
+	out: "../test-fixtures/src/generated.ts",
 	contracts: [],
 	plugins: [
 		etherscan({

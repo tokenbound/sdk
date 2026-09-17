@@ -5,6 +5,8 @@
 	"scripts": {
 		"build": "pnpm --filter @tokenbound/sdk build && pnpm --filter @tokenbound/ethers build",
 		"test": "pnpm --filter @tokenbound/sdk test && pnpm --filter @tokenbound/ethers test",
+		"test:viem": "pnpm --filter @tokenbound/sdk test",
+		"test:ethers": "pnpm --filter @tokenbound/ethers test",
 		"test:unit": "pnpm --filter @tokenbound/sdk exec vitest --watch=false --typecheck run src/test/unit/",
 		"typecheck": "pnpm --filter @tokenbound/sdk exec tsc --noEmit && pnpm --filter @tokenbound/ethers exec tsc --noEmit",
 		"validate:packages": "node scripts/validate-package-contents.mjs",
@@ -19,9 +21,14 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"@biomejs/biome": "2.5.13",
+		"@biomejs/biome": "2.5.14",
 		"@changesets/cli": "^2.26.2",
 		"husky": "^8.0.3",
 		"typescript": "^5.6.3"
+	},
+	"pnpm": {
+		"overrides": {
+			"@walletconnect/logger>pino": "10.0.0"
+		}
 	}
 }

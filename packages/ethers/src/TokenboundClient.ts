@@ -6,18 +6,23 @@
 // layer — nothing is reimplemented here.
 
 import {
-	type Call3,
 	type CallData,
+	type CreateAccountParams,
 	deconstructBytecode as deconstructBytecodeFromHex,
 	ERC_6551_DEFAULT,
+	type ERC20TransferParams,
+	type ETHTransferParams,
+	type ExecuteParams,
 	encodeERC20Transfer,
 	encodeETHTransfer,
 	encodeExecuteCall,
 	encodeExecution,
 	encodeNFTTransfer,
+	type GetAccountParams,
 	getAccountAddress,
 	type MultiCallTx,
-	type Prettify,
+	type NFTTransferParams,
+	type PossibleENSAddress,
 	prepareCreateAccountTx,
 	type ResolvedDeployment,
 	resolveDeployment,
@@ -26,21 +31,11 @@ import {
 	type TokenboundAccountNFT,
 	VALID_SIGNER_MAGIC_VALUE,
 } from "@tokenbound/sdk"
-import {
-	type Address,
-	type Chain,
-	createPublicClient,
-	type Hex,
-	http,
-	type PublicClient,
-} from "viem"
+import type { Address, Chain, Hex } from "viem"
+import { encodeFunctionData, getAddress, numberToHex } from "viem/utils"
 
 import { type EthersAdapter, resolveAdapter } from "./adapter"
 import type { EthersSignableMessage } from "./types"
-
-type PossibleENSAddress = Address | `${string}.eth`
-
-type NFTTokenTypeValue = "ERC721" | "ERC1155"
 
 export type TokenboundEthersClientOptions = {
 	/** An ethers v5 or v6 Signer. */
@@ -50,52 +45,38 @@ export type TokenboundEthersClientOptions = {
 	 * SDK no longer maps a bare chainId to a Chain.
 	 */
 	chain: Chain
-	/** A viem PublicClient used for reads. Created automatically when omitted. */
-	publicClient?: PublicClient
-	publicClientRPCUrl?: string
 	implementationAddress?: Address
 	registryAddress?: Address
 	version?: TBImplementationVersion
 }
 
-export type GetAccountParams = {
-	tokenContract: Address
-	tokenId: string
-	chainId?: number
-	salt?: number
-}
-
-export type CreateAccountParams = Prettify<
-	GetAccountParams & {
-		appendedCalls?: Call3[]
-	}
->
-
-export type ExecuteParams = {
-	account: Address
-	to: Address
-	value: bigint
-	data: string
-	chainId?: number
+// Parameter types come from @tokenbound/sdk rather than being redefined here:
+// the two clients expose the same API, so a consumer switching between them
+// (or a shared helper typed against one) must see identical shapes. Re-exported
+// below so `import type { GetAccountParams } from "@tokenbound/ethers"` works.
+export type {
+	CreateAccountParams,
+	ERC20TransferParams,
+	ETHTransferParams,
+	ExecuteParams,
+	GetAccountParams,
+	NFTTransferParams,
 }
 
 export class TokenboundClient {
-	private chainId: number
+	private chain: Chain
 	public isInitialized = false
-	public publicClient: PublicClient
 	private adapter: EthersAdapter
 	private deployment: ResolvedDeployment
 
+	/** Always the configured chain's id; derived rather than stored separately. */
+	private get chainId(): number {
+		return this.chain.id
+	}
+
 	constructor(options: TokenboundEthersClientOptions) {
-		const {
-			signer,
-			chain,
-			publicClient,
-			publicClientRPCUrl,
-			implementationAddress,
-			registryAddress,
-			version,
-		} = options
+		const { signer, chain, implementationAddress, registryAddress, version } =
+			options
 
 		if (!chain) {
 			throw new Error(
@@ -107,21 +88,8 @@ export class TokenboundClient {
 			throw new Error("signer required.")
 		}
 
-		if (publicClient && publicClientRPCUrl) {
-			throw new Error(
-				"Only one of `publicClient` or `publicClientRPCUrl` should be provided.",
-			)
-		}
-
-		this.chainId = chain.id
+		this.chain = chain
 		this.adapter = resolveAdapter(signer)
-
-		this.publicClient =
-			publicClient ??
-			createPublicClient({
-				chain,
-				transport: http(publicClientRPCUrl ?? undefined),
-			})
 
 		this.deployment = resolveDeployment({
 			implementationAddress,
@@ -254,16 +222,17 @@ export class TokenboundClient {
 		}
 
 		const signerAddress = await this.adapter.getAddress()
-		const { numberToHex } = await import("viem")
-
-		const validityCheck = await this.publicClient.readContract({
-			address: account,
+		const data = encodeFunctionData({
 			abi: ERC_6551_DEFAULT.IMPLEMENTATION.ABI,
 			functionName: "isValidSigner",
 			args: [signerAddress, numberToHex(0, { size: 32 })],
 		})
 
-		return validityCheck === VALID_SIGNER_MAGIC_VALUE
+		// The contract returns a bytes4 magic value, left-aligned in a 32-byte
+		// word, so the first 4 bytes of the return data are the whole answer.
+		const returnData = await this.adapter.call({ to: account, data })
+
+		return returnData.slice(0, 10) === VALID_SIGNER_MAGIC_VALUE
 	}
 
 	/** Returns true when a tokenbound account has been deployed. */
@@ -272,9 +241,7 @@ export class TokenboundClient {
 	}: {
 		accountAddress: Address
 	}): Promise<boolean> {
-		const bytecode = await this.publicClient.getCode({
-			address: accountAddress,
-		})
+		const bytecode = await this.adapter.getCode(accountAddress)
 		return bytecode ? bytecode.length > 2 : false
 	}
 
@@ -284,9 +251,7 @@ export class TokenboundClient {
 	}: {
 		accountAddress: Address
 	}): Promise<SegmentedERC6551Bytecode | null> {
-		const bytecode = await this.publicClient.getCode({
-			address: accountAddress,
-		})
+		const bytecode = await this.adapter.getCode(accountAddress)
 		return deconstructBytecodeFromHex(bytecode)
 	}
 
@@ -307,15 +272,7 @@ export class TokenboundClient {
 	}
 
 	/** Transfers an ERC721/ERC1155 out of a tokenbound account. */
-	public async transferNFT(params: {
-		account: Address
-		tokenType: NFTTokenTypeValue
-		tokenContract: Address
-		tokenId: string
-		recipientAddress: PossibleENSAddress
-		amount?: number
-		chainId?: number
-	}): Promise<Hex> {
+	public async transferNFT(params: NFTTransferParams): Promise<Hex> {
 		const recipient = await this.resolveRecipient(params.recipientAddress)
 
 		const transfer = encodeNFTTransfer({
@@ -331,26 +288,14 @@ export class TokenboundClient {
 	}
 
 	/** Transfers ETH out of a tokenbound account. `amount` is in decimal ETH. */
-	public async transferETH(params: {
-		account: Address
-		recipientAddress: PossibleENSAddress
-		amount: number
-		chainId?: number
-	}): Promise<Hex> {
+	public async transferETH(params: ETHTransferParams): Promise<Hex> {
 		const recipient = await this.resolveRecipient(params.recipientAddress)
 		const transfer = encodeETHTransfer({ recipient, amount: params.amount })
 		return await this.executeTransfer(params.account, transfer, params.chainId)
 	}
 
 	/** Transfers an ERC-20 out of a tokenbound account. */
-	public async transferERC20(params: {
-		account: Address
-		recipientAddress: PossibleENSAddress
-		amount: number
-		erc20tokenAddress: Address
-		erc20tokenDecimals: number
-		chainId?: number
-	}): Promise<Hex> {
+	public async transferERC20(params: ERC20TransferParams): Promise<Hex> {
 		if (params.erc20tokenDecimals < 0 || params.erc20tokenDecimals > 18) {
 			throw new Error("Decimal value out of range. Should be between 0 and 18.")
 		}
@@ -381,21 +326,17 @@ export class TokenboundClient {
 	private async resolveRecipient(
 		recipientAddress: PossibleENSAddress,
 	): Promise<Address> {
-		const { getAddress } = await import("viem")
-
 		if (!recipientAddress.endsWith(".eth")) {
 			return getAddress(recipientAddress)
 		}
 
-		const { normalize } = await import("viem/ens")
-		const resolved = await this.publicClient.getEnsAddress({
-			name: normalize(recipientAddress),
-		})
+		// ethers normalizes ENS names internally, so no viem/ens import here.
+		const resolved = await this.adapter.resolveName(recipientAddress)
 
 		if (!resolved) {
 			throw new Error("Failed to resolve ENS address")
 		}
-		return resolved
+		return getAddress(resolved)
 	}
 
 	/** Routes an encoded transfer through execute() or legacy executeCall(). */
@@ -414,9 +355,9 @@ export class TokenboundClient {
 	/** Sends a prepared transaction through the ethers signer. */
 	private async sendPrepared(tx: CallData | MultiCallTx): Promise<Hex> {
 		return await this.adapter.sendTransaction({
-			to: tx.to as string,
-			value: (tx.value ?? 0n) as bigint,
-			data: tx.data as string,
+			to: tx.to as Address,
+			value: tx.value ?? 0n,
+			data: tx.data as Hex,
 		})
 	}
 }

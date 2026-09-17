@@ -1,5 +1,5 @@
 import { resolve } from "node:path"
-import { type PluginOption, defineConfig } from "vite"
+import { defineConfig, type PluginOption } from "vite"
 import dts from "vite-plugin-dts"
 
 // Bundle analysis is opt-in: `ANALYZE=true pnpm build`.

@@ -1,90 +1,114 @@
 # @tokenbound/sdk
 
-An SDK for interacting with [ERC-6551 accounts](https://eips.ethereum.org/EIPS/eip-6551) using viem.
+A viem-first SDK for interacting with [ERC-6551 accounts](https://eips.ethereum.org/EIPS/eip-6551).
 
-# Installation
+Ethers v5 / v6 users want [`@tokenbound/ethers`](https://github.com/tokenbound/sdk/tree/main/packages/ethers), which adapts this package to an ethers `Signer`.
+
+## Installation
 
 ```bash
-$ npm install @tokenbound/sdk
+npm install @tokenbound/sdk viem
 ```
 
-# Usage
+<details>
+<summary>pnpm / yarn / bun</summary>
 
-### Instantiate TokenboundClient
-
-Using viem's WalletClient:
-
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk";
-import { goerli } from 'viem/chains'
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id });
+```bash
+pnpm add @tokenbound/sdk viem
 ```
 
-or, with a legacy Wagmi / Ethers signer:
-
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk";
-const tokenboundClient = new TokenboundClient({ signer, chainId: 1 });
+```bash
+yarn add @tokenbound/sdk viem
 ```
 
-### Get account address
+```bash
+bun add @tokenbound/sdk viem
+```
 
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk";
-import { goerli } from 'viem/chains';
-const tokenboundClient = new TokenboundClient({ walletClient, chainId: goerli.id });
+</details>
 
-const tokenBoundAccount = tokenboundClient.getAccount({
+`viem` is a peer dependency.
+
+## Usage
+
+There are two equivalent APIs. Both run the same protocol code, so pick whichever fits your codebase.
+
+### The viem client extension (recommended)
+
+Decorates a viem client, namespacing everything under `.tokenbound`:
+
+```ts
+import { createWalletClient, custom } from "viem"
+import { mainnet } from "viem/chains"
+import { tokenboundActions } from "@tokenbound/sdk/viem"
+
+const client = createWalletClient({
+  chain: mainnet,
+  account,
+  transport: custom(window.ethereum),
+}).extend(tokenboundActions())
+
+const account = client.tokenbound.getAccount({ tokenContract, tokenId })
+await client.tokenbound.createAccount({ tokenContract, tokenId })
+```
+
+A client without an account gets only the read actions; one carrying an account gets the full set.
+
+### The TokenboundClient class
+
+```ts
+import { TokenboundClient } from "@tokenbound/sdk"
+import { mainnet } from "viem/chains"
+
+const tokenboundClient = new TokenboundClient({ walletClient, chain: mainnet })
+
+const tokenboundAccount = tokenboundClient.getAccount({
   tokenContract: "<token_contract_address>",
   tokenId: "<token_id>",
-});
+})
 ```
 
-### Encode call to account
+`chain` is required — pass a viem `Chain`, not a chain id.
 
-```javascript
-import { prepareExecuteCall } from "@tokenbound/sdk";
+### Encode a call to an account
 
-const to = "0xe7134a029cd2fd55f678d6809e64d0b6a0caddcb"; // any address
-const value = 0n; // amount of ETH to send in WEI
-const data = ""; // calldata
-
-const preparedCall = await tokenboundClient.prepareExecuteCall({
+```ts
+const preparedCall = await tokenboundClient.prepareExecution({
   account: "<account_address>",
   to: "<recipient_address>",
-  value: value,
-  data: data,
-});
+  value: 0n,
+  data: "0x",
+})
 
-// Execute encoded call
-const hash = await walletClient.sendTransaction(preparedCall);
+const hash = await walletClient.sendTransaction(preparedCall)
 ```
 
-### Custom Implementations
+### Custom implementations
 
-The SDK supports custom 6551 implementations.
+The SDK supports custom ERC-6551 implementations:
 
-If you've deployed your own implementation, you can optionally pass custom configuration parameters when instantiating your TokenboundClient:
-
-```javascript
-import { TokenboundClient } from "@tokenbound/sdk";
-
+```ts
 const tokenboundClient = new TokenboundClient({
-    signer: <signer>,
-    chainId: <chainId>,
-    implementationAddress: "<custom_implementation_address>",
+  walletClient,
+  chain: mainnet,
+  implementationAddress: "<custom_implementation_address>",
 })
 
-// Custom implementation AND custom registry (uncommon for most implementations)
-const tokenboundClientWithCustomRegistry = new TokenboundClient({
-    signer: <signer>,
-    chainId: <chainId>,
-    implementationAddress: "<custom_implementation_address>",
-    registryAddress: "<custom_registry_address>",
+// Custom implementation AND custom registry (uncommon)
+const withCustomRegistry = new TokenboundClient({
+  walletClient,
+  chain: mainnet,
+  implementationAddress: "<custom_implementation_address>",
+  registryAddress: "<custom_registry_address>",
 })
-
-### Documentation
-
-See the [Tokenbound docs](https://docs.tokenbound.org/sdk/installation) for complete documentation.
-
 ```
+
+The same options are accepted by the client extension:
+
+```ts
+.extend(tokenboundActions({ implementationAddress, registryAddress }))
+```
+
+## Documentation
+
+See the [Tokenbound docs](https://docs.tokenbound.org/sdk/installation) for complete documentation, and the [repository README](https://github.com/tokenbound/sdk#readme) for the full method reference.

@@ -7,8 +7,11 @@ export { type EthersAdapter, resolveAdapter } from "./adapter"
 export { detectEthersVersion } from "./detect"
 export {
 	type CreateAccountParams,
+	type ERC20TransferParams,
+	type ETHTransferParams,
 	type ExecuteParams,
 	type GetAccountParams,
+	type NFTTransferParams,
 	TokenboundClient,
 	type TokenboundEthersClientOptions,
 } from "./TokenboundClient"

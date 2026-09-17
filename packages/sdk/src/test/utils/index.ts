@@ -1,5 +1,4 @@
 export * from "./clients"
-export * from "./debug"
 export * from "./ethToWei"
 export * from "./getWETHBalance"
 export * from "./getZora721Balance"

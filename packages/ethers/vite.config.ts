@@ -12,7 +12,7 @@ export default defineConfig({
 		sourcemap: true,
 		rollupOptions: {
 			// ethers, viem and the core SDK are all consumer-supplied.
-			external: ["viem", "viem/ens", "ethers", "@tokenbound/sdk"],
+			external: ["viem", "viem/utils", "viem/ens", "ethers", "@tokenbound/sdk"],
 			output: {
 				globals: {
 					viem: "viem",

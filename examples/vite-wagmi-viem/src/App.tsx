@@ -1,18 +1,11 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { useAccount } from "wagmi"
-
-import { Account } from "./components"
-
-import {
-	createWalletClient,
-	http,
-	custom,
-	parseUnits,
-	getAddress,
-} from "viem"
-import { baseSepolia, baseGoerli } from "viem/chains"
 import { tokenboundActions } from "@tokenbound/sdk/viem"
 import { useCallback, useEffect } from "react"
+
+import { createWalletClient, custom, getAddress, http, parseUnits } from "viem"
+import { baseGoerli, baseSepolia } from "viem/chains"
+import { useAccount } from "wagmi"
+import { Account } from "./components"
 
 declare global {
 	interface Window {
@@ -55,19 +48,19 @@ export function App() {
 				tokenId: originNFT.tokenId,
 			})
 
-			const preparedExecution = await tokenboundClient.tokenbound.prepareExecution({
-				account: tokenboundAccount,
-				to: recipientAddress,
-				value: 0n,
-				data: "0x",
-			})
+			const preparedExecution =
+				await tokenboundClient.tokenbound.prepareExecution({
+					account: tokenboundAccount,
+					to: recipientAddress,
+					value: 0n,
+					data: "0x",
+				})
 
-			const preparedCreateAccount = await tokenboundClient.tokenbound.prepareCreateAccount(
-				{
+			const preparedCreateAccount =
+				await tokenboundClient.tokenbound.prepareCreateAccount({
 					tokenContract: originNFT.tokenContract,
 					tokenId: originNFT.tokenId,
-				},
-			)
+				})
 
 			console.log("getAccount", tokenboundAccount)
 			console.log("preparedExecution", preparedExecution)
@@ -124,7 +117,8 @@ export function App() {
 			chainId: baseGoerli.id,
 		}
 
-		const executedCallTxHash = await tokenboundClient.tokenbound.execute(execution)
+		const executedCallTxHash =
+			await tokenboundClient.tokenbound.execute(execution)
 
 		executedCallTxHash &&
 			alert(`Sent blank tx on ${baseGoerli.name}: ${executedCallTxHash}`)

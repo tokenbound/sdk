@@ -1,21 +1,21 @@
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    target: "es2020",
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: "es2020",
-    },
-  },
-  resolve: {
-    alias: {
-      process: "process/browser",
-      util: "util",
-    },
-  },
-  plugins: [react()],
-});
+	build: {
+		target: "es2020",
+	},
+	optimizeDeps: {
+		esbuildOptions: {
+			target: "es2020",
+		},
+	},
+	resolve: {
+		alias: {
+			process: "process/browser",
+			util: "util",
+		},
+	},
+	plugins: [react()],
+})

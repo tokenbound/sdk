@@ -53,6 +53,7 @@ export type {
 	GetCreationCodeParams,
 	MultiCallTx,
 	NFTTransferParams,
+	PossibleENSAddress,
 	PrepareCreateAccountParams,
 	PrepareExecuteCallParams,
 	PrepareExecutionParams,

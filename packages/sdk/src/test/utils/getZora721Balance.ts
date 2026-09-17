@@ -1,8 +1,7 @@
+import { zora721 } from "@tokenbound/test-fixtures"
 import type { PublicClient } from "viem"
 import type { PossibleENSAddress } from "../../types"
 import { resolvePossibleENS } from "../../utils"
-import { zora721 } from "../config"
-import { zora721DropABI } from "../wagmi-cli-hooks/generated"
 
 export async function getZora721Balance({
 	publicClient,
@@ -15,7 +14,7 @@ export async function getZora721Balance({
 
 	return await publicClient.readContract({
 		address: zora721.proxyContractAddress,
-		abi: zora721DropABI,
+		abi: zora721.abi,
 		functionName: "balanceOf",
 		args: [address],
 	})

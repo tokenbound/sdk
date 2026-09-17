@@ -1,7 +1,7 @@
+import { WETH_CONTRACT_ADDRESS } from "@tokenbound/test-fixtures"
 import { erc20Abi, type PublicClient } from "viem"
 import type { PossibleENSAddress } from "../../types"
 import { resolvePossibleENS } from "../../utils"
-import { WETH_CONTRACT_ADDRESS } from "../constants"
 
 export async function getWETHBalance({
 	publicClient,

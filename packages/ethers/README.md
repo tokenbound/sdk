@@ -21,8 +21,30 @@ deconstruction) is reused from `@tokenbound/sdk` — nothing is reimplemented he
 npm install @tokenbound/ethers ethers
 ```
 
+<details>
+<summary>pnpm / yarn / bun</summary>
+
+```bash
+pnpm add @tokenbound/ethers ethers
+```
+
+```bash
+yarn add @tokenbound/ethers ethers
+```
+
+```bash
+bun add @tokenbound/ethers ethers
+```
+
+</details>
+
 `ethers` and `viem` are peer dependencies. Both ethers v5 and v6 are supported;
 the version in use is detected automatically.
+
+Reads (deployment checks, bytecode, `isValidSigner`, ENS) go through the
+Provider your signer is already connected to — this package does not build a
+second RPC client. **Your signer must be connected to a Provider**; a bare
+`new Wallet(privateKey)` can sign but not read.
 
 ## Usage
 
@@ -93,6 +115,8 @@ Detection happens once, at construction. Message normalization differs between
 majors (v6 rejects `ArrayLike<number>`, v5 accepts it) and is handled internally.
 
 ## Limitations
+
+- The signer must be connected to a Provider for any read operation.
 
 - **Cross-chain execution** is not supported through the ethers adapter. Use
   `@tokenbound/sdk` with a viem client for cross-chain calls.

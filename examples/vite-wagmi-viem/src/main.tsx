@@ -1,21 +1,36 @@
 import "@rainbow-me/rainbowkit/styles.css"
 
-import { http } from "viem"
-import { createConfig, WagmiProvider } from "wagmi"
+import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit"
-import { baseSepolia } from "wagmi/chains"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom/client"
+import { http } from "viem"
+import { createConfig, WagmiProvider } from "wagmi"
+import { baseSepolia } from "wagmi/chains"
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors"
 
 import { App } from "./App"
+
 // import { wagmiConfig } from './wagmi'
 
 const queryClient = new QueryClient()
 
+// WalletConnect needs a project id from https://cloud.reown.com. It is optional
+// here: without one the example still runs, just without mobile-wallet support.
+const walletConnectProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
+
 export const config = createConfig({
 	chains: [baseSepolia],
+	connectors: [
+		// EIP-6963 discovery: MetaMask, Rabby, Phantom, Brave — any injected wallet
+		// the browser announces. Without an explicit connector list wagmi falls back
+		// to this alone, which is why Coinbase and WalletConnect are added below.
+		injected(),
+		coinbaseWallet({ appName: "Tokenbound SDK Example" }),
+		...(walletConnectProjectId
+			? [walletConnect({ projectId: walletConnectProjectId })]
+			: []),
+	],
 	transports: {
 		[baseSepolia.id]: http(),
 	},

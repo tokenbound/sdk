@@ -57,12 +57,16 @@ declare global {
 }
 
 class TokenboundClient {
-	private chainId: number
 	private chain: Chain
 	public isInitialized = false
 	public publicClient: PublicClient
 	private walletClient?: WalletClient
 	private deployment: ResolvedDeployment
+
+	/** Always the configured chain's id; derived rather than stored separately. */
+	private get chainId(): number {
+		return this.chain.id
+	}
 
 	constructor(options: TokenboundClientOptions) {
 		const {
@@ -87,7 +91,6 @@ class TokenboundClient {
 			)
 		}
 
-		this.chainId = chain.id
 		this.chain = chain
 		this.walletClient = walletClient
 
@@ -449,26 +452,21 @@ class TokenboundClient {
 			chainId,
 		} = params
 
-		try {
-			const recipient = await resolvePossibleENS(
-				this.publicClient,
-				recipientAddress,
-			)
+		const recipient = await resolvePossibleENS(
+			this.publicClient,
+			recipientAddress,
+		)
 
-			const transfer = encodeNFTTransfer({
-				account: tbAccountAddress,
-				tokenType,
-				tokenContract,
-				tokenId,
-				recipient,
-				amount,
-			})
+		const transfer = encodeNFTTransfer({
+			account: tbAccountAddress,
+			tokenType,
+			tokenContract,
+			tokenId,
+			recipient,
+			amount,
+		})
 
-			return await this.executeTransfer(tbAccountAddress, transfer, chainId)
-		} catch (error) {
-			console.log(error)
-			throw error
-		}
+		return await this.executeTransfer(tbAccountAddress, transfer, chainId)
 	}
 
 	/**
@@ -486,19 +484,14 @@ class TokenboundClient {
 			chainId,
 		} = params
 
-		try {
-			const recipient = await resolvePossibleENS(
-				this.publicClient,
-				recipientAddress,
-			)
+		const recipient = await resolvePossibleENS(
+			this.publicClient,
+			recipientAddress,
+		)
 
-			const transfer = encodeETHTransfer({ recipient, amount })
+		const transfer = encodeETHTransfer({ recipient, amount })
 
-			return await this.executeTransfer(tbAccountAddress, transfer, chainId)
-		} catch (err) {
-			console.log(err)
-			throw err
-		}
+		return await this.executeTransfer(tbAccountAddress, transfer, chainId)
 	}
 
 	/**
@@ -524,24 +517,19 @@ class TokenboundClient {
 		if (erc20tokenDecimals < 0 || erc20tokenDecimals > 18)
 			throw new Error("Decimal value out of range. Should be between 0 and 18.")
 
-		try {
-			const recipient = await resolvePossibleENS(
-				this.publicClient,
-				recipientAddress,
-			)
+		const recipient = await resolvePossibleENS(
+			this.publicClient,
+			recipientAddress,
+		)
 
-			const transfer = encodeERC20Transfer({
-				recipient,
-				amount,
-				erc20tokenAddress,
-				erc20tokenDecimals,
-			})
+		const transfer = encodeERC20Transfer({
+			recipient,
+			amount,
+			erc20tokenAddress,
+			erc20tokenDecimals,
+		})
 
-			return await this.executeTransfer(tbAccountAddress, transfer, chainId)
-		} catch (error) {
-			console.log(error)
-			throw error
-		}
+		return await this.executeTransfer(tbAccountAddress, transfer, chainId)
 	}
 
 	/** Routes an encoded transfer through execute() or the legacy executeCall(). */
@@ -567,18 +555,13 @@ class TokenboundClient {
 		const { message } = params
 		const walletClient = this.requireWalletClient()
 
-		try {
-			if (!walletClient.account) {
-				throw new Error("No account available on the wallet client.")
-			}
-			return await walletClient.signMessage({
-				account: walletClient.account,
-				message: message as SignableMessage,
-			})
-		} catch (error) {
-			console.log(error)
-			throw error
+		if (!walletClient.account) {
+			throw new Error("No account available on the wallet client.")
 		}
+		return await walletClient.signMessage({
+			account: walletClient.account,
+			message: message as SignableMessage,
+		})
 	}
 }
 

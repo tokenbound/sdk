@@ -124,6 +124,23 @@ it is now also a compile error.
 npm install @tokenbound/ethers
 ```
 
+<details>
+<summary>pnpm / yarn / bun</summary>
+
+```bash
+pnpm add @tokenbound/ethers
+```
+
+```bash
+yarn add @tokenbound/ethers
+```
+
+```bash
+bun add @tokenbound/ethers
+```
+
+</details>
+
 ```diff
 - import { TokenboundClient } from "@tokenbound/sdk"
 + import { TokenboundClient } from "@tokenbound/ethers"
@@ -172,6 +189,27 @@ These moved to `@tokenbound/ethers` or were deleted:
 | `normalizeMessage` | internal to `@tokenbound/ethers` |
 | `chainIdToChain` | pass a viem `Chain` directly |
 | `TokenboundClientOptions.chainId` | pass `chain`; use per-method `chainId` for cross-chain |
+
+## 4b. `@tokenbound/ethers` reads use your signer's Provider
+
+`publicClient` and `publicClientRPCUrl` are no longer accepted by
+`@tokenbound/ethers`. Reads now go through the Provider the signer is already
+connected to, which removes a second RPC stack from ethers consumers' bundles
+(~169 kB → ~32 kB gzipped).
+
+```diff
+  const tokenboundClient = new TokenboundClient({
+    signer,
+    chain: mainnet,
+-   publicClient,          // no longer accepted
+  })
+```
+
+Your signer must be connected to a Provider. `new Wallet(pk)` can sign but not
+read; use `new Wallet(pk, provider)` or `signer.connect(provider)`. Read calls
+on an unconnected signer throw a clear error.
+
+`@tokenbound/sdk` is unaffected — it still takes `publicClient`/`publicClientRPCUrl`.
 
 ## 5. Cross-chain execution
 

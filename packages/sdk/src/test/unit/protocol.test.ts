@@ -254,7 +254,8 @@ describe("execution encoding", () => {
 
 describe("transfer encoding", () => {
 	const account = getAddress("0x000000000000000000000000000000000000c0de")
-	const recipient = getAddress("0x02101dfb77fde026414827fdc604ddaf224f0921")
+	// Arbitrary recipient — deliberately not a Tokenbound contract address.
+	const recipient = getAddress("0x000000000000000000000000000000000000d00d")
 
 	it("encodes an ERC721 transfer", () => {
 		const t = encodeNFTTransfer({

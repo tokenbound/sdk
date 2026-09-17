@@ -13,6 +13,7 @@
 
 import { assertSigner, detectEthersVersion } from "./detect"
 import type {
+	Address,
 	EthersSignableMessage,
 	EthersSigner,
 	EthersVersion,
@@ -29,14 +30,20 @@ export type EthersAdapter = {
 	signer: EthersSigner
 	/** Sends a prepared transaction and returns its hash. */
 	sendTransaction: (tx: {
-		to: string
+		to: Address
 		value: bigint
-		data: string
+		data: Hex
 	}) => Promise<Hex>
 	/** Signs a message, normalizing it for the detected ethers version. */
 	signMessage: (message: EthersSignableMessage) => Promise<Hex>
 	/** Returns the signer's address. */
-	getAddress: () => Promise<`0x${string}`>
+	getAddress: () => Promise<Address>
+	/** Returns the deployed bytecode at an address ("0x" when undeployed). */
+	getCode: (address: Address) => Promise<Hex>
+	/** Performs a read-only contract call and returns the raw return data. */
+	call: (tx: { to: Address; data: Hex }) => Promise<Hex>
+	/** Resolves an ENS name, or null when it does not resolve. */
+	resolveName: (name: string) => Promise<Address | null>
 }
 
 /** Message normalization, per ethers major version. */
@@ -59,6 +66,22 @@ export function createAdapter(
 ): EthersAdapter {
 	const normalize = NORMALIZERS[version]
 
+	/**
+	 * Reads go through the signer's own Provider rather than a separate viem
+	 * client, so ethers consumers do not pay for a second RPC stack. `getCode`,
+	 * `call` and `resolveName` exist with the same shape on v5 and v6, so no
+	 * version branching is needed here.
+	 */
+	const requireProvider = () => {
+		const provider = signer.provider
+		if (!provider) {
+			throw new Error(
+				"The ethers Signer must be connected to a Provider for read operations. Use `signer.connect(provider)`.",
+			)
+		}
+		return provider
+	}
+
 	return {
 		version,
 		signer,
@@ -74,7 +97,20 @@ export function createAdapter(
 			return (await signer.signMessage(normalize(message))) as Hex
 		},
 		async getAddress() {
-			return (await signer.getAddress()) as `0x${string}`
+			return (await signer.getAddress()) as Address
+		},
+		async getCode(address) {
+			return (await requireProvider().getCode(address)) as Hex
+		},
+		async call(tx) {
+			return (await requireProvider().call(tx)) as Hex
+		},
+		async resolveName(name) {
+			const provider = requireProvider()
+			if (typeof provider.resolveName !== "function") {
+				throw new Error("This ethers Provider does not support ENS resolution.")
+			}
+			return (await provider.resolveName(name)) as Address | null
 		},
 	}
 }
