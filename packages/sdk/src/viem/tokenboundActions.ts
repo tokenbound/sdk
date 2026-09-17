@@ -25,6 +25,7 @@ import type {
 } from "../types"
 import {
 	checkAccountDeployment,
+	checkProtocolDeployment,
 	createAccount,
 	deconstructBytecode,
 	type ExecuteActionParams,
@@ -34,6 +35,7 @@ import {
 	getNFT,
 	isValidSigner,
 	type PrepareCreateAccountActionParams,
+	type ProtocolDeploymentStatus,
 	prepareCreateAccount,
 	prepareExecution,
 	signMessage,
@@ -61,6 +63,8 @@ export type TokenboundPublicActions = {
 	checkAccountDeployment: (params: {
 		accountAddress: Address
 	}) => Promise<boolean>
+	/** Reports whether the ERC-6551 contracts are deployed on the connected chain. */
+	checkProtocolDeployment: () => Promise<ProtocolDeploymentStatus>
 	/** Splits a deployed account's bytecode into its ERC-6551 components. */
 	deconstructBytecode: (params: {
 		accountAddress: Address
@@ -135,6 +139,8 @@ export function tokenboundActions(config: TokenboundConfig = {}) {
 				prepareExecution(viemClient, params, config),
 			checkAccountDeployment: (params) =>
 				checkAccountDeployment(viemClient, params),
+			checkProtocolDeployment: () =>
+				checkProtocolDeployment(viemClient, config),
 			deconstructBytecode: (params) => deconstructBytecode(viemClient, params),
 			getNFT: (params) => getNFT(viemClient, params),
 			isValidSigner: (params) => isValidSigner(viemClient, params, config),

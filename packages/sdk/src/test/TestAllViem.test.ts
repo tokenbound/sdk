@@ -554,6 +554,30 @@ describe.each(ENABLED_TESTS)(
 				expect(isAccountDeployed).toEqual(true)
 			})
 
+			it("can checkProtocolDeployment on the forked chain", async () => {
+				const status = await tokenboundClient.checkProtocolDeployment()
+
+				testLog(`protocolDeployment ${testName}`, status)
+
+				// The fork is mainnet, where both the V2 and V3 deployments exist.
+				expect(status.isFullyDeployed).toEqual(true)
+				expect(status.registry).toEqual(true)
+				expect(status.implementation).toEqual(true)
+
+				// The addresses reported must be the ones this variant is pinned to.
+				expect(status.registryAddress).toEqual(
+					ERC6551_DEPLOYMENT.REGISTRY.ADDRESS,
+				)
+				// V3 resolves to the account proxy, not the upgradeable
+				// implementation behind it; V2 has no proxy and uses its
+				// implementation directly.
+				expect(status.implementationAddress).toEqual(
+					isV3
+						? ERC6551_DEPLOYMENT.ACCOUNT_PROXY?.ADDRESS
+						: ERC6551_DEPLOYMENT.IMPLEMENTATION.ADDRESS,
+				)
+			})
+
 			it("can getNFT for the created account", async () => {
 				await ensureTBA()
 				const nft = await tokenboundClient.getNFT({

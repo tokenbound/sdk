@@ -15,13 +15,20 @@ export {
 	encodeNFTTransfer,
 	getAccountAddress,
 	getCreationCode,
+	hasBytecode,
 	isCustomImplementation,
+	type ProtocolDeploymentStatus,
 	prepareCreateAccountTx,
 	type ResolvedDeployment,
 	resolveDeployment,
+	toProtocolDeploymentStatus,
 	VALID_SIGNER_MAGIC_VALUE,
 } from "./protocol"
-export { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "./protocol/constants"
+export {
+	ERC_6551_DEFAULT,
+	ERC_6551_LEGACY_V2,
+	TOKENBOUND_V3_DEPLOYER_URL,
+} from "./protocol/constants"
 
 // Legacy standalone functions, retained for backwards compatibility.
 export {

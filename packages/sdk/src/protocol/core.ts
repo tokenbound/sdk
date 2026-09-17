@@ -29,6 +29,7 @@ import {
 	ERC_6551_DEFAULT,
 	ERC_6551_LEGACY_V2,
 	MULTICALL_AUTHENTICATED_ADDRESS,
+	TOKENBOUND_V3_DEPLOYER_URL,
 } from "./constants"
 import {
 	computeAccount,
@@ -91,6 +92,62 @@ export function resolveDeployment(options: {
 		implementationAddress:
 			implementationAddress ?? ERC_6551_DEFAULT.ACCOUNT_PROXY.ADDRESS,
 		registryAddress: registryAddress ?? ERC_6551_DEFAULT.REGISTRY.ADDRESS,
+	}
+}
+
+/**
+ * True when an `eth_getCode` result represents a contract rather than an empty
+ * account. Shared so the viem core and @tokenbound/ethers agree on what counts
+ * as deployed, even though each fetches the bytecode through its own transport.
+ */
+export function hasBytecode(bytecode: Hex | undefined | null): boolean {
+	return bytecode ? bytecode.length > 2 : false
+}
+
+/**
+ * The result of probing a chain for the ERC-6551 contracts a client targets.
+ * Reports each contract separately so a partial deployment is distinguishable
+ * from no deployment at all.
+ */
+export type ProtocolDeploymentStatus = {
+	/** True when the ERC-6551 registry is live at `registryAddress`. */
+	registry: boolean
+	/** True when the account implementation is live at `implementationAddress`. */
+	implementation: boolean
+	/** True only when both contracts are present. */
+	isFullyDeployed: boolean
+	registryAddress: Address
+	implementationAddress: Address
+	/**
+	 * Where the missing contracts can be deployed. Present only when
+	 * `isFullyDeployed` is false, so a caller can surface the fix alongside the
+	 * problem; `undefined` on a fully deployed chain.
+	 */
+	deployerUrl?: string
+}
+
+/**
+ * Assembles the deployment status from two already-fetched bytecode results.
+ * Pure: the caller does the fetching, so the viem core and @tokenbound/ethers
+ * share this logic without sharing a transport.
+ */
+export function toProtocolDeploymentStatus(params: {
+	registryCode: Hex | undefined | null
+	implementationCode: Hex | undefined | null
+	registryAddress: Address
+	implementationAddress: Address
+}): ProtocolDeploymentStatus {
+	const registry = hasBytecode(params.registryCode)
+	const implementation = hasBytecode(params.implementationCode)
+	const isFullyDeployed = registry && implementation
+
+	return {
+		registry,
+		implementation,
+		isFullyDeployed,
+		registryAddress: params.registryAddress,
+		implementationAddress: params.implementationAddress,
+		...(isFullyDeployed ? {} : { deployerUrl: TOKENBOUND_V3_DEPLOYER_URL }),
 	}
 }
 

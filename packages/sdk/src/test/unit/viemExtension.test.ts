@@ -6,6 +6,7 @@ import {
 	type Address,
 	createPublicClient,
 	createWalletClient,
+	custom,
 	http,
 	isAddress,
 } from "viem"
@@ -61,12 +62,37 @@ describe("tokenboundActions decorator", () => {
 			"prepareCreateAccount",
 			"prepareExecution",
 			"checkAccountDeployment",
+			"checkProtocolDeployment",
 			"deconstructBytecode",
 			"getNFT",
 			"isValidSigner",
 		]) {
 			expect(typeof (client.tokenbound as never)[method]).toBe("function")
 		}
+	})
+
+	it("executes a network read on an account-less public client", async () => {
+		// The read methods are not merely present on a PublicClient — they run.
+		// A stub transport stands in for the RPC so this stays a unit test; what
+		// matters is that no account is required anywhere on the path.
+		const client = createPublicClient({
+			chain: mainnet,
+			transport: custom({
+				request: async ({ method }) =>
+					method === "eth_getCode" ? "0x60806040" : null,
+			}),
+		}).extend(tokenboundActions())
+
+		expect(client.account).toBeUndefined()
+
+		const status = await client.tokenbound.checkProtocolDeployment()
+		expect(status.isFullyDeployed).toBe(true)
+
+		expect(
+			await client.tokenbound.checkAccountDeployment({
+				accountAddress: TOKEN_CONTRACT,
+			}),
+		).toBe(true)
 	})
 
 	it("exposes write actions on a wallet client", () => {

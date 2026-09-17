@@ -2,6 +2,7 @@
 
 export {
 	checkAccountDeployment,
+	checkProtocolDeployment,
 	createAccount,
 	deconstructBytecode,
 	type ExecuteActionParams,
@@ -11,6 +12,7 @@ export {
 	getNFT,
 	isValidSigner,
 	type PrepareCreateAccountActionParams,
+	type ProtocolDeploymentStatus,
 	prepareCreateAccount,
 	prepareExecution,
 	signMessage,

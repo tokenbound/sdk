@@ -190,7 +190,35 @@ await client.tokenbound.createAccount({ tokenContract, tokenId })
 await client.tokenbound.execute({ account, to, value, data })
 ```
 
-Public clients receive only the read-only actions; clients carrying an account get the full set. The extension reuses exactly the same protocol code as the class API.
+The namespace keeps Tokenbound's methods from colliding with viem's own actions, and the
+underlying client still works exactly as before:
+
+```ts copy
+const addresses = await client.getAddresses()       // viem's
+const nft = await client.tokenbound.getNFT({ accountAddress: account })  // Tokenbound's
+```
+
+The read/write split is enforced by the types. A client carrying an account gets the full
+set; a `PublicClient` is typed with the read-only subset, so a write is a compile-time
+error rather than a runtime failure:
+
+```ts copy
+const publicClient = createPublicClient({ chain: mainnet, transport: http() })
+  .extend(tokenboundActions())
+
+publicClient.tokenbound.getAccount({ tokenContract, tokenId })   // ✅
+publicClient.tokenbound.createAccount({ tokenContract, tokenId })
+// ❌ Property 'createAccount' does not exist on type 'TokenboundPublicActions'
+```
+
+Read actions: `getAccount`, `prepareCreateAccount`, `prepareExecution`,
+`checkAccountDeployment`, `checkProtocolDeployment`, `deconstructBytecode`, `getNFT`,
+`isValidSigner`. Write actions: `createAccount`, `execute`, `transferNFT`, `transferETH`,
+`transferERC20`, `signMessage`. See the
+[package README](https://github.com/tokenbound/sdk/tree/main/packages/sdk#readme) for
+worked examples of each.
+
+The extension reuses exactly the same protocol code as the class API.
 
 ### Using Ethers.js
 

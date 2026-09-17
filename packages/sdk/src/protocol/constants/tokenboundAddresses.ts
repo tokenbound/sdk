@@ -14,6 +14,14 @@ type Standard6551Deployment = {
 	ACCOUNT_PROXY?: ContractABIPair
 }
 
+/**
+ * Where a user can deploy the ERC-6551 V3 contracts to a chain that does not
+ * yet have them. Surfaced by `checkProtocolDeployment` so a caller can point
+ * someone at the fix rather than only reporting the problem.
+ */
+export const TOKENBOUND_V3_DEPLOYER_URL =
+	"https://tokenbound-v3-deployer.vercel.app"
+
 export const ERC_6551_LEGACY_V2: Standard6551Deployment = {
 	IMPLEMENTATION: {
 		ADDRESS: getAddress("0x2d25602551487c3f3354dd80d76d54383a243358"),

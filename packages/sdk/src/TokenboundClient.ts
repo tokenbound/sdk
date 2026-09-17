@@ -4,7 +4,6 @@ import {
 	createPublicClient,
 	custom,
 	encodeFunctionData,
-	type GetCodeReturnType,
 	type Hex,
 	http,
 	numberToHex,
@@ -20,6 +19,7 @@ import {
 	encodeExecuteCall,
 	encodeNFTTransfer,
 	getAccountAddress,
+	hasBytecode,
 	prepareCreateAccountTx,
 	type ResolvedDeployment,
 	resolveDeployment,
@@ -49,6 +49,10 @@ import {
 	type ValidSignerParams,
 } from "./types"
 import { getImplementationName, resolvePossibleENS } from "./utils"
+import {
+	checkProtocolDeployment,
+	type ProtocolDeploymentStatus,
+} from "./viem/actions"
 
 declare global {
 	interface Window {
@@ -384,11 +388,26 @@ class TokenboundClient {
 	public async checkAccountDeployment({
 		accountAddress,
 	}: BytecodeParams): Promise<boolean> {
-		return await this.publicClient
-			.getCode({ address: accountAddress })
-			.then((bytecode: GetCodeReturnType) => {
-				return bytecode ? bytecode.length > 2 : false
-			})
+		return hasBytecode(
+			await this.publicClient.getCode({ address: accountAddress }),
+		)
+	}
+
+	/**
+	 * Check whether the ERC-6551 protocol contracts are deployed on the chain
+	 * this client is configured for.
+	 *
+	 * This asks about the protocol, not about any individual account — use
+	 * {@link checkAccountDeployment} for that. The addresses probed are the ones
+	 * this client resolved at construction, so a custom implementation/registry
+	 * or the legacy V2 version is checked instead of the current defaults.
+	 * @returns a Promise resolving to the per-contract deployment status
+	 */
+	public async checkProtocolDeployment(): Promise<ProtocolDeploymentStatus> {
+		return await checkProtocolDeployment(this.publicClient, {
+			implementationAddress: this.deployment.implementationAddress,
+			registryAddress: this.deployment.registryAddress,
+		})
 	}
 
 	/**

@@ -40,9 +40,12 @@ import {
 	encodeETHTransfer,
 	encodeNFTTransfer,
 	getAccountAddress,
+	hasBytecode,
+	type ProtocolDeploymentStatus,
 	prepareCreateAccountTx,
 	type ResolvedDeployment,
 	resolveDeployment,
+	toProtocolDeploymentStatus,
 	VALID_SIGNER_MAGIC_VALUE,
 } from "../protocol"
 import { ERC_6551_DEFAULT } from "../protocol/constants"
@@ -349,8 +352,37 @@ export async function checkAccountDeployment(
 	client: Client,
 	params: { accountAddress: Address },
 ): Promise<boolean> {
-	const bytecode = await getCode(client, { address: params.accountAddress })
-	return bytecode ? bytecode.length > 2 : false
+	return hasBytecode(await getCode(client, { address: params.accountAddress }))
+}
+
+/**
+ * Checks whether the ERC-6551 protocol contracts are deployed on the chain the
+ * client is connected to.
+ *
+ * This is about the protocol, not about any individual account: use
+ * `checkAccountDeployment` to ask whether a particular tokenbound account
+ * exists. The addresses probed are the ones `config` resolves to, so pinning a
+ * custom implementation/registry or the legacy V2 version checks those instead
+ * of the current defaults.
+ */
+export async function checkProtocolDeployment(
+	client: Client,
+	config: TokenboundConfig = {},
+): Promise<ProtocolDeploymentStatus> {
+	const { registryAddress, implementationAddress } = resolveDeployment(config)
+
+	// Independent reads: one round trip rather than two on a slow transport.
+	const [registryCode, implementationCode] = await Promise.all([
+		getCode(client, { address: registryAddress }),
+		getCode(client, { address: implementationAddress }),
+	])
+
+	return toProtocolDeploymentStatus({
+		registryCode,
+		implementationCode,
+		registryAddress,
+		implementationAddress,
+	})
 }
 
 /** Splits a deployed account's bytecode into its ERC-6551 components. */
@@ -449,4 +481,5 @@ async function sendTx<
 	} as Parameters<typeof sendTransaction>[1])
 }
 
+export type { ProtocolDeploymentStatus } from "../protocol"
 export type { ResolvedDeployment }

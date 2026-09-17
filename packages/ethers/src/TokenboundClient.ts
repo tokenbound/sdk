@@ -20,15 +20,18 @@ import {
 	encodeNFTTransfer,
 	type GetAccountParams,
 	getAccountAddress,
+	hasBytecode,
 	type MultiCallTx,
 	type NFTTransferParams,
 	type PossibleENSAddress,
+	type ProtocolDeploymentStatus,
 	prepareCreateAccountTx,
 	type ResolvedDeployment,
 	resolveDeployment,
 	type SegmentedERC6551Bytecode,
 	type TBImplementationVersion,
 	type TokenboundAccountNFT,
+	toProtocolDeploymentStatus,
 	VALID_SIGNER_MAGIC_VALUE,
 } from "@tokenbound/sdk"
 import type { Address, Chain, Hex } from "viem"
@@ -241,8 +244,31 @@ export class TokenboundClient {
 	}: {
 		accountAddress: Address
 	}): Promise<boolean> {
-		const bytecode = await this.adapter.getCode(accountAddress)
-		return bytecode ? bytecode.length > 2 : false
+		return hasBytecode(await this.adapter.getCode(accountAddress))
+	}
+
+	/**
+	 * Reports whether the ERC-6551 protocol contracts are deployed on the
+	 * configured chain. This asks about the protocol, not about an individual
+	 * account — use `checkAccountDeployment` for that.
+	 */
+	public async checkProtocolDeployment(): Promise<ProtocolDeploymentStatus> {
+		const { registryAddress, implementationAddress } = this.deployment
+
+		// Independent reads: one round trip rather than two on a slow transport.
+		const [registryCode, implementationCode] = await Promise.all([
+			this.adapter.getCode(registryAddress),
+			this.adapter.getCode(implementationAddress),
+		])
+
+		// The status is assembled by the shared protocol layer, so this client
+		// and the viem core cannot drift on what counts as deployed.
+		return toProtocolDeploymentStatus({
+			registryCode,
+			implementationCode,
+			registryAddress,
+			implementationAddress,
+		})
 	}
 
 	/** Splits a deployed account's bytecode into its ERC-6551 components. */
