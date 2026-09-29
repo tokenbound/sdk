@@ -38,85 +38,67 @@ NOTE: Any local changes to SDK methods in `TokenboundClient.ts` require a rebuil
 
 ## Unit/integration tests
 
-Tests are using [Vitest](https://vitest.dev), and can be performed via multiple pipelines:
+Tests use [Vitest](https://vitest.dev). The fork-backed suites spin up a local Anvil instance via [@viem/anvil](https://www.npmjs.com/package/@viem/anvil) and transact against a fork of mainnet, so **[Foundry](https://book.getfoundry.sh/getting-started/installation) must be installed and `anvil` on your `PATH`**.
 
-- Unit tests spin up a local Anvil instance using [viem/anvil](https://www.npmjs.com/package/@viem/anvil) and transact against a local fork of mainnet.
-- Integration tests are rendered with a [custom `render` function](https://testing-library.com/docs/react-testing-library/setup/#custom-render) from React Testing Library that integrates with Anvil. See usage of `renderWithWagmiConfig` in `packages/sdk/src/tests`.
-
-`@tokenbound/sdk`'s suite is viem-only. `@tokenbound/ethers` runs its own suite, exercising ethers v5 and ethers v6 independently against separate Anvil forks, so a behavioural difference in one major version can't be masked by the other. Both packages cover the ERC-6551 V2 (legacy) and V3 deployments.
-
-These tests require a local Anvil node so test transactions can be run against a mainnet fork.
+`@tokenbound/sdk`'s suite is viem-only. `@tokenbound/ethers` runs its own, exercising ethers v5 and v6 independently against separate Anvil forks, so a behavioural difference in one major version can't be masked by the other. Both packages cover the ERC-6551 V2 (legacy) and V3 deployments — six variants in total.
 
 Thanks to [@tmm](https://github.com/tmm) for sharing [testing-wagmi](https://github.com/tmm/testing-wagmi) for reference.
 
 ### Run Tests
 
-1. Set up environment variables in `.env.test`
-
-```ts copy
-# VITE_ prefix is required for Vite to pick up the env vars
-
-# PRIVATE KEYS CAN GO HERE
-VITE_PRIVATE_ALCHEMY_API_KEY=REPLACE_WITH_YOUR_ALCHEMY_API_KEY
-
-# PUBLIC ENV VARS, add to `.env`:
-VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.alchemyapi.io/v2/$VITE_PRIVATE_ALCHEMY_API_KEY
-VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=21023556
-```
-
-2. Build the SDK from `/packages/sdk`
+**No environment setup is required.** The mainnet fork falls back to a public RPC endpoint
 
 ```bash copy
-pnpm clean && pnpm i && pnpm build
-```
-
-3. Generate ABIs using [Wagmi CLI](https://wagmi.sh/cli/getting-started)
-
-```bash copy
-pnpm wagmi
-```
-
-For convenience, you can also execute all commands from steps 2 and 3 using `pnpm prep`.
-
-4. Spin up an Anvil instance and start Vitest from the SDK root:
-
-```bash copy
+pnpm install
+pnpm build
 pnpm test
 ```
 
-All unit tests will be executed.
-
-#### Running one package's tests
-
-From the repository root:
+Running only one side, or skipping the network entirely:
 
 ```bash copy
-pnpm test         # both packages
-pnpm test:viem    # @tokenbound/sdk only
-pnpm test:ethers  # @tokenbound/ethers only
-pnpm test:unit    # the SDK's unit tests only (no Anvil fork needed)
+pnpm test:viem     # @tokenbound/sdk only
+pnpm test:ethers   # @tokenbound/ethers only
+pnpm test:unit     # no Anvil, no network calls
 ```
 
-The ethers suites are split one file per command, so the v5 and v6 forks never
-share a process. `pnpm test:ethers` runs all four in sequence; to run just one,
-use these from `packages/ethers`:
+Output is quiet by default. For detailed diagnostics, pass `USE_VERBOSE_TESTS` inline — it is read from `process.env` and takes no `VITE_` prefix, so it cannot be set in `.env.test`:
 
 ```bash copy
-pnpm test:all       # ethers v5 + v6 against the V3 deployment
-pnpm test:v2        # ethers v5 + v6 against the legacy V2 deployment
-pnpm test:versions  # version detection and message normalization (no chain)
-pnpm test:fixtures  # shared fixtures are wired up correctly
+USE_VERBOSE_TESTS=true pnpm test
 ```
 
-#### Verbose test output
+### Optional: use your own RPC endpoint
 
-The fork-backed suites log derived addresses, balances and transaction hashes,
-which is what you want when a mainnet-fork test fails but noise otherwise. It is
-off by default — set `USE_VERBOSE_TESTS` to turn it on:
+The public fallback (`ethereum-rpc.publicnode.com`) works but rate-limits, which is the usual cause of intermittent failures. To use your own provider, create `packages/sdk/.env.test` (gitignored):
 
 ```bash copy
-USE_VERBOSE_TESTS=1 pnpm test
+VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.g.alchemy.com/v2/<your-key>
 ```
+
+You can optionally pin the fork to a fixed block. Every run then sees identical chain state, which removes a potential source of flakiness: suites assert against live mainnet (Zora drops, ENS, WETH), so an unpinned fork re-reads a moving chain each time:
+
+```bash copy
+VITE_ANVIL_MAINNET_FORK_BLOCK_NUMBER=25835325
+```
+
+Pinning is **off by default**, so the suites fork from the chain head.
+
+Note: An unpinned test run depends on drops still being mintable on terms the fixtures assume. Eg. if a drop sells out or a sales window closes, tests would start to fail. The current ERC-721 fixture is an open edition with no supply cap or end date, so this issue shouldn't arise, but worth noting if modifying tests.
+
+Pinning to a known-good block is the fix for that — which is the tradeoff: a pin protects from chain drift, but comes with the cost of needing an archive endpoint and periodic refreshing.
+
+See [`packages/sdk/.env.example`](packages/sdk/.env.example) for the full list of supported variables.
+
+### Regenerating ABIs
+
+Test ABIs are generated from verified mainnet deployments with the [Wagmi CLI](https://wagmi.sh/cli/getting-started). They are committed, so this is only needed when the contracts change:
+
+```bash copy
+cd packages/sdk && pnpm wagmi
+```
+
+This requires `ETHERSCAN_API_KEY` in `packages/sdk/.env.test`.
 
 ### Pre-commit Hooks
 
