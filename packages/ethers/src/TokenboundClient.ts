@@ -13,6 +13,7 @@ import {
 	type ERC20TransferParams,
 	type ETHTransferParams,
 	type ExecuteParams,
+	encodeCrossChainCall,
 	encodeERC20Transfer,
 	encodeETHTransfer,
 	encodeExecuteCall,
@@ -180,7 +181,8 @@ export class TokenboundClient {
 
 	/**
 	 * Returns prepared transaction to execute on a tokenbound account.
-	 * Cross-chain execution is not supported through the ethers adapter.
+	 *
+	 * A `chainId` other than the client's routes the call through LayerZero.
 	 */
 	public async prepareExecution(params: ExecuteParams): Promise<CallData> {
 		const { account, to, value, data, chainId = this.chainId } = params
@@ -190,9 +192,27 @@ export class TokenboundClient {
 		}
 
 		if (chainId !== this.chainId) {
-			throw new Error(
-				"Cross-chain execution is not supported via @tokenbound/ethers. Use @tokenbound/sdk with a viem client.",
-			)
+			const crossChain = await encodeCrossChainCall({
+				caller: this.adapter,
+				account,
+				to,
+				value,
+				data: data as Hex,
+				originChainId: this.chainId,
+				destinationChainId: chainId,
+			})
+
+			// The account executes the LayerZero call, so it wraps like any other —
+			// but the LayerZero fee is paid by the sender, so it has to ride on the
+			// outer transaction too. encodeExecution always zeroes that.
+			const execution = encodeExecution({
+				account,
+				to: crossChain.to,
+				value: crossChain.value,
+				data: crossChain.data as Hex,
+			})
+
+			return { ...execution, value: crossChain.value }
 		}
 
 		return encodeExecution({

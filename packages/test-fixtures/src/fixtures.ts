@@ -50,6 +50,19 @@ export const RECIPIENT_ADDRESS = getAddress(
 	"0x000000000000000000000000000000000000d00d",
 )
 
+/**
+ * The NFT the cross-chain suites derive their sending account from.
+ *
+ * Shared as inputs rather than a derived address: deriving needs
+ * getAccountAddress() from @tokenbound/sdk, and this package cannot import it
+ * without both packages depending on each other. Each suite derives locally
+ * from these, which also keeps the derivation itself under test.
+ */
+export const CROSS_CHAIN_SENDER_NFT = {
+	tokenContract: ZORA_721.address,
+	tokenId: "1",
+} as const
+
 export const ANVIL_RPC_URL = foundry.rpcUrls.default.http[0]
 
 export const ANVIL_ACCOUNTS = [

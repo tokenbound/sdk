@@ -8,6 +8,7 @@
 export {
 	computeAccount,
 	deconstructBytecode,
+	encodeCrossChainCall,
 	encodeERC20Transfer,
 	encodeETHTransfer,
 	encodeExecuteCall,
@@ -17,6 +18,7 @@ export {
 	getCreationCode,
 	hasBytecode,
 	isCustomImplementation,
+	type ProtocolCaller,
 	type ProtocolDeploymentStatus,
 	prepareCreateAccountTx,
 	type ResolvedDeployment,

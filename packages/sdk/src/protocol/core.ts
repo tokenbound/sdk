@@ -95,11 +95,7 @@ export function resolveDeployment(options: {
 	}
 }
 
-/**
- * True when an `eth_getCode` result represents a contract rather than an empty
- * account. Shared so the viem core and @tokenbound/ethers agree on what counts
- * as deployed, even though each fetches the bytecode through its own transport.
- */
+/** True when `eth_getCode` returned contract bytecode rather than an empty account. */
 export function hasBytecode(bytecode: Hex | undefined | null): boolean {
 	return bytecode ? bytecode.length > 2 : false
 }
@@ -118,19 +114,11 @@ export type ProtocolDeploymentStatus = {
 	isFullyDeployed: boolean
 	registryAddress: Address
 	implementationAddress: Address
-	/**
-	 * Where the missing contracts can be deployed. Present only when
-	 * `isFullyDeployed` is false, so a caller can surface the fix alongside the
-	 * problem; `undefined` on a fully deployed chain.
-	 */
+	/** Where to deploy the missing contracts. Set only when not fully deployed. */
 	deployerUrl?: string
 }
 
-/**
- * Assembles the deployment status from two already-fetched bytecode results.
- * Pure: the caller does the fetching, so the viem core and @tokenbound/ethers
- * share this logic without sharing a transport.
- */
+/** Builds the deployment status from two already-fetched bytecode results. */
 export function toProtocolDeploymentStatus(params: {
 	registryCode: Hex | undefined | null
 	implementationCode: Hex | undefined | null

@@ -311,7 +311,15 @@ class TokenboundClient {
 				value: crossChainValue,
 				data: crossChainData,
 			} = await encodeCrossChainCall({
-				publicClient: this.publicClient,
+				caller: {
+					call: async (tx) => {
+						const { data: returnData } = await this.publicClient.call(tx)
+						if (returnData === undefined) {
+							throw new Error(`Call to ${tx.to} returned no data`)
+						}
+						return returnData
+					},
+				},
 				account,
 				to,
 				value,

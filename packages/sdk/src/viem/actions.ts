@@ -11,7 +11,6 @@ import type {
 	Chain,
 	Client,
 	Hex,
-	PublicClient,
 	SignableMessage,
 	Transport,
 	WalletClient,
@@ -28,6 +27,7 @@ export type TokenboundWalletClient<
 > = Client<Transport, chain, account>
 
 import {
+	call,
 	getCode,
 	readContract,
 	sendTransaction,
@@ -49,7 +49,10 @@ import {
 	VALID_SIGNER_MAGIC_VALUE,
 } from "../protocol"
 import { ERC_6551_DEFAULT } from "../protocol/constants"
-import { encodeCrossChainCall } from "../protocol/functions"
+import {
+	encodeCrossChainCall,
+	type ProtocolCaller,
+} from "../protocol/functions"
 import type {
 	Call3,
 	CallData,
@@ -236,7 +239,7 @@ export async function prepareExecution(
 			value: crossChainValue,
 			data: crossChainData,
 		} = await encodeCrossChainCall({
-			publicClient: client as PublicClient,
+			caller: toProtocolCaller(client),
 			account,
 			to,
 			value,
@@ -345,6 +348,19 @@ export async function transferERC20<
 		{ account: params.account, ...transfer, chainId: params.chainId },
 		config,
 	)
+}
+
+/** Adapts a viem client to ProtocolCaller, unwrapping `call`'s `{ data }`. */
+function toProtocolCaller(client: Client): ProtocolCaller {
+	return {
+		call: async (tx) => {
+			const { data } = await call(client, tx)
+			if (data === undefined) {
+				throw new Error(`Call to ${tx.to} returned no data`)
+			}
+			return data
+		},
+	}
 }
 
 /** Returns true when a tokenbound account has been deployed on-chain. */
