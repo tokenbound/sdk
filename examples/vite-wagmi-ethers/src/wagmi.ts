@@ -1,9 +1,20 @@
 import { getDefaultConfig } from "connectkit"
 import type { Chain } from "viem"
 import { createConfig } from "wagmi"
-import { baseSepolia } from "wagmi/chains"
+import { base, baseSepolia, mainnet, sepolia, zora } from "wagmi/chains"
 
-const chains: readonly [Chain, ...Chain[]] = [baseSepolia]
+// Chains offered in the app's chain picker. Base Sepolia is first, so it is
+// wagmi's default: the write actions cost real funds on a mainnet, and the
+// testnet keeps the demo free to click through.
+export const SUPPORTED_CHAINS = [
+	baseSepolia,
+	sepolia,
+	base,
+	mainnet,
+	zora,
+] as const
+
+const chains: readonly [Chain, ...Chain[]] = [...SUPPORTED_CHAINS]
 
 export const wagmiConfig = createConfig(
 	getDefaultConfig({

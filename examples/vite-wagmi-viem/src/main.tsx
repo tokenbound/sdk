@@ -6,7 +6,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom/client"
 import { http } from "viem"
 import { createConfig, WagmiProvider } from "wagmi"
-import { baseSepolia } from "wagmi/chains"
+import { base, baseSepolia, mainnet, sepolia, zora } from "wagmi/chains"
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors"
 
 import { App } from "./App"
@@ -19,8 +19,19 @@ const queryClient = new QueryClient()
 // here: without one the example still runs, just without mobile-wallet support.
 const walletConnectProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
+// Chains offered in the app's chain picker. Base Sepolia is first, so it is
+// wagmi's default: the write actions cost real funds on a mainnet, and the
+// testnet keeps the demo free to click through.
+export const SUPPORTED_CHAINS = [
+	baseSepolia,
+	sepolia,
+	base,
+	mainnet,
+	zora,
+] as const
+
 export const config = createConfig({
-	chains: [baseSepolia],
+	chains: SUPPORTED_CHAINS,
 	connectors: [
 		// EIP-6963 discovery: MetaMask, Rabby, Phantom, Brave — any injected wallet
 		// the browser announces. Without an explicit connector list wagmi falls back
@@ -31,8 +42,14 @@ export const config = createConfig({
 			? [walletConnect({ projectId: walletConnectProjectId })]
 			: []),
 	],
+	// Listed explicitly rather than derived: wagmi types `transports` against the
+	// literal chain ids in `chains`, which a mapped object erases.
 	transports: {
 		[baseSepolia.id]: http(),
+		[sepolia.id]: http(),
+		[base.id]: http(),
+		[mainnet.id]: http(),
+		[zora.id]: http(),
 	},
 })
 
