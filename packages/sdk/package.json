@@ -50,7 +50,7 @@
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-		"test": "vitest --watch=false",
+		"test": "pnpm typecheck && vitest --watch=false",
 		"coverage": "vitest run --coverage",
 		"clean": "rm -rf node_modules/ dist/",
 		"wagmi": "wagmi generate",
@@ -58,7 +58,8 @@
 		"lint": "biome lint .",
 		"lint:fix": "biome lint --write --unsafe .",
 		"format": "biome format .",
-		"format:fix": "biome format --write ."
+		"format:fix": "biome format --write .",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
 	},
 	"dependencies": {
 		"@layerzerolabs/lz-v2-utilities": "^3.0.168",

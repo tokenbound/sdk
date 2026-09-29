@@ -38,14 +38,16 @@
 	},
 	"scripts": {
 		"build": "tsc --noEmit && vite build",
-		"test": "pnpm test:versions && pnpm test:fixtures && pnpm test:all && pnpm test:v2",
+		"test": "pnpm typecheck && pnpm test:versions && pnpm test:fixtures && pnpm test:crosschain && pnpm test:all && pnpm test:v2",
 		"clean": "rm -rf node_modules/ dist/",
 		"lint": "biome lint .",
 		"format": "biome format .",
 		"test:v2": "vitest --watch=false run src/test/TestAllEthersV2.test.ts",
 		"test:fixtures": "vitest --watch=false run src/test/TestSharedFixtures.test.ts",
 		"test:versions": "vitest --watch=false run src/test/TestEthersVersions.test.ts",
-		"test:all": "vitest --watch=false run src/test/TestAllEthers.test.ts"
+		"test:all": "vitest --watch=false run src/test/TestAllEthers.test.ts",
+		"test:crosschain": "vitest --watch=false run src/test/TestCrossChain.test.ts",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
 	},
 	"dependencies": {
 		"@tokenbound/sdk": "workspace:^"

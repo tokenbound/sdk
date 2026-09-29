@@ -22,7 +22,13 @@ const makeV6Signer = (overrides: Record<string, unknown> = {}) => ({
 	sendTransaction: vi.fn(async () => ({ hash: "0xv6hash" })),
 	signMessage: vi.fn(async () => "0xv6sig"),
 	getAddress: vi.fn(async () => "0x000000000000000000000000000000000000c0de"),
-	provider: { getNetwork: vi.fn() },
+	// A v6 signer's provider must satisfy EthersProvider, so the reads the
+	// adapter routes through it are present even though detection ignores them.
+	provider: {
+		getNetwork: vi.fn(),
+		call: vi.fn(async () => "0x"),
+		getCode: vi.fn(async () => "0x"),
+	},
 	...overrides,
 })
 

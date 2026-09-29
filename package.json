@@ -8,7 +8,7 @@
 		"test:viem": "pnpm --filter @tokenbound/sdk test",
 		"test:ethers": "pnpm --filter @tokenbound/ethers test",
 		"test:unit": "pnpm --filter @tokenbound/sdk exec vitest --watch=false --typecheck run src/test/unit/",
-		"typecheck": "pnpm --filter @tokenbound/sdk exec tsc --noEmit && pnpm --filter @tokenbound/ethers exec tsc --noEmit",
+		"typecheck": "pnpm --filter @tokenbound/sdk typecheck && pnpm --filter @tokenbound/ethers typecheck",
 		"validate:packages": "node scripts/validate-package-contents.mjs",
 		"clean": "rm -rf node_modules",
 		"prepare": "husky install",
