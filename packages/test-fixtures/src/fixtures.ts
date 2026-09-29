@@ -10,6 +10,14 @@ import { getAddress, parseUnits } from "viem"
 import { foundry } from "viem/chains"
 
 /** Zora "Webb's First Deep Field" 721 drop — open, free public mint. */
+/**
+ * Zora 721 drop the fork-backed suites mint from.
+ *
+ * Chosen because it is an open edition: no supply cap and no sale end date, so
+ * an unpinned fork (the default) can keep minting from it indefinitely. A drop
+ * that could sell out or close would make these suites fail over time with no
+ * code change, so preserve that property if this address is ever swapped.
+ */
 export const ZORA_721 = {
 	address: getAddress("0x28ee638f2fcb66b4106acab7efd225aeb2bd7e8d"),
 	mintPrice: 0n,
