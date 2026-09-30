@@ -107,20 +107,23 @@ and v6.
 
 ### Version detection
 
-```ts
-tokenboundClient.getEthersVersion() // 5 | 6
-```
+The ethers major is detected once, at construction, and handled internally —
+message normalization differs between majors (v6 rejects `ArrayLike<number>`,
+v5 accepts it). `detectEthersVersion()` is exported if you need it directly.
 
-Detection happens once, at construction. Message normalization differs between
-majors (v6 rejects `ArrayLike<number>`, v5 accepts it) and is handled internally.
+```ts
+tokenboundClient.getSDKVersion() // this package's version, e.g. "0.1.0"
+```
 
 ## Limitations
 
 - The signer must be connected to a Provider for any read operation.
 
-- **Cross-chain execution** is not supported through the ethers adapter. Use
-  `@tokenbound/sdk` with a viem client for cross-chain calls.
 - `chain` is required — passing only `chainId` is no longer supported, because
   mapping a chain id to a `Chain` forced every viem chain into consumer bundles.
+- `publicClient` and `publicClientRPCUrl` are not accepted. Reads go through the
+  signer's provider, so point that at the RPC you want.
+- Cross-chain execution needs a LayerZero executor on the origin chain, and the
+  destination's executor gas is fixed at 200,000.
 
 See [MIGRATION.md](../../MIGRATION.md) for full migration notes.

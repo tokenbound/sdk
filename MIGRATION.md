@@ -24,8 +24,7 @@ longer imports every chain from `viem/chains`.
 | 2 | `chain` is now **required**; the constructor `chainId` option is removed | everyone |
 | 3 | Ethers message types removed from the SDK's public types | ethers users |
 | 4 | `signMessage` accepts only viem's `SignableMessage` | viem users passing raw bytes |
-| 5 | Cross-chain `execute` is viem-only | ethers users using cross-chain |
-| 6 | Package entry points changed (`dist/index.js`, subpath exports) | deep-importers |
+| 5 | Package entry points changed (`dist/index.js`, subpath exports) | deep-importers |
 
 Everything else — method names, parameter shapes, return values — is unchanged.
 
@@ -211,15 +210,7 @@ on an unconnected signer throw a clear error.
 
 `@tokenbound/sdk` is unaffected — it still takes `publicClient`/`publicClientRPCUrl`.
 
-## 5. Cross-chain execution
-
-Cross-chain `execute` requires a viem public client for LayerZero fee quoting
-and is therefore **viem-only**. Calling it through `@tokenbound/ethers` throws a
-clear error. Same-chain execution is unaffected.
-
----
-
-## 6. New entry points
+## 5. New entry points
 
 ```text
 @tokenbound/sdk            the TokenboundClient class + protocol utilities

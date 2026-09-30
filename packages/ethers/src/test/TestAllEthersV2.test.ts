@@ -107,10 +107,6 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 			await anvil.stop()
 		})
 
-		it("detects the correct ethers version", () => {
-			expect(tokenboundClient.getEthersVersion()).toBe(version)
-		})
-
 		it("derives a V2 account address", () => {
 			const account = tokenboundClient.getAccount({
 				tokenContract: zora721.proxyContractAddress,

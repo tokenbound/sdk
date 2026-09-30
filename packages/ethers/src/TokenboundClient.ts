@@ -37,6 +37,7 @@ import {
 } from "@tokenbound/sdk"
 import type { Address, Chain, Hex } from "viem"
 import { encodeFunctionData, getAddress, numberToHex } from "viem/utils"
+import { version as TB_ETHERS_VERSION } from "../package.json"
 
 import { type EthersAdapter, resolveAdapter } from "./adapter"
 import type { EthersSignableMessage } from "./types"
@@ -104,9 +105,9 @@ export class TokenboundClient {
 		this.isInitialized = true
 	}
 
-	/** The detected ethers major version (5 or 6). */
-	public getEthersVersion(): 5 | 6 {
-		return this.adapter.version
+	/** This package's version. Mirrors @tokenbound/sdk's getSDKVersion(). */
+	public getSDKVersion(): string {
+		return TB_ETHERS_VERSION
 	}
 
 	/**

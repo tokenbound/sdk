@@ -393,8 +393,9 @@ describe.each(ENABLED_TESTS)(
 
 		describe("client", () => {
 			it("can get the SDK version", () => {
-				// ethers counterpart: the client reports the ethers major detected.
-				expect(tokenboundClient.getEthersVersion()).toBe(version)
+				// Mirrors @tokenbound/sdk's getSDKVersion(), so a consumer migrating
+				// between the two does not lose the method.
+				expect(tokenboundClient.getSDKVersion()).toMatch(/^\d+\.\d+\.\d+/)
 			})
 		})
 
@@ -1024,10 +1025,6 @@ describe.each(ENABLED_TESTS)(
 		})
 
 		describe("ethers-specific", () => {
-			it("detects the correct ethers version", () => {
-				expect(tokenboundClient.getEthersVersion()).toBe(version)
-			})
-
 			it("rejects out-of-range ERC-20 decimals", async () => {
 				await expect(
 					tokenboundClient.transferERC20({
