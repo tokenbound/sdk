@@ -787,6 +787,9 @@ describe.each(ENABLED_TESTS)(
 						account: walletClient.account.address,
 						...preparedETHTransfer,
 					})
+					// sendTransaction resolves on submission, not on mining, so the
+					// balance must not be read until the receipt exists.
+					await getReceipt(transferHash)
 
 					const balanceAfter = await publicClient.getBalance({
 						address: ZORA721_TBA_ADDRESS,
@@ -923,6 +926,8 @@ describe.each(ENABLED_TESTS)(
 					amount: 0.25,
 					recipientAddress: "jeebay.eth",
 				})
+				// Wait for mining: the send resolves on submission.
+				await getReceipt(ethTransferHash)
 				const balanceAfter = await publicClient.getBalance({
 					address: ZORA721_TBA_ADDRESS,
 				})
@@ -965,6 +970,8 @@ describe.each(ENABLED_TESTS)(
 					tokenId: TOKENID1_IN_TBA,
 					recipientAddress: ANVIL_USER_1,
 				})
+				// Wait for mining: the send resolves on submission.
+				await getReceipt(transferNFTHash)
 
 				const anvilAccount1NFTBalance = await getZora721Balance({
 					publicClient,
@@ -987,6 +994,8 @@ describe.each(ENABLED_TESTS)(
 					tokenId: TOKENID2_IN_TBA,
 					recipientAddress: "jeebay.eth",
 				})
+				// Wait for mining: the send resolves on submission.
+				await getReceipt(transferNFTHash)
 
 				const addr = await resolvePossibleENS(publicClient, "jeebay.eth")
 
@@ -1092,6 +1101,8 @@ describe.each(ENABLED_TESTS)(
 					recipientAddress: ANVIL_USER_1,
 					amount: transferAmount,
 				})
+				// Wait for mining: the send resolves on submission.
+				await getReceipt(transferNFTHash)
 
 				const anvilAccount1_1155Balance = await getZora1155Balance({
 					publicClient,
@@ -1244,6 +1255,8 @@ describe.each(ENABLED_TESTS)(
 						value: 0n,
 						data: wethTransferCallData,
 					})
+					// Wait for mining: the send resolves on submission.
+					await getReceipt(wethTransferHash)
 
 					const tbaWETHReceived = await getWETHBalance({
 						publicClient,
@@ -1267,6 +1280,8 @@ describe.each(ENABLED_TESTS)(
 						erc20tokenAddress: WETH_CONTRACT_ADDRESS,
 						erc20tokenDecimals: 18,
 					})
+					// Wait for mining: the send resolves on submission.
+					await getReceipt(ensTransferredERC20Hash)
 
 					const tbaWETHFinal = await getWETHBalance({
 						publicClient,
