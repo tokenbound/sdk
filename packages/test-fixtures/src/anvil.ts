@@ -19,7 +19,9 @@ export const ACTIVE_CHAIN = mainnet
  * it rate-limits and retains only recent blocks.
  */
 export const FORK_URL =
-	process.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT ??
+	// Trimmed, and `||` rather than `??`: CI renders an unset secret as an empty
+	// string, which `??` would pass straight through to anvil's --fork-url.
+	process.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT?.trim() ||
 	"https://ethereum-rpc.publicnode.com"
 
 /**
