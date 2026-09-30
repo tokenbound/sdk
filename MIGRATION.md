@@ -161,11 +161,8 @@ unchanged, and ethers v5 `Signer` objects are accepted exactly as before.
 
 Identical to the v5 migration — the same import change and the same `chain`
 requirement. The package detects which ethers major version your signer comes
-from and adapts automatically:
-
-```ts
-tokenboundClient.getEthersVersion() // 5 | 6
-```
+from and adapts automatically — `detectEthersVersion()` is exported if you ever
+need to inspect it yourself.
 
 You do **not** need to migrate from ethers v5 to v6. Both are supported and
 tested independently.

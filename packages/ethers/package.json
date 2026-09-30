@@ -25,12 +25,12 @@
 	"files": [
 		"dist"
 	],
-	"types": "./dist/index.d.ts",
+	"types": "./dist/src/index.d.ts",
 	"main": "./dist/tokenbound-ethers.umd.cjs",
 	"module": "./dist/tokenbound-ethers.js",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
+			"types": "./dist/src/index.d.ts",
 			"import": "./dist/tokenbound-ethers.js",
 			"require": "./dist/tokenbound-ethers.umd.cjs"
 		},
