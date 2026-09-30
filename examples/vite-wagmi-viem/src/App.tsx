@@ -171,7 +171,7 @@ export function App() {
 			run,
 			tokenboundClient,
 			tokenboundAccount,
-			transferTo,
+			executeTo,
 			address,
 			tokenContract,
 			ethAmount,
