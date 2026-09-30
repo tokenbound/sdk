@@ -3,12 +3,24 @@ import { etherscan } from "@wagmi/cli/plugins"
 import { goerli, mainnet } from "viem/chains"
 import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "./src/protocol/constants"
 
+// ACCOUNT_PROXY is optional on Standard6551Deployment, but generation cannot
+// proceed without it — fail loudly here rather than emitting a bad address.
+const ACCOUNT_PROXY_ADDRESS = ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS
+if (!ACCOUNT_PROXY_ADDRESS) {
+	throw new Error("ERC_6551_DEFAULT.ACCOUNT_PROXY is undefined")
+}
+
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
+if (!ETHERSCAN_API_KEY) {
+	throw new Error("ETHERSCAN_API_KEY is required to generate ABIs")
+}
+
 export default defineConfig({
 	out: "../test-fixtures/src/generated.ts",
 	contracts: [],
 	plugins: [
 		etherscan({
-			apiKey: process.env.ETHERSCAN_API_KEY!, // Tokenbound SDK, user bjfutureprimitive
+			apiKey: ETHERSCAN_API_KEY, // Tokenbound SDK, user bjfutureprimitive
 			chainId: mainnet.id,
 			// chainId: goerli.id,
 
@@ -37,8 +49,8 @@ export default defineConfig({
 				{
 					name: "ERC6551AccountProxy_V3_",
 					address: {
-						[mainnet.id]: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS!,
-						[goerli.id]: ERC_6551_DEFAULT.ACCOUNT_PROXY?.ADDRESS!,
+						[mainnet.id]: ACCOUNT_PROXY_ADDRESS,
+						[goerli.id]: ACCOUNT_PROXY_ADDRESS,
 					},
 				},
 				{
