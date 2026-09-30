@@ -533,8 +533,8 @@ describe.each(ENABLED_TESTS)(
 
 				// The fork is mainnet, where both the V2 and V3 deployments exist.
 				expect(status.isFullyDeployed).toEqual(true)
-				expect(status.registry).toEqual(true)
-				expect(status.implementation).toEqual(true)
+				expect(status.isRegistryDeployed).toEqual(true)
+				expect(status.isImplementationDeployed).toEqual(true)
 
 				// The addresses reported must be the ones this variant is pinned to.
 				expect(status.registryAddress).toEqual(

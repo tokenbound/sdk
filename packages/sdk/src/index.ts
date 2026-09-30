@@ -29,7 +29,6 @@ export {
 export {
 	ERC_6551_DEFAULT,
 	ERC_6551_LEGACY_V2,
-	TOKENBOUND_V3_DEPLOYER_URL,
 } from "./protocol/constants"
 
 // Legacy standalone functions, retained for backwards compatibility.

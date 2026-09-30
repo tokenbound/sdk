@@ -12,11 +12,7 @@
 import { type Address, createPublicClient, custom, type Hex } from "viem"
 import { mainnet } from "viem/chains"
 import { describe, expect, it } from "vitest"
-import {
-	ERC_6551_DEFAULT,
-	ERC_6551_LEGACY_V2,
-	TOKENBOUND_V3_DEPLOYER_URL,
-} from "../../protocol/constants"
+import { ERC_6551_DEFAULT, ERC_6551_LEGACY_V2 } from "../../protocol/constants"
 import { TBVersion } from "../../types"
 import { checkProtocolDeployment } from "../../viem/actions"
 
@@ -61,20 +57,19 @@ describe("checkProtocolDeployment", () => {
 		})
 
 		expect(await checkProtocolDeployment(client)).toEqual({
-			registry: true,
-			implementation: true,
+			isRegistryDeployed: true,
+			isImplementationDeployed: true,
 			isFullyDeployed: true,
 			registryAddress: V3_REGISTRY,
 			implementationAddress: V3_IMPLEMENTATION,
-			// No deployer link when there is nothing to deploy.
 		})
 	})
 
 	it("reports a chain with no deployment at all", async () => {
 		const status = await checkProtocolDeployment(stubClient({}))
 
-		expect(status.registry).toBe(false)
-		expect(status.implementation).toBe(false)
+		expect(status.isRegistryDeployed).toBe(false)
+		expect(status.isImplementationDeployed).toBe(false)
 		expect(status.isFullyDeployed).toBe(false)
 	})
 
@@ -84,27 +79,9 @@ describe("checkProtocolDeployment", () => {
 		)
 
 		// The whole point of the split return: this is not simply "not deployed".
-		expect(status.registry).toBe(true)
-		expect(status.implementation).toBe(false)
+		expect(status.isRegistryDeployed).toBe(true)
+		expect(status.isImplementationDeployed).toBe(false)
 		expect(status.isFullyDeployed).toBe(false)
-	})
-
-	it("points at the deployer only when something is missing", async () => {
-		const missing = await checkProtocolDeployment(stubClient({}))
-		expect(missing.deployerUrl).toBe(TOKENBOUND_V3_DEPLOYER_URL)
-
-		const partial = await checkProtocolDeployment(
-			stubClient({ [V3_REGISTRY]: DEPLOYED_BYTECODE }),
-		)
-		expect(partial.deployerUrl).toBe(TOKENBOUND_V3_DEPLOYER_URL)
-
-		const complete = await checkProtocolDeployment(
-			stubClient({
-				[V3_REGISTRY]: DEPLOYED_BYTECODE,
-				[V3_IMPLEMENTATION]: DEPLOYED_BYTECODE,
-			}),
-		)
-		expect(complete.deployerUrl).toBeUndefined()
 	})
 
 	it("treats empty bytecode as not deployed", async () => {

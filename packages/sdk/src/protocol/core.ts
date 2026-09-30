@@ -29,7 +29,6 @@ import {
 	ERC_6551_DEFAULT,
 	ERC_6551_LEGACY_V2,
 	MULTICALL_AUTHENTICATED_ADDRESS,
-	TOKENBOUND_V3_DEPLOYER_URL,
 } from "./constants"
 import {
 	computeAccount,
@@ -107,15 +106,13 @@ export function hasBytecode(bytecode: Hex | undefined | null): boolean {
  */
 export type ProtocolDeploymentStatus = {
 	/** True when the ERC-6551 registry is live at `registryAddress`. */
-	registry: boolean
+	isRegistryDeployed: boolean
 	/** True when the account implementation is live at `implementationAddress`. */
-	implementation: boolean
+	isImplementationDeployed: boolean
 	/** True only when both contracts are present. */
 	isFullyDeployed: boolean
 	registryAddress: Address
 	implementationAddress: Address
-	/** Where to deploy the missing contracts. Set only when not fully deployed. */
-	deployerUrl?: string
 }
 
 /** Builds the deployment status from two already-fetched bytecode results. */
@@ -125,17 +122,14 @@ export function toProtocolDeploymentStatus(params: {
 	registryAddress: Address
 	implementationAddress: Address
 }): ProtocolDeploymentStatus {
-	const registry = hasBytecode(params.registryCode)
-	const implementation = hasBytecode(params.implementationCode)
-	const isFullyDeployed = registry && implementation
-
+	const isRegistryDeployed = hasBytecode(params.registryCode)
+	const isImplementationDeployed = hasBytecode(params.implementationCode)
 	return {
-		registry,
-		implementation,
-		isFullyDeployed,
+		isRegistryDeployed,
+		isImplementationDeployed,
+		isFullyDeployed: isRegistryDeployed && isImplementationDeployed,
 		registryAddress: params.registryAddress,
 		implementationAddress: params.implementationAddress,
-		...(isFullyDeployed ? {} : { deployerUrl: TOKENBOUND_V3_DEPLOYER_URL }),
 	}
 }
 

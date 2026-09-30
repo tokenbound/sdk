@@ -87,7 +87,10 @@ const { tokenContract, tokenId, chainId } = await client.tokenbound.getNFT({
 // Is ERC-6551 itself available on this chain?
 const status = await client.tokenbound.checkProtocolDeployment()
 if (!status.isFullyDeployed) {
-  console.log(`Deploy the missing contracts at ${status.deployerUrl}`)
+  console.log(
+    `Missing: ${status.isRegistryDeployed ? "" : "registry "}` +
+      `${status.isImplementationDeployed ? "" : "implementation"}`,
+  )
 }
 ```
 
@@ -100,9 +103,9 @@ registry is deployed there, but the Tokenbound account implementation is not:
 | Registry | [`0x0000…5758`](https://gnosisscan.io/address/0x000000006551c19487814612e58FE06813775758) | deployed (`ERC6551Registry`) |
 | Account implementation | [`0x5526…6E7F`](https://gnosisscan.io/address/0x55266d75D1a14E4572138116aF39863Ed6596E7F) | no bytecode |
 
-So on Gnosis you get `{ registry: true, implementation: false, isFullyDeployed: false }`
-along with a `deployerUrl` — enough to tell a user precisely what is missing, rather than
-just that something is.
+So on Gnosis you get `{ isRegistryDeployed: true, isImplementationDeployed: false,
+isFullyDeployed: false }` —
+enough to tell a user precisely what is missing, rather than just that something is.
 
 #### Writing
 
