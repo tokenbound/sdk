@@ -85,7 +85,6 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 					args: [1n],
 				}),
 			})
-			await mint.wait()
 			const receipt = await publicClient.waitForTransactionReceipt({
 				hash: mint.hash as Hex,
 			})

@@ -162,7 +162,6 @@ describe.each(ENABLED_TESTS)(
 					args: [BigInt(zora721.quantity)],
 				}),
 			})
-			await mint.wait()
 			const receipt = await getReceipt(mint.hash as Hex)
 
 			// Read token IDs off the mint receipt. The mint is a single transaction,
@@ -236,7 +235,6 @@ describe.each(ENABLED_TESTS)(
 					],
 				}),
 			})
-			await tx.wait()
 			await getReceipt(tx.hash as Hex)
 			return tx.hash as Hex
 		}
@@ -607,7 +605,6 @@ describe.each(ENABLED_TESTS)(
 						to: ZORA721_TBA_ADDRESS,
 						value: parseUnits("0.5", 18),
 					})
-					await tx.wait()
 					await publicClient.waitForTransactionReceipt({ hash: tx.hash as Hex })
 					const after = await publicClient.getBalance({
 						address: ZORA721_TBA_ADDRESS,
