@@ -49,6 +49,26 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 		let tokenboundClient: TokenboundClient
 		let tokenId: string
 
+		/**
+		 * Waits for a receipt by polling.
+		 *
+		 * viem's waitForTransactionReceipt relies on a block watcher that does not
+		 * reliably observe new blocks in this suite, and stalls until the test times
+		 * out. Polling getTransactionReceipt is reliable. (Parity with the other
+		 * suites' getReceipt.)
+		 */
+		async function getReceipt(hash: Hex, timeoutMs = 30000) {
+			const deadline = Date.now() + timeoutMs
+			while (Date.now() < deadline) {
+				try {
+					return await publicClient.getTransactionReceipt({ hash })
+				} catch {
+					await new Promise((r) => setTimeout(r, 200))
+				}
+			}
+			throw new Error(`Transaction ${hash} was not mined within ${timeoutMs}ms`)
+		}
+
 		beforeAll(async () => {
 			await anvil.start()
 
@@ -85,9 +105,7 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 					args: [1n],
 				}),
 			})
-			const receipt = await publicClient.waitForTransactionReceipt({
-				hash: mint.hash as Hex,
-			})
+			const receipt = await getReceipt(mint.hash as Hex)
 			const transferLog = receipt.logs.find(
 				(log) =>
 					isAddressMatch(log.address, zora721.proxyContractAddress) &&
@@ -162,9 +180,7 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 				expect(account).toMatch(ADDRESS_REGEX)
 				expect(txHash).toMatch(TX_HASH_REGEX)
 
-				const receipt = await publicClient.waitForTransactionReceipt({
-					hash: txHash,
-				})
+				const receipt = await getReceipt(txHash)
 				expect(receipt.status).toBe("success")
 
 				expect(

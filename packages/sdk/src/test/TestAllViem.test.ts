@@ -420,10 +420,7 @@ describe.each(ENABLED_TESTS)(
 						await tokenboundClient.createAccount(NFT_IN_EOA)
 					testLog("CREATED ACCT", account)
 
-					const createdAccountTxReceipt =
-						await publicClient.waitForTransactionReceipt({
-							hash: txHash,
-						})
+					const createdAccountTxReceipt = await getReceipt(txHash)
 
 					ZORA721_TBA_ADDRESS = account
 					await vi.waitFor(() => {
@@ -444,10 +441,7 @@ describe.each(ENABLED_TESTS)(
 					})
 					testLog("CREATED ACCT WITH CUSTOM SALT", account)
 
-					const createdAccountTxReceipt =
-						await publicClient.waitForTransactionReceipt({
-							hash: txHash,
-						})
+					const createdAccountTxReceipt = await getReceipt(txHash)
 
 					await vi.waitFor(() => {
 						expect(account).toMatch(ADDRESS_REGEX)
@@ -469,10 +463,7 @@ describe.each(ENABLED_TESTS)(
 					})
 					testLog("CREATED ACCT WITH CUSTOM CHAIN ID", account)
 
-					const createdAccountTxReceipt =
-						await publicClient.waitForTransactionReceipt({
-							hash: txHash,
-						})
+					const createdAccountTxReceipt = await getReceipt(txHash)
 
 					const bytecode = await tokenboundClient.deconstructBytecode({
 						accountAddress: account,
@@ -526,10 +517,7 @@ describe.each(ENABLED_TESTS)(
 					})
 					testLog("CREATED ACCT WITH MULTICALL", account)
 
-					const createdAccountTxReceipt =
-						await publicClient.waitForTransactionReceipt({
-							hash: txHash,
-						})
+					const createdAccountTxReceipt = await getReceipt(txHash)
 
 					await vi.waitFor(() => {
 						expect(account).toMatch(ADDRESS_REGEX)
@@ -694,10 +682,7 @@ describe.each(ENABLED_TESTS)(
 						...preparedNFTTransfer,
 					})
 
-					const transactionReceipt =
-						await publicClient.waitForTransactionReceipt({
-							hash: transferHash,
-						})
+					const transactionReceipt = await getReceipt(transferHash)
 
 					const tbaNFTBalance = await getZora721Balance({
 						publicClient,
@@ -744,10 +729,7 @@ describe.each(ENABLED_TESTS)(
 						...preparedNFTTransfer,
 					})
 
-					const transactionReceipt =
-						await publicClient.waitForTransactionReceipt({
-							hash: transferHash,
-						})
+					const transactionReceipt = await getReceipt(transferHash)
 
 					const tbaNFTBalance = await getZora721Balance({
 						publicClient,

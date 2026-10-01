@@ -462,9 +462,7 @@ describe.each(ENABLED_TESTS)(
 							],
 						})
 
-					const receipt = await publicClient.waitForTransactionReceipt({
-						hash: txHash,
-					})
+					const receipt = await getReceipt(txHash)
 
 					expect(created).toMatch(ADDRESS_REGEX)
 					expect(receipt.status).toBe("success")
@@ -605,7 +603,7 @@ describe.each(ENABLED_TESTS)(
 						to: ZORA721_TBA_ADDRESS,
 						value: parseUnits("0.5", 18),
 					})
-					await publicClient.waitForTransactionReceipt({ hash: tx.hash as Hex })
+					await getReceipt(tx.hash as Hex)
 					const after = await publicClient.getBalance({
 						address: ZORA721_TBA_ADDRESS,
 					})
@@ -644,7 +642,7 @@ describe.each(ENABLED_TESTS)(
 						? await tokenboundClient.execute(execution)
 						: await tokenboundClient.executeCall(execution)
 					expect(hash).toMatch(TX_HASH_REGEX)
-					const receipt = await publicClient.waitForTransactionReceipt({ hash })
+					const receipt = await getReceipt(hash)
 					expect(receipt.status).toBe("success")
 				},
 				TIMEOUT,
@@ -664,7 +662,7 @@ describe.each(ENABLED_TESTS)(
 						recipientAddress: RECIPIENT_ADDRESS,
 						amount: 0.1,
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 					const after = await publicClient.getBalance({
 						address: RECIPIENT_ADDRESS,
 					})
@@ -686,7 +684,7 @@ describe.each(ENABLED_TESTS)(
 						recipientAddress: ENS_NAME,
 						amount: 0.05,
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 					const after = await publicClient.getBalance({ address: resolved })
 					expect(after - before).toBe(parseUnits("0.05", 18))
 				},
@@ -727,7 +725,7 @@ describe.each(ENABLED_TESTS)(
 						recipientAddress: recipient,
 					})
 					expect(hash).toMatch(TX_HASH_REGEX)
-					const receipt = await publicClient.waitForTransactionReceipt({ hash })
+					const receipt = await getReceipt(hash)
 					expect(receipt.status).toBe("success")
 
 					const after = await publicClient.readContract({
@@ -782,7 +780,7 @@ describe.each(ENABLED_TESTS)(
 						tokenId: sendableId,
 						recipientAddress: ENS_NAME,
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 
 					const after = await publicClient.readContract({
 						address: zora721.proxyContractAddress,
@@ -818,7 +816,7 @@ describe.each(ENABLED_TESTS)(
 							args: [BigInt(zora721.quantity)],
 						}),
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 
 					const after = await publicClient.readContract({
 						address: zora721.proxyContractAddress,
@@ -853,7 +851,7 @@ describe.each(ENABLED_TESTS)(
 							],
 						}),
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 
 					const balance = await publicClient.readContract({
 						address: zora1155.proxyContractAddress,
@@ -888,7 +886,7 @@ describe.each(ENABLED_TESTS)(
 						recipientAddress: recipient,
 						amount,
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 
 					const after = await publicClient.readContract({
 						address: zora1155.proxyContractAddress,
@@ -949,7 +947,7 @@ describe.each(ENABLED_TESTS)(
 							functionName: "deposit",
 						}),
 					})
-					await publicClient.waitForTransactionReceipt({ hash: depositHash })
+					await getReceipt(depositHash)
 
 					const recipient = getAddress(ANVIL_ACCOUNTS[1].address)
 					const before = await publicClient.readContract({
@@ -966,7 +964,7 @@ describe.each(ENABLED_TESTS)(
 						erc20tokenAddress: WETH,
 						erc20tokenDecimals: 18,
 					})
-					await publicClient.waitForTransactionReceipt({ hash })
+					await getReceipt(hash)
 
 					const after = await publicClient.readContract({
 						address: WETH,
