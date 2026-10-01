@@ -132,17 +132,6 @@ describe.each(ENABLED_TESTS)(
 		}
 
 		/**
-		 * ethers caches the pending nonce per provider. Writes issued through the
-		 * SDK return a bare hash, so ethers never sees them land; poll until its
-		 * view matches the chain before the next send.
-		 */
-		async function nextNonce() {
-			return await publicClient.getTransactionCount({
-				address: getAddress(ANVIL_ACCOUNTS[0].address),
-			})
-		}
-
-		/**
 		 * Waits for a receipt by hash. The SDK's writes return a bare hash, so this
 		 * is how the suite observes them landing. (viem parity: getReceipt)
 		 */
@@ -246,7 +235,6 @@ describe.each(ENABLED_TESTS)(
 						BigInt(tokenId),
 					],
 				}),
-				nonce: await nextNonce(),
 			})
 			await tx.wait()
 			await getReceipt(tx.hash as Hex)
@@ -618,7 +606,6 @@ describe.each(ENABLED_TESTS)(
 					const tx = await signer.sendTransaction({
 						to: ZORA721_TBA_ADDRESS,
 						value: parseUnits("0.5", 18),
-						nonce: await nextNonce(),
 					})
 					await tx.wait()
 					await publicClient.waitForTransactionReceipt({ hash: tx.hash as Hex })
