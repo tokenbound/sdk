@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint and format check
+        run: pnpm biome ci .
+
+      - name: Typecheck @tokenbound/sdk
+        run: pnpm --filter @tokenbound/sdk exec tsc --noEmit
+
+      - name: Build @tokenbound/sdk
+        run: pnpm --filter @tokenbound/sdk build
+
+      - name: Typecheck @tokenbound/ethers
+        run: pnpm --filter @tokenbound/ethers exec tsc --noEmit
+
+      - name: Build @tokenbound/ethers
+        run: pnpm --filter @tokenbound/ethers build
+
+      # Fails if tests, examples, stats.html, coverage or raw sources would be
+      # published, and reports packed/unpacked sizes so regressions are visible.
+      - name: Validate published package contents
+        run: node scripts/validate-package-contents.mjs
+
+      - name: Assert @tokenbound/sdk pulls in no ethers
+        run: |
+          if pnpm --filter @tokenbound/sdk why ethers 2>/dev/null | grep -q 'ethers@'; then
+            echo "::error::@tokenbound/sdk must not depend on ethers"
+            pnpm --filter @tokenbound/sdk why ethers
+            exit 1
+          fi
+          echo "✓ @tokenbound/sdk has no ethers in its dependency graph"
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @tokenbound/sdk
+        run: pnpm --filter @tokenbound/sdk build
+
+      # Deterministic protocol + viem extension tests, including the
+      # type-level assertions (expectTypeOf) for the .extend() surface.
+      - name: Unit and type tests (@tokenbound/sdk)
+        run: pnpm --filter @tokenbound/sdk exec vitest --watch=false --typecheck run src/test/unit/
+
+      # ethers v5 and v6 are exercised independently, each against its own fork,
+      # across both the ERC-6551 V2 (legacy) and V3 deployments. The suites run
+      # as separate vitest processes because ethers caches nonces per provider.
+      - name: Ethers v5/v6 tests (@tokenbound/ethers)
+        run: pnpm --filter @tokenbound/ethers test
+        env:
+          VITE_ANVIL_MAINNET_FORK_ENDPOINT: ${{ secrets.VITE_ANVIL_MAINNET_FORK_ENDPOINT }}
+
+      # Anvil-backed viem integration suite.
+      - name: Integration tests (@tokenbound/sdk)
+        run: pnpm --filter @tokenbound/sdk test
+        env:
+          VITE_ANVIL_MAINNET_FORK_ENDPOINT: ${{ secrets.VITE_ANVIL_MAINNET_FORK_ENDPOINT }}

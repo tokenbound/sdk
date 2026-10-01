@@ -7,9 +7,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -17,27 +14,35 @@ jobs:
           ref: 'main' # Ensure we're on the main branch
 
       - name: Set up PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 10
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           registry-url: 'https://registry.npmjs.org'
+          cache: pnpm
 
-      # Navigate to the specific package directory within the monorepo
-      - name: Change to package directory
-        run: cd packages/sdk
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      # - name: Install dependencies
-      #   run: pnpm install
-      - name: Clean install and build 🔧
-        run: cd packages/sdk && pnpm i --force --frozen-lockfile && pnpm build
-        # run: pnpm ci && pnpm build // pnpm ci not yet implemented: https://github.com/pnpm/pnpm/issues/6100
+      # @tokenbound/ethers depends on @tokenbound/sdk, so the SDK builds first.
+      - name: Build packages 🔧
+        run: |
+          pnpm --filter @tokenbound/sdk build
+          pnpm --filter @tokenbound/ethers build
 
-      - name: Publish package on NPM 📦
-        run: cd packages/sdk && pnpm publish --publish-branch main --access public
+      - name: Validate published package contents
+        run: node scripts/validate-package-contents.mjs
+
+      - name: Publish @tokenbound/sdk 📦
+        run: pnpm --filter @tokenbound/sdk publish --publish-branch main --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+
+      - name: Publish @tokenbound/ethers 📦
+        run: pnpm --filter @tokenbound/ethers publish --publish-branch main --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

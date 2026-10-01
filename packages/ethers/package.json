@@ -1,0 +1,71 @@
+{
+	"name": "@tokenbound/ethers",
+	"version": "0.1.0",
+	"description": "Ethers v5/v6 compatibility layer for the Tokenbound ERC-6551 SDK",
+	"keywords": [
+		"ethereum",
+		"erc6551",
+		"erc-6551",
+		"tokenbound",
+		"nft",
+		"ethers",
+		"web3"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tokenbound/sdk.git",
+		"directory": "packages/ethers"
+	},
+	"homepage": "https://github.com/tokenbound/sdk/tree/main/packages/ethers#readme",
+	"bugs": {
+		"url": "https://github.com/tokenbound/sdk/issues"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"files": [
+		"dist"
+	],
+	"types": "./dist/src/index.d.ts",
+	"main": "./dist/tokenbound-ethers.umd.cjs",
+	"module": "./dist/tokenbound-ethers.js",
+	"exports": {
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"import": "./dist/tokenbound-ethers.js",
+			"require": "./dist/tokenbound-ethers.umd.cjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsc --noEmit && vite build",
+		"test": "pnpm typecheck && pnpm test:versions && pnpm test:fixtures && pnpm test:crosschain && pnpm test:all && pnpm test:v2",
+		"clean": "rm -rf node_modules/ dist/",
+		"lint": "biome lint .",
+		"format": "biome format .",
+		"test:v2": "vitest --watch=false run src/test/TestAllEthersV2.test.ts",
+		"test:fixtures": "vitest --watch=false run src/test/TestSharedFixtures.test.ts",
+		"test:versions": "vitest --watch=false run src/test/TestEthersVersions.test.ts",
+		"test:all": "vitest --watch=false run src/test/TestAllEthers.test.ts",
+		"test:crosschain": "vitest --watch=false run src/test/TestCrossChain.test.ts",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
+	},
+	"dependencies": {
+		"@tokenbound/sdk": "workspace:^"
+	},
+	"peerDependencies": {
+		"ethers": "^5.7.2 || ^6.0.0",
+		"viem": "~2.56.6"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.14",
+		"@tokenbound/test-fixtures": "workspace:*",
+		"@viem/anvil": "^0.0.10",
+		"ethers": "^5.8.0",
+		"ethers6": "npm:ethers@^6.17.0",
+		"typescript": "^5.6.3",
+		"viem": "~2.56.6",
+		"vite": "^4.4.9",
+		"vite-plugin-dts": "^3.9.0",
+		"vitest": "^1.6.1"
+	}
+}
