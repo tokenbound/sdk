@@ -19,8 +19,14 @@ import {
 } from "@tokenbound/test-fixtures"
 import { createAnvil } from "@viem/anvil"
 import { ethers } from "ethers"
-import { JsonRpcProvider, Wallet } from "ethers6"
-import { createPublicClient, type Hex, http, type PublicClient } from "viem"
+import { JsonRpcProvider, JsonRpcSigner } from "ethers6"
+import {
+	createPublicClient,
+	getAddress,
+	type Hex,
+	http,
+	type PublicClient,
+} from "viem"
 import { base, mainnet } from "viem/chains"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { TokenboundClient } from "../index"
@@ -55,9 +61,9 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 							ANVIL_ACCOUNTS[0].privateKey,
 							new ethers.providers.JsonRpcProvider(rpcUrl),
 						)
-					: new Wallet(
-							ANVIL_ACCOUNTS[0].privateKey,
+					: new JsonRpcSigner(
 							new JsonRpcProvider(rpcUrl),
+							getAddress(ANVIL_ACCOUNTS[0].address),
 						)
 
 			tokenboundClient = new TokenboundClient({ signer, chain: mainnet })

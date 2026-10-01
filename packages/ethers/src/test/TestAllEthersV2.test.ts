@@ -20,7 +20,7 @@ import {
 } from "@tokenbound/test-fixtures"
 import { createAnvil } from "@viem/anvil"
 import { ethers } from "ethers"
-import { JsonRpcProvider, Wallet } from "ethers6"
+import { JsonRpcProvider, JsonRpcSigner } from "ethers6"
 import {
 	createPublicClient,
 	encodeFunctionData,
@@ -63,9 +63,9 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 							ANVIL_ACCOUNTS[0].privateKey,
 							new ethers.providers.JsonRpcProvider(rpcUrl),
 						)
-					: new Wallet(
-							ANVIL_ACCOUNTS[0].privateKey,
+					: new JsonRpcSigner(
 							new JsonRpcProvider(rpcUrl),
+							getAddress(ANVIL_ACCOUNTS[0].address),
 						)
 
 			// Pin the legacy V2 deployment.
@@ -83,12 +83,6 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 					abi: zora721.abi,
 					functionName: "purchase",
 					args: [1n],
-				}),
-				// Read the nonce from the chain rather than trusting ethers' cached
-				// pending value: awaiting the receipt does not reliably refresh it on
-				// v6, and the next write then fails with "nonce too low".
-				nonce: await publicClient.getTransactionCount({
-					address: getAddress(ANVIL_ACCOUNTS[0].address),
 				}),
 			})
 			await mint.wait()
@@ -133,9 +127,9 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 								ANVIL_ACCOUNTS[1].privateKey,
 								new ethers.providers.JsonRpcProvider(rpcUrl),
 							)
-						: new Wallet(
-								ANVIL_ACCOUNTS[1].privateKey,
+						: new JsonRpcSigner(
 								new JsonRpcProvider(rpcUrl),
+								getAddress(ANVIL_ACCOUNTS[1].address),
 							),
 				chain: mainnet,
 			})

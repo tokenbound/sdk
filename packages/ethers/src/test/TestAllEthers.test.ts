@@ -37,7 +37,7 @@ import {
 } from "@tokenbound/test-fixtures"
 import { createAnvil } from "@viem/anvil"
 import { ethers } from "ethers"
-import { JsonRpcProvider, Wallet } from "ethers6"
+import { JsonRpcProvider, JsonRpcSigner } from "ethers6"
 import {
 	type Address,
 	createPublicClient,
@@ -122,9 +122,12 @@ describe.each(ENABLED_TESTS)(
 					new ethers.providers.JsonRpcProvider(rpcUrl),
 				)
 			}
-			return new Wallet(
-				ANVIL_ACCOUNTS[0].privateKey,
+			// JsonRpcSigner, not Wallet: a Wallet signs locally and tracks its own
+			// pending nonce, which `wait()` does not reliably refresh on v6. The node
+			// is authoritative here, so there is no cache to go stale.
+			return new JsonRpcSigner(
 				new JsonRpcProvider(rpcUrl),
+				getAddress(ANVIL_ACCOUNTS[0].address),
 			)
 		}
 
@@ -137,26 +140,6 @@ describe.each(ENABLED_TESTS)(
 			return await publicClient.getTransactionCount({
 				address: getAddress(ANVIL_ACCOUNTS[0].address),
 			})
-		}
-
-		/**
-		 * Writes issued through the SDK return a bare hash, so ethers never sees
-		 * them confirm and its cached pending nonce goes stale. Wait until the
-		 * signer's own provider agrees with the chain before the next send.
-		 */
-		async function syncNonce() {
-			const address = getAddress(ANVIL_ACCOUNTS[0].address)
-			const provider = signer.provider
-			if (!provider) return
-			for (let i = 0; i < 100; i++) {
-				const onChain = await publicClient.getTransactionCount({ address })
-				const fromEthers = await provider.getTransactionCount(
-					address,
-					"pending",
-				)
-				if (Number(fromEthers) === Number(onChain)) return
-				await new Promise((r) => setTimeout(r, 100))
-			}
 		}
 
 		/**
@@ -189,10 +172,6 @@ describe.each(ENABLED_TESTS)(
 					functionName: "purchase",
 					args: [BigInt(zora721.quantity)],
 				}),
-				// Read the nonce from the chain rather than trusting ethers' cached
-				// pending value, as every other send in this suite does. Without it
-				// the next write fails with "nonce too low" on v6.
-				nonce: await nextNonce(),
 			})
 			await mint.wait()
 			const receipt = await getReceipt(mint.hash as Hex)
@@ -232,7 +211,6 @@ describe.each(ENABLED_TESTS)(
 			// `wait()` is not always enough on ethers v6: the signer can still hold a
 			// stale pending nonce, so the next send — usually createAccount — fails
 			// with "nonce too low".
-			await syncNonce()
 		}
 
 		/** Ensures the TBA for NFT_IN_EOA exists on-chain. */
@@ -244,9 +222,6 @@ describe.each(ENABLED_TESTS)(
 				await tokenboundClient.createAccount(NFT_IN_EOA)
 			await getReceipt(txHash)
 			ZORA721_TBA_ADDRESS = account
-			// Keep ethers' cached pending nonce in step: the SDK returns a bare
-			// hash, so ethers never observes that confirmation.
-			await syncNonce()
 		}
 
 		/** Moves one minted 721 from the EOA into the TBA. Idempotent per token. */
@@ -323,7 +298,6 @@ describe.each(ENABLED_TESTS)(
 				? await tokenboundClient.execute(execution)
 				: await tokenboundClient.executeCall(execution)
 			await getReceipt(hash)
-			await syncNonce()
 		}
 
 		/**
@@ -505,7 +479,6 @@ describe.each(ENABLED_TESTS)(
 					const receipt = await publicClient.waitForTransactionReceipt({
 						hash: txHash,
 					})
-					await syncNonce()
 
 					expect(created).toMatch(ADDRESS_REGEX)
 					expect(receipt.status).toBe("success")
@@ -689,7 +662,6 @@ describe.each(ENABLED_TESTS)(
 					expect(hash).toMatch(TX_HASH_REGEX)
 					const receipt = await publicClient.waitForTransactionReceipt({ hash })
 					expect(receipt.status).toBe("success")
-					await syncNonce()
 				},
 				TIMEOUT,
 			)
@@ -709,7 +681,6 @@ describe.each(ENABLED_TESTS)(
 						amount: 0.1,
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 					const after = await publicClient.getBalance({
 						address: RECIPIENT_ADDRESS,
 					})
@@ -732,7 +703,6 @@ describe.each(ENABLED_TESTS)(
 						amount: 0.05,
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 					const after = await publicClient.getBalance({ address: resolved })
 					expect(after - before).toBe(parseUnits("0.05", 18))
 				},
@@ -775,7 +745,6 @@ describe.each(ENABLED_TESTS)(
 					expect(hash).toMatch(TX_HASH_REGEX)
 					const receipt = await publicClient.waitForTransactionReceipt({ hash })
 					expect(receipt.status).toBe("success")
-					await syncNonce()
 
 					const after = await publicClient.readContract({
 						address: zora721.proxyContractAddress,
@@ -830,7 +799,6 @@ describe.each(ENABLED_TESTS)(
 						recipientAddress: ENS_NAME,
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 
 					const after = await publicClient.readContract({
 						address: zora721.proxyContractAddress,
@@ -867,7 +835,6 @@ describe.each(ENABLED_TESTS)(
 						}),
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 
 					const after = await publicClient.readContract({
 						address: zora721.proxyContractAddress,
@@ -903,7 +870,6 @@ describe.each(ENABLED_TESTS)(
 						}),
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 
 					const balance = await publicClient.readContract({
 						address: zora1155.proxyContractAddress,
@@ -939,7 +905,6 @@ describe.each(ENABLED_TESTS)(
 						amount,
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 
 					const after = await publicClient.readContract({
 						address: zora1155.proxyContractAddress,
@@ -1001,7 +966,6 @@ describe.each(ENABLED_TESTS)(
 						}),
 					})
 					await publicClient.waitForTransactionReceipt({ hash: depositHash })
-					await syncNonce()
 
 					const recipient = getAddress(ANVIL_ACCOUNTS[1].address)
 					const before = await publicClient.readContract({
@@ -1019,7 +983,6 @@ describe.each(ENABLED_TESTS)(
 						erc20tokenDecimals: 18,
 					})
 					await publicClient.waitForTransactionReceipt({ hash })
-					await syncNonce()
 
 					const after = await publicClient.readContract({
 						address: WETH,
