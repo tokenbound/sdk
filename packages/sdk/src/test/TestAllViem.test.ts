@@ -1030,6 +1030,8 @@ describe.each(ENABLED_TESTS)(
 				const mintToTBATxHash = isV3
 					? await tokenboundClient.execute(execution)
 					: await tokenboundClient.executeCall(execution)
+				// Wait for mining: the send resolves on submission.
+				await getReceipt(mintToTBATxHash)
 
 				const zoraBalanceInTBA = await getZora721Balance({
 					publicClient,
@@ -1075,6 +1077,8 @@ describe.each(ENABLED_TESTS)(
 				const mint1155TxHash = isV3
 					? await tokenboundClient.execute(execution)
 					: await tokenboundClient.executeCall(execution)
+				// Wait for mining: the send resolves on submission.
+				await getReceipt(mint1155TxHash)
 
 				const zora1155BalanceInTBA = await getZora1155Balance({
 					publicClient,
