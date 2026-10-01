@@ -15,14 +15,19 @@ export const ACTIVE_CHAIN = mainnet
 
 /**
  * Mainnet fork endpoint. Set VITE_ANVIL_MAINNET_FORK_ENDPOINT in .env.test to
- * use your own provider; the public fallback keeps a fresh clone runnable, but
- * it rate-limits and retains only recent blocks.
+ * use your own provider; the fallback keeps a fresh clone and CI runnable.
+ *
+ * The fallback must serve historical state, not just recent blocks. These suites
+ * start several anvil instances over a few minutes, and each forks at whatever
+ * the head was when it launched — so an endpoint that prunes state after ~32
+ * blocks (ethereum-rpc.publicnode.com, previously used here) fails partway
+ * through with "block not found" or "failed to create genesis", at a different
+ * point on every run.
  */
 export const FORK_URL =
 	// Trimmed, and `||` rather than `??`: CI renders an unset secret as an empty
 	// string, which `??` would pass straight through to anvil's --fork-url.
-	process.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT?.trim() ||
-	"https://ethereum-rpc.publicnode.com"
+	process.env.VITE_ANVIL_MAINNET_FORK_ENDPOINT?.trim() || "https://eth.drpc.org"
 
 /**
  * Optional block to pin the fork at. Pinning makes runs deterministic — the

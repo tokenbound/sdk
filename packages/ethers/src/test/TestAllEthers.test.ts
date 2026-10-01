@@ -189,6 +189,10 @@ describe.each(ENABLED_TESTS)(
 					functionName: "purchase",
 					args: [BigInt(zora721.quantity)],
 				}),
+				// Read the nonce from the chain rather than trusting ethers' cached
+				// pending value, as every other send in this suite does. Without it
+				// the next write fails with "nonce too low" on v6.
+				nonce: await nextNonce(),
 			})
 			await mint.wait()
 			const receipt = await getReceipt(mint.hash as Hex)
@@ -224,6 +228,11 @@ describe.each(ENABLED_TESTS)(
 				tokenContract: zora721.proxyContractAddress,
 				tokenId: TOKENID_FOR_MULTICALL_CREATE,
 			}
+
+			// `wait()` is not always enough on ethers v6: the signer can still hold a
+			// stale pending nonce, so the next send — usually createAccount — fails
+			// with "nonce too low".
+			await syncNonce()
 		}
 
 		/** Ensures the TBA for NFT_IN_EOA exists on-chain. */

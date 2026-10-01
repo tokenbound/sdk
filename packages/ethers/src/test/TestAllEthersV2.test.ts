@@ -84,10 +84,13 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 					functionName: "purchase",
 					args: [1n],
 				}),
+				// Read the nonce from the chain rather than trusting ethers' cached
+				// pending value: awaiting the receipt does not reliably refresh it on
+				// v6, and the next write then fails with "nonce too low".
+				nonce: await publicClient.getTransactionCount({
+					address: getAddress(ANVIL_ACCOUNTS[0].address),
+				}),
 			})
-			// Await through ethers, not just viem: this is what refreshes ethers'
-			// cached pending nonce. Confirming only via publicClient leaves the
-			// signer's view stale and the next send fails with "nonce too low".
 			await mint.wait()
 			const receipt = await publicClient.waitForTransactionReceipt({
 				hash: mint.hash as Hex,

@@ -70,7 +70,7 @@ USE_VERBOSE_TESTS=true pnpm test
 
 ### Optional: use your own RPC endpoint
 
-The public fallback (`ethereum-rpc.publicnode.com`) works but rate-limits, which is the usual cause of intermittent failures. To use your own provider, create `packages/sdk/.env.test` (gitignored):
+The fallback (`eth.drpc.org`) needs no key, but it rate-limits under load. To use your own provider, create `packages/sdk/.env.test` (gitignored):
 
 ```bash copy
 VITE_ANVIL_MAINNET_FORK_ENDPOINT=https://eth-mainnet.g.alchemy.com/v2/<your-key>
