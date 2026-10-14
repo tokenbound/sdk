@@ -29,3 +29,6 @@ dist-ssr
 /cache
 /out
 /.vscode
+
+# Vite leaves these behind when a build is interrupted mid-config-load
+*.timestamp-*.mjs
