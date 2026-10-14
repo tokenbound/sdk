@@ -21,6 +21,7 @@ import {
 	encodeNFTTransfer,
 	type GetAccountParams,
 	getAccountAddress,
+	getImplementationName,
 	hasBytecode,
 	type MultiCallTx,
 	type NFTTransferParams,
@@ -68,6 +69,14 @@ export type {
 	NFTTransferParams,
 }
 
+// The constructor stamps `window.tokenboundSDK` with the SDK version and the
+// account implementation in use so the running build can be identified from a browser console.
+declare global {
+	interface Window {
+		tokenboundSDK?: string
+	}
+}
+
 export class TokenboundClient {
 	private chain: Chain
 	public isInitialized = false
@@ -101,6 +110,13 @@ export class TokenboundClient {
 			registryAddress,
 			version,
 		})
+
+		if (typeof window !== "undefined") {
+			// "(ethers)" distinguishes this package: its version number is separate
+			// from @tokenbound/sdk's, so a bare "Tokenbound SDK 0.1.0" would read as
+			// an old release of the viem SDK.
+			window.tokenboundSDK = `Tokenbound SDK ${TB_ETHERS_VERSION} (ethers) - ${getImplementationName(implementationAddress)}`
+		}
 
 		this.isInitialized = true
 	}

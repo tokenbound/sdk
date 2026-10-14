@@ -54,6 +54,8 @@ import {
 	type ProtocolDeploymentStatus,
 } from "./viem/actions"
 
+// The constructor stamps `window.tokenboundSDK` with the SDK version and the
+// account implementation in use so the running build can be identified from a browser console.
 declare global {
 	interface Window {
 		tokenboundSDK?: string

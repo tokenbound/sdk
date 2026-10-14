@@ -75,3 +75,4 @@ export type {
 	ValidSignerParams,
 } from "./types"
 export { CALL_OPERATIONS, TBVersion } from "./types"
+export { getImplementationName } from "./utils/getImplementationName"
