@@ -8,7 +8,7 @@
 		".": "./src/index.ts"
 	},
 	"peerDependencies": {
-		"viem": "~2.56.6"
+		"viem": "~2.57.7"
 	},
 	"devDependencies": {
 		"prool": "0.2.16"
