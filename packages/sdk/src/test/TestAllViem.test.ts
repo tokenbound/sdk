@@ -9,7 +9,7 @@ import {
 	ANVIL_ACCOUNTS,
 	ANVIL_CONFIG,
 	ANVIL_RPC_URL,
-	CREATE_ANVIL_OPTIONS,
+	createForkInstance,
 	isAddressMatch,
 	TEST_CONFIG,
 	testLog,
@@ -18,7 +18,6 @@ import {
 	zora721,
 	zora1155,
 } from "@tokenbound/test-fixtures"
-import { createAnvil } from "@viem/anvil"
 import {
 	createTestClient,
 	createWalletClient,
@@ -96,7 +95,7 @@ describe.each(ENABLED_TESTS)(
 		const isV3 = isV2 === false
 		const v3OnlyIt = isV3 ? it : it.skip
 		// Set up Anvil instance + clients
-		const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
+		const anvil = createForkInstance()
 		const CUSTOM_SALT = 6551
 		let tokenboundClient: TokenboundClient
 		let publicClient: PublicClient

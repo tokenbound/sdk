@@ -11,6 +11,6 @@
 		"viem": "~2.56.6"
 	},
 	"devDependencies": {
-		"@viem/anvil": "^0.0.10"
+		"prool": "0.2.16"
 	}
 }

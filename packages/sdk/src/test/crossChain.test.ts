@@ -7,11 +7,10 @@
 
 import {
 	ANVIL_CONFIG,
-	CREATE_ANVIL_OPTIONS,
 	CROSS_CHAIN_SENDER_NFT,
+	createForkInstance,
 	RECIPIENT_ADDRESS,
 } from "@tokenbound/test-fixtures"
-import { createAnvil } from "@viem/anvil"
 import {
 	createPublicClient,
 	decodeFunctionData,
@@ -41,7 +40,7 @@ const executeAbi = parseAbi([
 ])
 
 describe("encodeCrossChainCall against the forked executor", () => {
-	const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
+	const anvil = createForkInstance()
 	let publicClient: PublicClient
 	/** Records what was sent, while still performing the real call. */
 	let sent: Array<{ to: string; data: Hex }>
@@ -51,7 +50,7 @@ describe("encodeCrossChainCall against the forked executor", () => {
 		await anvil.start()
 		publicClient = createPublicClient({
 			chain: ANVIL_CONFIG.ACTIVE_CHAIN,
-			transport: http(`http://127.0.0.1:${anvil.port}`),
+			transport: http(anvil.url),
 		}) as PublicClient
 
 		sent = []

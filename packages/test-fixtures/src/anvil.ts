@@ -4,7 +4,7 @@
 // declares its own. Reads process.env (not import.meta.env) so this works under
 // plain Node as well as vitest, without depending on vite/client types.
 
-import type { CreateAnvilOptions } from "@viem/anvil"
+import { Instance } from "prool"
 import { mainnet } from "viem/chains"
 
 /**
@@ -68,14 +68,27 @@ export const ANVIL_CONFIG = {
 }
 
 /**
- * No explicit port: suites run sequentially (fileParallelism: false,
- * sequence.concurrent: false) and each afterAll stops anvil before the next
- * beforeAll starts, so every variant can share the default port.
+ * A fresh mainnet fork, managed by prool. Call `start()` in beforeAll and
+ * `stop()` in afterAll; `url` is valid before start.
+ *
+ * Every suite shares one fixed port: they run sequentially (fileParallelism:
+ * false, sequence.concurrent: false) and each afterAll stops its fork before the
+ * next beforeAll starts. The host is pinned to 127.0.0.1 because prool defaults
+ * to `localhost`, which Node may resolve to ::1 while anvil listens on IPv4.
  */
-export const CREATE_ANVIL_OPTIONS: CreateAnvilOptions = {
-	forkUrl: FORK_URL,
-	// Omitted entirely when unset, so anvil forks from the head as before.
-	...(FORK_BLOCK_NUMBER === undefined
-		? {}
-		: { forkBlockNumber: FORK_BLOCK_NUMBER }),
+export function createForkInstance() {
+	return Instance.anvil(
+		{
+			host: "127.0.0.1",
+			port: 8545,
+			forkUrl: FORK_URL,
+			// Omitted entirely when unset, so anvil forks from the head.
+			...(FORK_BLOCK_NUMBER === undefined
+				? {}
+				: { forkBlockNumber: FORK_BLOCK_NUMBER }),
+		},
+		// Forking fetches genesis state over the network, which can outlast
+		// prool's 10s default on a cold CI runner.
+		{ timeout: ANVIL_CONFIG.TIMEOUT },
+	)
 }

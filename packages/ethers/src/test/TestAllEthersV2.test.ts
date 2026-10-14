@@ -13,12 +13,11 @@ import { ERC_6551_LEGACY_V2, TBVersion } from "@tokenbound/sdk"
 import {
 	ADDRESS_REGEX,
 	ANVIL_ACCOUNTS,
-	CREATE_ANVIL_OPTIONS,
+	createForkInstance,
 	isAddressMatch,
 	TX_HASH_REGEX,
 	zora721,
 } from "@tokenbound/test-fixtures"
-import { createAnvil } from "@viem/anvil"
 import { ethers } from "ethers"
 import { JsonRpcProvider, JsonRpcSigner } from "ethers6"
 import {
@@ -42,8 +41,8 @@ describe.each([{ version: 5 as const }, { version: 6 as const }])(
 		// No explicit port: variants run sequentially and each afterAll stops
 		// anvil before the next beforeAll starts, so they can share the default
 		// port — same as the viem suite.
-		const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
-		const rpcUrl = `http://127.0.0.1:${anvil.port}`
+		const anvil = createForkInstance()
+		const rpcUrl = anvil.url
 
 		let publicClient: PublicClient
 		let tokenboundClient: TokenboundClient

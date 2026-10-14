@@ -68,7 +68,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.5.14",
 		"@tokenbound/test-fixtures": "workspace:*",
-		"@viem/anvil": "^0.0.10",
 		"@vitest/coverage-v8": "^1.6.1",
 		"@wagmi/cli": "^2.10.0",
 		"rollup-plugin-visualizer": "^5.12.0",

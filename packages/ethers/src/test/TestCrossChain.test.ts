@@ -13,11 +13,10 @@ import {
 } from "@tokenbound/sdk"
 import {
 	ANVIL_ACCOUNTS,
-	CREATE_ANVIL_OPTIONS,
 	CROSS_CHAIN_SENDER_NFT,
+	createForkInstance,
 	RECIPIENT_ADDRESS,
 } from "@tokenbound/test-fixtures"
-import { createAnvil } from "@viem/anvil"
 import { ethers } from "ethers"
 import { JsonRpcProvider, JsonRpcSigner } from "ethers6"
 import {
@@ -41,8 +40,8 @@ const SENDING_TBA = getAccountAddress(
 describe.each([{ version: 5 as const }, { version: 6 as const }])(
 	"ethers v$version — cross-chain execution",
 	({ version }) => {
-		const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
-		const rpcUrl = `http://127.0.0.1:${anvil.port}`
+		const anvil = createForkInstance()
+		const rpcUrl = anvil.url
 
 		let tokenboundClient: TokenboundClient
 		let publicClient: PublicClient

@@ -38,7 +38,7 @@ NOTE: Any local changes to SDK methods in `TokenboundClient.ts` require a rebuil
 
 ## Unit/integration tests
 
-Tests use [Vitest](https://vitest.dev). The fork-backed suites spin up a local Anvil instance via [@viem/anvil](https://www.npmjs.com/package/@viem/anvil) and transact against a fork of mainnet, so **[Foundry](https://book.getfoundry.sh/getting-started/installation) must be installed and `anvil` on your `PATH`**.
+Tests use [Vitest](https://vitest.dev). The fork-backed suites spin up a local Anvil instance via [Prool](https://github.com/wevm/prool) and transact against a fork of mainnet, so **[Foundry](https://book.getfoundry.sh/getting-started/installation) must be installed and `anvil` on your `PATH`**, and **Node 22 or later** is required (see `.nvmrc` — on Node 20, Prool fails with `Promise.withResolvers is not a function`).
 
 `@tokenbound/sdk`'s suite is viem-only. `@tokenbound/ethers` runs its own, exercising ethers v5 and v6 independently against separate Anvil forks, so a behavioural difference in one major version can't be masked by the other. Both packages cover the ERC-6551 V2 (legacy) and V3 deployments — six variants in total.
 

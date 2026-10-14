@@ -23,7 +23,7 @@ import {
 import {
 	ADDRESS_REGEX,
 	ANVIL_ACCOUNTS,
-	CREATE_ANVIL_OPTIONS,
+	createForkInstance,
 	ECDSA_SIGNATURE_REGEX,
 	ENS_NAME,
 	isAddressMatch,
@@ -35,7 +35,6 @@ import {
 	zora721,
 	zora1155,
 } from "@tokenbound/test-fixtures"
-import { createAnvil } from "@viem/anvil"
 import { ethers } from "ethers"
 import { JsonRpcProvider, JsonRpcSigner } from "ethers6"
 import {
@@ -99,8 +98,8 @@ describe.each(ENABLED_TESTS)(
 		// sequence.concurrent: false) and each afterAll stops anvil before the
 		// next beforeAll starts, so they can share the default port — same as
 		// the viem suite.
-		const anvil = createAnvil({ ...CREATE_ANVIL_OPTIONS })
-		const rpcUrl = `http://127.0.0.1:${anvil.port}`
+		const anvil = createForkInstance()
+		const rpcUrl = anvil.url
 
 		let publicClient: PublicClient
 		let testClient: ReturnType<typeof createTestClient>
