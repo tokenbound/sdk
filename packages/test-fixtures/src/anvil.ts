@@ -92,3 +92,27 @@ export function createForkInstance() {
 		{ timeout: ANVIL_CONFIG.TIMEOUT },
 	)
 }
+
+/**
+ * Base fork endpoint for the cross-chain delivery suite, which needs a second
+ * chain to receive LayerZero messages on. Same rules as FORK_URL: an empty value
+ * falls back, and the fallback must serve historical state — more so on Base,
+ * whose ~2s blocks age a fork point out of a pruning node within a minute.
+ *
+ * Base's official RPC rather than drpc: drpc's free tier rate-limits (HTTP 429)
+ * under the repeated forking these suites do.
+ */
+export const BASE_FORK_URL =
+	process.env.VITE_ANVIL_BASE_FORK_ENDPOINT?.trim() ||
+	"https://mainnet.base.org"
+
+/**
+ * A fresh Base fork, on its own port so it can run alongside the mainnet fork.
+ * Always forks from the head: FORK_BLOCK_NUMBER is a mainnet block number.
+ */
+export function createBaseForkInstance() {
+	return Instance.anvil(
+		{ host: "127.0.0.1", port: 8546, forkUrl: BASE_FORK_URL },
+		{ timeout: ANVIL_CONFIG.TIMEOUT },
+	)
+}
