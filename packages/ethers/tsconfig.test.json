@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"types": ["vitest/globals", "vite/client"]
+	},
+	"include": ["src"],
+	"exclude": []
+}

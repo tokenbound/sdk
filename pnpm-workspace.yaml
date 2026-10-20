@@ -4,3 +4,12 @@ packages:
   # exclude packages that are inside test directories
   - '!**/test/**'
   - '!**/6551contracts/**'
+# One version of each shared tool across the workspace, referenced as
+# "catalog:". Published packages get the real range substituted on publish.
+catalog:
+  "@biomejs/biome": 2.5.14
+  typescript: ^5.6.3
+  viem: ~2.57.7
+  vite: ^5.4.21
+  tsdown: 0.23.0
+  vitest: ^1.6.1
