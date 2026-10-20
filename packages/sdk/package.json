@@ -25,31 +25,54 @@
 	"files": [
 		"dist"
 	],
-	"types": "./dist/src/index.d.ts",
+	"types": "./dist/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"viem": [
+				"./dist/viem.d.ts"
+			],
+			"protocol": [
+				"./dist/protocol.d.ts"
+			]
+		}
+	},
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
 	"exports": {
 		".": {
-			"types": "./dist/src/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
 		},
 		"./viem": {
-			"types": "./dist/src/viem/index.d.ts",
-			"import": "./dist/viem.js",
-			"require": "./dist/viem.cjs"
+			"import": {
+				"types": "./dist/viem.d.ts",
+				"default": "./dist/viem.js"
+			},
+			"require": {
+				"types": "./dist/viem.d.cts",
+				"default": "./dist/viem.cjs"
+			}
 		},
 		"./protocol": {
-			"types": "./dist/src/protocol/index.d.ts",
-			"import": "./dist/protocol.js",
-			"require": "./dist/protocol.cjs"
+			"import": {
+				"types": "./dist/protocol.d.ts",
+				"default": "./dist/protocol.js"
+			},
+			"require": {
+				"types": "./dist/protocol.d.cts",
+				"default": "./dist/protocol.cjs"
+			}
 		},
 		"./package.json": "./package.json"
 	},
 	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview",
+		"build": "tsc && tsdown",
 		"test": "pnpm typecheck && vitest --watch=false",
 		"coverage": "vitest run --coverage",
 		"clean": "rm -rf node_modules/ dist/",
@@ -62,18 +85,21 @@
 		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
 	},
 	"dependencies": {
-		"@layerzerolabs/lz-v2-utilities": "^3.0.168",
-		"viem": "~2.57.7"
+		"@layerzerolabs/lz-v2-utilities": "^3.0.168"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.14",
+		"@biomejs/biome": "catalog:",
 		"@tokenbound/test-fixtures": "workspace:*",
 		"@vitest/coverage-v8": "^1.6.1",
 		"@wagmi/cli": "^2.10.0",
 		"rollup-plugin-visualizer": "^5.12.0",
-		"typescript": "^5.4.5",
-		"vite": "^4.4.9",
-		"vite-plugin-dts": "^3.9.0",
-		"vitest": "^1.6.0"
+		"tsdown": "catalog:",
+		"typescript": "catalog:",
+		"viem": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"viem": "^2.57.7"
 	}
 }
