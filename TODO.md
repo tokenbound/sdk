@@ -26,10 +26,12 @@ new `@tokenbound/ethers` package. Delete items as they land.
     install viem themselves.
   - It doesn't mention the separate CommonJS types or the tsdown build. The
     ethers build output is now `dist/index.{js,cjs}`.
-- **Give CI a Base RPC endpoint.** `crossChainDelivery.test.ts` forks Base, but
-  CI only passes `VITE_ANVIL_MAINNET_FORK_ENDPOINT`, so CI uses the public
-  `https://mainnet.base.org`. Add a `VITE_ANVIL_BASE_FORK_ENDPOINT` secret
-  before it gets rate-limited.
+- **Give CI a Base RPC endpoint.** The end-to-end delivery tests fork Base:
+  `crossChainDelivery.test.ts` in the SDK, and `TestCrossChainDelivery.test.ts`
+  in ethers, once per ethers version. That's three Base forks per CI run, and
+  CI only passes `VITE_ANVIL_MAINNET_FORK_ENDPOINT`, so all three use the
+  public `https://mainnet.base.org`. Add a `VITE_ANVIL_BASE_FORK_ENDPOINT`
+  secret before it gets rate-limited.
 
 ## Open questions
 
@@ -38,7 +40,7 @@ new `@tokenbound/ethers` package. Delete items as they land.
   122k. Heavier calls (a swap, a mint) would run out of gas on the destination
   after the origin fee is already paid. Should `gasLimit` be a parameter, with
   200k as the default?
-- **What to prove about cross-chain delivery.** The end-to-end test simulates
+- **What to prove about cross-chain delivery.** The end-to-end tests simulate
   LayerZero's relay, so it can't catch a missing or broken DVN configuration on
   a route. One option: read each route's ULN config from the forks and assert
   that DVNs are set.
@@ -62,9 +64,6 @@ new `@tokenbound/ethers` package. Delete items as they land.
 
 ## Later
 
-- **Mirror the end-to-end cross-chain test in `@tokenbound/ethers`.** Today the
-  ethers suite checks the fee quote and the calldata, and that its encoding
-  matches the viem core. It doesn't deliver on a second fork.
 - **Convert the V2 JSON ABIs to `as const` TypeScript.** They are
   `ERC6551RegistryV2.json` and `IERC6551AccountV2.json`. This gives typed ABIs,
   removes tsdown's CommonJS-declaration warning, and stops tsdown pretty-printing

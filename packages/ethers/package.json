@@ -43,7 +43,7 @@
 	},
 	"scripts": {
 		"build": "tsc --noEmit && tsdown",
-		"test": "pnpm typecheck && pnpm test:versions && pnpm test:fixtures && pnpm test:crosschain && pnpm test:all && pnpm test:v2",
+		"test": "pnpm typecheck && pnpm test:versions && pnpm test:fixtures && pnpm test:crosschain && pnpm test:delivery && pnpm test:all && pnpm test:v2",
 		"clean": "rm -rf node_modules/ dist/",
 		"lint": "biome lint .",
 		"format": "biome format .",
@@ -52,6 +52,7 @@
 		"test:versions": "vitest --watch=false run src/test/TestEthersVersions.test.ts",
 		"test:all": "vitest --watch=false run src/test/TestAllEthers.test.ts",
 		"test:crosschain": "vitest --watch=false run src/test/TestCrossChain.test.ts",
+		"test:delivery": "vitest --watch=false run src/test/TestCrossChainDelivery.test.ts",
 		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
 	},
 	"dependencies": {
