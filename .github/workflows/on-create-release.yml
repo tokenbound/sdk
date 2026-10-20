@@ -4,14 +4,29 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+  # Lets npm sign a provenance attestation tying each version to this workflow
+  # run and commit.
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      # A release event checks out the release's tag, so what is published is
+      # exactly what was released, not whatever main has moved on to since.
       - name: Clone repository
         uses: actions/checkout@v4
         with:
-          ref: 'main' # Ensure we're on the main branch
+          fetch-depth: 0
+
+      - name: Require the release tag to be on main
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::Release tag ${{ github.ref_name }} is not on main"
+            exit 1
+          fi
 
       - name: Set up PNPM
         uses: pnpm/action-setup@v4
@@ -28,21 +43,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint and format check
+        run: pnpm biome ci .
+
       # @tokenbound/ethers depends on @tokenbound/sdk, so the SDK builds first.
       - name: Build packages 🔧
         run: |
           pnpm --filter @tokenbound/sdk build
           pnpm --filter @tokenbound/ethers build
 
+      # The fork-backed suites already ran in CI on main; these are the
+      # deterministic tests, which need no RPC endpoint or anvil.
+      - name: Unit and type tests
+        run: pnpm --filter @tokenbound/sdk exec vitest --watch=false --typecheck run src/test/unit/
+
       - name: Validate published package contents
         run: node scripts/validate-package-contents.mjs
 
       - name: Publish @tokenbound/sdk 📦
-        run: pnpm --filter @tokenbound/sdk publish --publish-branch main --access public --no-git-checks
+        run: pnpm --filter @tokenbound/sdk publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
 
       - name: Publish @tokenbound/ethers 📦
-        run: pnpm --filter @tokenbound/ethers publish --publish-branch main --access public --no-git-checks
+        run: pnpm --filter @tokenbound/ethers publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
